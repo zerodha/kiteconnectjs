@@ -1,0 +1,34 @@
+{
+  "name": "kiteconnectjs",
+  "version": "1.0.0",
+  "description": "The official JS client library for the Kite Connect trading APIs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rainmattertech/kiteconnectjs.git"
+  },
+  "keywords": [
+    "kiteconnect",
+    "kite",
+    "zerodha",
+    "rainmatter",
+    "trading",
+    "api",
+    "stock",
+    "market"
+  ],
+  "author": "Vivek R",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rainmattertech/kiteconnectjs/issues"
+  },
+  "homepage": "https://github.com/rainmattertech/kiteconnectjs#readme",
+  "dependencies": {
+    "lodash": "^4.15.0",
+    "request": "^2.74.0",
+    "request-promise": "^4.1.1"
+  }
+}
