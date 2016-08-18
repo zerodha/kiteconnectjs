@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/rainmattertech/kiteconnectjs#readme",
   "dependencies": {
+    "babyparse": "^0.4.6",
     "lodash": "^4.15.0",
     "request": "^2.74.0",
     "request-promise": "^4.1.1"
