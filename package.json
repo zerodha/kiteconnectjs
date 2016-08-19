@@ -30,7 +30,8 @@
     "babyparse": "^0.4.6",
     "lodash": "^4.15.0",
     "request": "^2.74.0",
-    "request-promise": "^4.1.1"
+    "request-promise": "^4.1.1",
+    "ws": "^1.1.1"
   },
   "devDependencies": {
     "jsdoc": "^3.4.0",
