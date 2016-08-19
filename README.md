@@ -1,10 +1,10 @@
-Kite Connect API client for Python -- [https://kite.trade](kite.trade)
+Kite Connect API client for Javascript -- [https://kite.trade](kite.trade)
 
 Rainmatter (c) 2016
 
 License
 -------
-KiteConnect Python library is licensed under the MIT License
+KiteConnect Javascript library is licensed under the MIT License
 
 The library
 -----------
@@ -15,45 +15,58 @@ real time, manage user portfolio, stream live market
 data (WebSockets), and more, with the simple HTTP API collection
 
 This module provides an easy to use abstraction over the HTTP APIs.
-The HTTP calls have been converted to methods and their JSON responses
-are returned as native Python structures, for example, dicts, lists, bools etc.
+The HTTP calls have been converted to methods and their JSON responses.
 See the **[Kite Connect API documentation](https://kite.trade/docs/connect/v1/)**
 for the complete list of APIs, supported parameters and values, and response formats.
 
+Installation
+------------
+This module is installed via npm:
+
+	npm install --save kiteconnect
+
 Getting started
 ---------------
-	#!python
-	from kiteconnect import KiteConnect
+	var KiteConnect = require("kiteconnect");
 
-	# Initialise.
-	kite = KiteConnect(api_key="your_api_key")
+	var kc = new KiteConnect("your_api_key");
 
-	# Assuming you have obtained the `request_token`
-	# after the auth flow redirect by redirecting the
-	# user to kite.login_url()
-	try:
-		user = kite.request_access_token(request_token="obtained_request_token",
-										secret="your_api_secret")
+	kc.requestAccessToken("request_token", "api_secret")
+		.then(function(response) {
+			init();
+		})
+		.catch(function(err) {
+			console.log(err.response);
+		})
 
-		kite.set_access_token(user["access_token"])
-	except Exception as e:
-		print("Authentication failed", str(e))
-		raise
+	function init() {
+		// Fetch equity margins.
+		// You can have other api calls here.
 
-	print(user["user_id"], "has logged in")
+		kc.margins("equity")
+			.then(function(response) {
+				// You got user's margin details.
+			}).catch(function(err) {
+				// Something went wrong.
+			});
+	}
 
-	# Get the list of positions.
-	print(kite.positions())
+API promises
+-------------
+All API calls returns a promise which you can use to call methods like `.then(...)`, `.catch(...)`, and `.finally(...)`.
 
-	# Place an order.
-	order_id = kite.order_place(
-		tradingsymbol="INFY",
-		exchange="NSE",
-		quantity=1,
-		transaction_type="BUY",
-		order_type="MARKET"
-	)
+	kiteConnectApiCall
+		.then(function(v) {
+		    // On success
+		})
+		.catch(function(e) {
+			// On rejected
+		})
+		.finally(function(e) {
+			// On finish
+		});
 
+You can access the full list of [Bluebird Promises API](https://github.com/petkaantonov/bluebird/blob/master/API.md) here.
 
 A typical web application
 -------------------------
