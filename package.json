@@ -2,7 +2,7 @@
   "name": "kiteconnect",
   "version": "1.0.0",
   "description": "The official JS client library for the Kite Connect trading APIs",
-  "main": "index.js",
+  "main": "./lib/",
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
