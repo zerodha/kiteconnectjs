@@ -27,7 +27,7 @@ This module is installed via npm:
 
 Getting started
 ---------------
-	var KiteConnect = require("kiteconnect");
+	var KiteConnect = require("kiteconnect").KiteConnect;
 
 	var kc = new KiteConnect("your_api_key");
 
