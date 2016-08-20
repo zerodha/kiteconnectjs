@@ -1,23 +1,13 @@
-Kite Connect API client for Javascript -- [https://kite.trade](kite.trade)
+# The Kite Connect API Javascript client
+The official Javascript node client for communicating with the [Kite Connect API](https://kite.trade).
 
-Rainmatter (c) 2016
+Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection
 
-License
--------
-KiteConnect Javascript library is licensed under the MIT License
+[Rainmatter](http://rainmatter.com) (c) 2016. Licensed under the MIT License.
 
-The library
------------
-Kite Connect is a set of REST-like APIs that expose
-many capabilities required to build a complete
-investment and trading platform. Execute orders in
-real time, manage user portfolio, stream live market
-data (WebSockets), and more, with the simple HTTP API collection
-
-This module provides an easy to use abstraction over the HTTP APIs.
-The HTTP calls have been converted to methods and their JSON responses.
-See the **[Kite Connect API documentation](https://kite.trade/docs/connect/v1/)**
-for the complete list of APIs, supported parameters and values, and response formats.
+## Documentation
+- [Javascript client documentation](https://kite.trade/docs/kiteconnectjs)
+- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1)
 
 Installation
 ------------
@@ -25,8 +15,8 @@ This module is installed via npm:
 
 	npm install --save kiteconnect
 
-Getting started
----------------
+Getting started with API
+------------------------
 	var KiteConnect = require("kiteconnect").KiteConnect;
 
 	var kc = new KiteConnect("your_api_key");
@@ -67,6 +57,25 @@ All API calls returns a promise which you can use to call methods like `.then(..
 		});
 
 You can access the full list of [Bluebird Promises API](https://github.com/petkaantonov/bluebird/blob/master/API.md) here.
+
+Getting started WebSocket client
+--------------------------------
+	var KiteTicker = require("kiteconnect").KiteTicker;
+	var ticker = new KiteTicker(api_key, user_id, public_token);
+
+	ticker.connect();
+	ticker.on("tick", setTick);
+	ticker.on("connect", subscribe);
+
+	function setTick(ticks) {
+		console.log("Ticks", ticks);
+	}
+
+	function subscribe() {
+		var items = [738561];
+		ticker.subscribe(items);
+		ticker.setMode(ticker.modeFull, items);
+	}
 
 A typical web application
 -------------------------
