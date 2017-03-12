@@ -77,7 +77,7 @@ Getting started WebSocket client
 		ticker.setMode(ticker.modeFull, items);
 	}
 
-Auto reconnect WebSocket client
+Auto re-connect WebSocket client
 -------------------------------
 ```
 Available from version 1.2
@@ -85,17 +85,17 @@ Available from version 1.2
 Optionally you can enable client side auto reconnection to automatically reconnect if the connection is dropped.
 It is very useful at times when client side network is unreliable and patchy.
 
-All you need to do is enale auto reconnection with preferred interval and time. For example
+All you need to do is enable auto reconnection with preferred interval and time. For example
 
-	// Enable autoreonnect with 5 second interval and retry for maximum of 20 times.
+	// Enable auto reconnect with 5 second interval and retry for maximum of 20 times.
 	ticker.autoReconnect(true, 20, 5)
 
 	// You can also set reconnection times to -1 for inifinite reconnections
 	ticker.autoReconnect(true, -1, 5)
 
-- Event `reconnecting` is called when auto reconnection is triggered and event callback carries two additionl params `reconnection interval set` and `current reconnection count`.
+- Event `reconnecting` is called when auto reconnection is triggered and event callback carries two additional params `reconnection interval set` and `current reconnection count`.
 
-- Event `noreconnect` is called when number of auto reconnections exceeds the maximum reconnection count set. For example if maximum reconnection count is set as `20` then after 20th reconnection this event will be triggered.
+- Event `noreconnect` is called when number of auto reconnections exceeds the maximum reconnection count set. For example if maximum reconnection count is set as `20` then after 20th reconnection this event will be triggered. Also note that the current process is exited when this event is triggered.
 
 - Event `connect` will be triggered again when reconnection succeeds.
 
@@ -115,7 +115,7 @@ Here is an example demonstrating auto reconnection.
 	});
 
 	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
-		console.log("Reconnecting: attempe - ", reconnections, " innterval - ", reconnect_interval);
+		console.log("Reconnecting: attempet - ", reconnections, " innterval - ", reconnect_interval);
 	});
 
 	function setTick(ticks) {
