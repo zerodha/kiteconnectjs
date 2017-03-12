@@ -77,6 +77,57 @@ Getting started WebSocket client
 		ticker.setMode(ticker.modeFull, items);
 	}
 
+Auto reconnect WebSocket client
+-------------------------------
+```
+Available from version 1.2
+```
+Optionally you can enable client side auto reconnection to automatically reconnect if the connection is dropped.
+It is very useful at times when client side network is unreliable and patchy.
+
+All you need to do is enale auto reconnection with preferred interval and time. For example
+
+	// Enable autoreonnect with 5 second interval and retry for maximum of 20 times.
+	ticker.autoReconnect(true, 20, 5)
+
+	// You can also set reconnection times to -1 for inifinite reconnections
+	ticker.autoReconnect(true, -1, 5)
+
+- Event `reconnecting` is called when auto reconnection is triggered and event callback carries two additionl params `reconnection interval set` and `current reconnection count`.
+
+- Event `noreconnect` is called when number of auto reconnections exceeds the maximum reconnection count set. For example if maximum reconnection count is set as `20` then after 20th reconnection this event will be triggered.
+
+- Event `connect` will be triggered again when reconnection succeeds.
+
+Here is an example demonstrating auto reconnection.
+
+	var KiteTicker = require("kiteconnect").KiteTicker;
+	var ticker = new KiteTicker(api_key, user_id, public_token);
+
+	// set autoreconnect with 10 maximum reconnections and 5 second interval
+	ticker.autoReconnect(true, 10, 5)
+	ticker.connect();
+	ticker.on("tick", setTick);
+	ticker.on("connect", subscribe);
+
+	ticker.on("noreconnect", function() {
+		console.log("noreconnect")
+	});
+
+	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
+		console.log("Reconnecting: attempe - ", reconnections, " innterval - ", reconnect_interval);
+	});
+
+	function setTick(ticks) {
+		console.log("Ticks", ticks);
+	}
+
+	function subscribe() {
+		var items = [738561];
+		ticker.subscribe(items);
+		ticker.setMode(ticker.modeFull, items);
+	}
+
 A typical web application
 -------------------------
 In a typical web application where a new instance of
