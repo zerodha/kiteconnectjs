@@ -15,6 +15,8 @@ New features
 - method: `cancelMFSIP`
 - method: `getMFInstruments`
 - method: `exitOrder`
+- method: `renewAccessToken`
+- method: `invalidateRefreshToken`
 - constants for products, order type, transaction type, variety, validity, exchanges and margin segments
 
 API method name changes
@@ -22,6 +24,8 @@ API method name changes
 
 | v2  						| v3 						|
 | -------------------------	| -------------------------	|
+| requestAccessToken		| getAccessToken			|
+| invalidateToken			| invalidateAccessToken		|
 | setSessionHook 			| setSessionExpiryHook		|
 | loginUrl					| getLoginURL				|
 | margins					| getMargins				|
