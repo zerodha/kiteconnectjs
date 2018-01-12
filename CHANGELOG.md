@@ -24,7 +24,7 @@ API method name changes
 
 | v2  						| v3 						|
 | -------------------------	| -------------------------	|
-| requestAccessToken		| getAccessToken			|
+| requestAccessToken		| generateSession			|
 | invalidateToken			| invalidateAccessToken		|
 | setSessionHook 			| setSessionExpiryHook		|
 | loginUrl					| getLoginURL				|
