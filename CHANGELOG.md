@@ -53,10 +53,10 @@ Params and other changes
 - `getHistoricalData` method takes all the params as object
 - All success response returns only `data` field in response instead with envelope
 - All error thrown are in the format of `{"message": "Unknown error", "error_type": "GeneralException", "data": null}`
-- Changes in `requestAccessToken` response structure
-- Changes in `getPositions` response structure
-- Changes in `getQuote` response structure
-- Changes in `placeOrder` params
+- [Changes in `generateSession` response structure](https://kite.trade/docs/connect/v3/user/#response-attributes)
+- [Changes in `getPositions` response structure](https://kite.trade/docs/connect/v3/portfolio/#response-attributes_1)
+- [Changes in `getQuote` response structure](https://kite.trade/docs/connect/v3/market-quotes/#retrieving-full-market-quotes)
+- [Changes in `placeOrder` params](https://kite.trade/docs/connect/v3/orders/#bracket-order-bo-parameters)
 - Changes in `getHistoricalData` params
 - All datetime string fields has been converted to `Date` object.
 	- `getOrders`, `getOrderHistory`, `getTrades`, `getOrderTrades`, `getMFOrders` responses fields `order_timestamp`, `exchange_timestamp`, `fill_timestamp`
