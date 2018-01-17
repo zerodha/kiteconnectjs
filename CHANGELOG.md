@@ -58,6 +58,13 @@ Params and other changes
 - Changes in `getQuote` response structure
 - Changes in `placeOrder` params
 - Changes in `getHistoricalData` params
+- All datetime string fields has been converted to `Date` object.
+	- `getOrders`, `getOrderHistory`, `getTrades`, `getOrderTrades`, `getMFOrders` responses fields `order_timestamp`, `exchange_timestamp`, `fill_timestamp`
+	- `getMFSIPS` fields `created`, `last_instalment`
+	- `generateSession` field `login_time`
+	- `getQuote` fields `timestamp`, `last_trade_time`
+	- `getInstruments` field `expiry`
+	- `getMFInstruments` field `last_price_date`
 
 KiteTicker changes
 ==================
