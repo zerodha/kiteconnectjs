@@ -59,7 +59,6 @@ Getting started WebSocket client
 	var KiteTicker = require("kiteconnect").KiteTicker;
 	var ticker = new KiteTicker({
 		api_key: "api_key",
-		user_id: "user_id",
 		access_token: "access_token"
 	});
 
@@ -101,7 +100,6 @@ Here is an example demonstrating auto reconnection.
   	var KiteTicker = require("kiteconnect").KiteTicker;
   	var ticker = new KiteTicker({
   		api_key: "api_key",
-  		user_id: "user_id",
   		access_token: "access_token"
  	});
 
