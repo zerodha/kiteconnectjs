@@ -1,4 +1,4 @@
-# The Kite Connect API Javascript client
+# The Kite Connect API Javascript client - v3
 The official Javascript node client for communicating with the [Kite Connect API](https://kite.trade).
 
 Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
@@ -6,14 +6,14 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 [Zerodha Technology](http://zerodha.com) (c) 2018. Licensed under the MIT License.
 
 ## Documentation
-- [Javascript client documentation](https://kite.trade/docs/kiteconnectjs)
-- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1)
+- [Javascript client documentation](https://kite.trade/docs/kiteconnectjs/v3)
+- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
 
 Installation
 ------------
 This module is installed via npm:
 
-	npm install --save kiteconnect
+	npm install git+https://git@github.com:zerodhatech/kiteconnectjs.git#kite3
 
 Getting started with API
 ------------------------
@@ -129,6 +129,9 @@ Here is an example demonstrating auto reconnection.
   		ticker.setMode(ticker.modeFull, items);
   	}
 
+## Changelog
+
+[Check CHANGELOG.md](CHANGELOG.md)
 
 A typical web application
 -------------------------
