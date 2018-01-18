@@ -34,7 +34,7 @@ Getting started with API
 	function init() {
 		// Fetch equity margins.
 		// You can have other api calls here.
-		kc.margins("equity")
+		kc.getMargins()
 			.then(function(response) {
 				// You got user's margin details.
 			}).catch(function(err) {
