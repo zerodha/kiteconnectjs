@@ -46,11 +46,7 @@ API method name changes
 Params and other changes
 ========================
 - `KiteConnect` takes all the params as object including `api_key`
-- `placeOrder` method takes all the params as object including `variety`
-- `modifyOrder` method takes all the params as object including `variety` and `order_id`
-- `cancelOrder` method takes all the params as object
 - `convertPosition` method takes all the params as object
-- `getHistoricalData` method takes all the params as object
 - All success response returns only `data` field in response instead with envelope
 - All error thrown are in the format of `{"message": "Unknown error", "error_type": "GeneralException", "data": null}`
 - [Changes in `generateSession` response structure](https://kite.trade/docs/connect/v3/user/#response-attributes)
