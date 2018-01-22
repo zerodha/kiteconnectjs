@@ -23,7 +23,7 @@ Getting started with API
 		api_key: "your_api_key"
 	});
 
-	kc.requestAccessToken("request_token", "api_secret")
+	kc.generateSession("request_token", "api_secret")
 		.then(function(response) {
 			init();
 		})
@@ -114,7 +114,7 @@ Here is an example demonstrating auto reconnection.
   	});
 
   	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
-  		console.log("Reconnecting: attempet - ", reconnections, " innterval - ", reconnect_interval);
+  		console.log("Reconnecting: attempt - ", reconnections, " innterval - ", reconnect_interval);
   	});
 
   	function onTicks(ticks) {
