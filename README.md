@@ -11,9 +11,9 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 
 Installation
 ------------
-This module is installed via npm:
+Install via npm
 
-	npm install git+https://git@github.com:zerodhatech/kiteconnectjs.git#kite3
+	npm install kiteconnect@beta
 
 Getting started with API
 ------------------------
