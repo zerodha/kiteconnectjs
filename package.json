@@ -1,6 +1,6 @@
 {
   "name": "kiteconnect",
-  "version": "3.0.0-beta.2",
+  "version": "3.0.0-beta.3",
   "description": "The official JS client library for the Kite Connect trading APIs",
   "main": "./lib/",
   "scripts": {
