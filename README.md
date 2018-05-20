@@ -13,7 +13,7 @@ Installation
 ------------
 Install via npm
 
-	npm install kiteconnect@beta
+	npm install kiteconnect
 
 Getting started with API
 ------------------------
