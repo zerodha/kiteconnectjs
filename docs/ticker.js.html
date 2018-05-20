@@ -1,4 +1,45 @@
-var WebSocket = require("ws");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ticker.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="KiteConnect.html">KiteConnect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#cancelMFOrder">cancelMFOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#cancelMFSIP">cancelMFSIP</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#cancelOrder">cancelOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#convertPosition">convertPosition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#exitOrder">exitOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#generateSession">generateSession</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getHistoricalData">getHistoricalData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getHoldings">getHoldings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getInstruments">getInstruments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getLoginURL">getLoginURL</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getLTP">getLTP</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getMargins">getMargins</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getMFHoldings">getMFHoldings</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getMFInstruments">getMFInstruments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getMFOrders">getMFOrders</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getMFSIPS">getMFSIPS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getOHLC">getOHLC</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getOrderHistory">getOrderHistory</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getOrders">getOrders</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getOrderTrades">getOrderTrades</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getPositions">getPositions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getProfile">getProfile</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getQuote">getQuote</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getTrades">getTrades</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#getTriggerRange">getTriggerRange</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#invalidateAccessToken">invalidateAccessToken</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#invalidateRefreshToken">invalidateRefreshToken</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#modifyMFSIP">modifyMFSIP</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#modifyOrder">modifyOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#placeMFOrder">placeMFOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#placeMFSIP">placeMFSIP</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#placeOrder">placeOrder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#renewAccessToken">renewAccessToken</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#setAccessToken">setAccessToken</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#setSessionExpiryHook">setSessionExpiryHook</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteConnect.html#validatePostback">validatePostback</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="KiteTicker.html">KiteTicker</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#.autoReconnect">autoReconnect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#connect">connect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#connected">connected</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#disconnect">disconnect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#on">on</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#setMode">setMode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#subscribe">subscribe</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="KiteTicker.html#unsubscribe">unsubscribe</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ticker.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var WebSocket = require("ws");
 var utils = require("./utils");
 
 /**
@@ -258,10 +299,10 @@ var KiteTicker = function(params) {
 	 */
 	this.connect = function() {
 		// Skip if its already connected
-		if(ws && (ws.readyState == ws.CONNECTING || ws.readyState == ws.OPEN)) return;
+		if(ws &amp;&amp; (ws.readyState == ws.CONNECTING || ws.readyState == ws.OPEN)) return;
 
 		var url = root + "?api_key=" + params.api_key +
-					"&access_token=" + params.access_token + "&uid=" + (new Date().getTime().toString());
+					"&amp;access_token=" + params.access_token + "&amp;uid=" + (new Date().getTime().toString());
 
 		ws = new WebSocket(url, {
 			headers: {
@@ -317,7 +358,7 @@ var KiteTicker = function(params) {
 			trigger("error", [e]);
 
 			// Force close to avoid ghost connections
-			if(this && this.readyState == this.OPEN) this.close();
+			if(this &amp;&amp; this.readyState == this.OPEN) this.close();
 		};
 
 		ws.onclose = function(e) {
@@ -325,7 +366,7 @@ var KiteTicker = function(params) {
 
 			// the ws id doesn't match the current global id,
 			// meaning it's a ghost close event. just ignore.
-			if(current_ws_url && (this.url != current_ws_url)) return;
+			if(current_ws_url &amp;&amp; (this.url != current_ws_url)) return;
 
 			triggerDisconnect(e);
 		};
@@ -337,7 +378,7 @@ var KiteTicker = function(params) {
 	 * @instance
 	 */
 	this.disconnect = function() {
-		if(ws && ws.readyState != ws.CLOSING && ws.readyState != ws.CLOSED) {
+		if(ws &amp;&amp; ws.readyState != ws.CLOSING &amp;&amp; ws.readyState != ws.CLOSED) {
 			ws.close();
 		}
 	}
@@ -350,7 +391,7 @@ var KiteTicker = function(params) {
 	 * @returns {bool}
 	 */
 	this.connected = function() {
-		if(ws && ws.readyState == ws.OPEN) {
+		if(ws &amp;&amp; ws.readyState == ws.OPEN) {
 			return true;
 		} else {
 			return false;
@@ -447,7 +488,7 @@ var KiteTicker = function(params) {
 
 		// Set reconnect constraints
 		reconnect_max_tries = max_retry >= maximumReconnectMaxRetries ? maximumReconnectMaxRetries : max_retry;
-		reconnect_max_delay = max_delay <= minimumReconnectMaxDelay  ? minimumReconnectMaxDelay : max_delay;
+		reconnect_max_delay = max_delay &lt;= minimumReconnectMaxDelay  ? minimumReconnectMaxDelay : max_delay;
 	}
 
 	function triggerDisconnect(e) {
@@ -472,7 +513,7 @@ var KiteTicker = function(params) {
 	// trigger event callbacks
 	function trigger(e, args) {
 		if (!triggers[e]) return
-		for(var n=0; n<triggers[e].length; n++) {
+		for(var n=0; n&lt;triggers[e].length; n++) {
 			triggers[e][n].apply(triggers[e][n], args ? args : []);
 		}
 	}
@@ -495,10 +536,10 @@ var KiteTicker = function(params) {
 		var packets = splitPackets(binpacks),
 			ticks = [];
 
-		for(var n=0; n<packets.length; n++) {
+		for(var n=0; n&lt;packets.length; n++) {
 			var bin = packets[n],
 				instrument_token = buf2long(bin.slice(0, 4)),
-				segment = instrument_token & 0xff;
+				segment = instrument_token &amp; 0xff;
 
 			var tradable = true;
 			if (segment === Indices) tradable = false;
@@ -595,9 +636,9 @@ var KiteTicker = function(params) {
 					};
 
 					var s = 0, depth = bin.slice(64, 184);
-					for (var i=0; i<10; i++) {
+					for (var i=0; i&lt;10; i++) {
 						s = i * 12;
-						tick.depth[i < 5 ? "buy" : "sell"].push({
+						tick.depth[i &lt; 5 ? "buy" : "sell"].push({
 							quantity:	buf2long(depth.slice(s, s + 4)),
 							price:		buf2long(depth.slice(s + 4, s + 8)) / divisor,
 							orders: 	buf2long(depth.slice(s + 8, s + 10))
@@ -619,7 +660,7 @@ var KiteTicker = function(params) {
 			j = 2,
 			packets = [];
 
-		for(var i=0; i<num; i++) {
+		for(var i=0; i&lt;num; i++) {
 			// first two bytes is the packet length
 			var size = buf2long(bin.slice(j, j+2)),
 				packet = bin.slice(j+2, j+2+size);
@@ -664,8 +705,8 @@ var KiteTicker = function(params) {
 			val = 0,
 			len = b.length;
 
-		for(var i=0, j=len-1; i<len; i++, j--) {
-			val += b[j] << (i*8);
+		for(var i=0, j=len-1; i&lt;len; i++, j--) {
+			val += b[j] &lt;&lt; (i*8);
 		}
 
 		return val;
@@ -674,7 +715,7 @@ var KiteTicker = function(params) {
 	// de-duplicate an array
 	function arrayUnique() {
 		var u = {}, a = [];
-		for(var i = 0, l = this.length; i < l; ++i){
+		for(var i = 0, l = this.length; i &lt; l; ++i){
 			if(u.hasOwnProperty(this[i])) {
 				continue;
 			}
@@ -690,3 +731,22 @@ var KiteTicker = function(params) {
 };
 
 module.exports = KiteTicker;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 30 2018 13:09:46 GMT+0530 (IST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

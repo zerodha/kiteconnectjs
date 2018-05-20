@@ -1,42 +1,40 @@
-> **NOTICE (Jan 2018): Upgrade to Kite Connect 3.0**
-> This repository is being phased and will be replaced soon by Kite Connect v3. Use the [kite3](https://github.com/zerodhatech/kiteconnectjs/tree/kite3) branch instead. Read the [announcement](https://kite.trade/forum/discussion/2998/upgrade-to-kite-connect-3-0) on the forum.
-
-# The Kite Connect API Javascript client
+# The Kite Connect API Javascript client - v3
 The official Javascript node client for communicating with the [Kite Connect API](https://kite.trade).
 
-Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection
+Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
 
-[Rainmatter](http://rainmatter.com) (c) 2016. Licensed under the MIT License.
+[Zerodha Technology](http://zerodha.com) (c) 2018. Licensed under the MIT License.
 
 ## Documentation
-- [Javascript client documentation](https://kite.trade/docs/kiteconnectjs)
-- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1)
+- [Javascript client documentation](https://kite.trade/docs/kiteconnectjs/v3)
+- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
 
 Installation
 ------------
-This module is installed via npm:
+Install via npm
 
-	npm install --save kiteconnect
+	npm install kiteconnect@beta
 
 Getting started with API
 ------------------------
 	var KiteConnect = require("kiteconnect").KiteConnect;
 
-	var kc = new KiteConnect("your_api_key");
+	var kc = new KiteConnect({
+		api_key: "your_api_key"
+	});
 
-	kc.requestAccessToken("request_token", "api_secret")
+	kc.generateSession("request_token", "api_secret")
 		.then(function(response) {
 			init();
 		})
 		.catch(function(err) {
-			console.log(err.response);
-		})
+			console.log(err);
+		});
 
 	function init() {
 		// Fetch equity margins.
 		// You can have other api calls here.
-
-		kc.margins("equity")
+		kc.getMargins()
 			.then(function(response) {
 				// You got user's margin details.
 			}).catch(function(err) {
@@ -46,7 +44,7 @@ Getting started with API
 
 API promises
 -------------
-All API calls returns a promise which you can use to call methods like `.then(...)`, `.catch(...)`, and `.finally(...)`.
+All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
 
 	kiteConnectApiCall
 		.then(function(v) {
@@ -54,23 +52,21 @@ All API calls returns a promise which you can use to call methods like `.then(..
 		})
 		.catch(function(e) {
 			// On rejected
-		})
-		.finally(function(e) {
-			// On finish
 		});
-
-You can access the full list of [Bluebird Promises API](https://github.com/petkaantonov/bluebird/blob/master/API.md) here.
 
 Getting started WebSocket client
 --------------------------------
 	var KiteTicker = require("kiteconnect").KiteTicker;
-	var ticker = new KiteTicker(api_key, user_id, public_token);
+	var ticker = new KiteTicker({
+		api_key: "api_key",
+		access_token: "access_token"
+	});
 
 	ticker.connect();
-	ticker.on("tick", setTick);
+	ticker.on("ticks", onTicks);
 	ticker.on("connect", subscribe);
 
-	function setTick(ticks) {
+	function onTicks(ticks) {
 		console.log("Ticks", ticks);
 	}
 
@@ -82,54 +78,58 @@ Getting started WebSocket client
 
 Auto re-connect WebSocket client
 -------------------------------
-```
-Available from version 1.2
-```
-Optionally you can enable client side auto reconnection to automatically reconnect if the connection is dropped.
+Optionally you can enable client side auto re-connection to automatically reconnect if the connection is dropped.
 It is very useful at times when client side network is unreliable and patchy.
 
-All you need to do is enable auto reconnection with preferred interval and time. For example
+All you need to do is enable auto re-connection with preferred interval and time. For example
 
 	// Enable auto reconnect with 5 second interval and retry for maximum of 20 times.
 	ticker.autoReconnect(true, 20, 5)
 
-	// You can also set reconnection times to -1 for inifinite reconnections
+	// You can also set re-connection times to -1 for infinite re-connections
 	ticker.autoReconnect(true, -1, 5)
 
-- Event `reconnecting` is called when auto reconnection is triggered and event callback carries two additional params `reconnection interval set` and `current reconnection count`.
+- Event `reconnecting` is called when auto re-connection is triggered and event callback carries two additional params `reconnection interval set` and `current re-connection count`.
 
-- Event `noreconnect` is called when number of auto reconnections exceeds the maximum reconnection count set. For example if maximum reconnection count is set as `20` then after 20th reconnection this event will be triggered. Also note that the current process is exited when this event is triggered.
+- Event `noreconnect` is called when number of auto re-connections exceeds the maximum re-connection count set. For example if maximum re-connection count is set as `20` then after 20th re-connection this event will be triggered. Also note that the current process is exited when this event is triggered.
 
-- Event `connect` will be triggered again when reconnection succeeds.
+- Event `connect` will be triggered again when re-connection succeeds.
 
 Here is an example demonstrating auto reconnection.
 
-	var KiteTicker = require("kiteconnect").KiteTicker;
-	var ticker = new KiteTicker(api_key, user_id, public_token);
+  	var KiteTicker = require("kiteconnect").KiteTicker;
+  	var ticker = new KiteTicker({
+  		api_key: "api_key",
+  		access_token: "access_token"
+ 	});
 
-	// set autoreconnect with 10 maximum reconnections and 5 second interval
-	ticker.autoReconnect(true, 10, 5)
-	ticker.connect();
-	ticker.on("tick", setTick);
-	ticker.on("connect", subscribe);
+  	// set autoreconnect with 10 maximum reconnections and 5 second interval
+  	ticker.autoReconnect(true, 10, 5)
+  	ticker.connect();
+  	ticker.on("ticks", onTicks);
+  	ticker.on("connect", subscribe);
 
-	ticker.on("noreconnect", function() {
-		console.log("noreconnect")
-	});
+  	ticker.on("noreconnect", function() {
+  		console.log("noreconnect");
+  	});
 
-	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
-		console.log("Reconnecting: attempet - ", reconnections, " innterval - ", reconnect_interval);
-	});
+  	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
+  		console.log("Reconnecting: attempt - ", reconnections, " innterval - ", reconnect_interval);
+  	});
 
-	function setTick(ticks) {
-		console.log("Ticks", ticks);
-	}
+  	function onTicks(ticks) {
+  		console.log("Ticks", ticks);
+  	}
 
-	function subscribe() {
-		var items = [738561];
-		ticker.subscribe(items);
-		ticker.setMode(ticker.modeFull, items);
-	}
+  	function subscribe() {
+  		var items = [738561];
+  		ticker.subscribe(items);
+  		ticker.setMode(ticker.modeFull, items);
+  	}
+
+## Changelog
+
+[Check CHANGELOG.md](CHANGELOG.md)
 
 A typical web application
 -------------------------
