@@ -55,6 +55,12 @@ function init() {
 	modifyOrder("regular");
 	cancelOrder("regular");
 
+	getGTT();
+	getGTT("some_trigger_id");
+	placeGTT();
+	modifyGTT();
+	deleteGTT("some_trigger_id");
+
 	invalidateAccessToken()
 }
 
@@ -341,4 +347,82 @@ function cancelOrder(variety) {
 		}).catch(function(err) {
 			console.log(err);
 		});
+}
+
+function getGTT(trigger_id) {
+	if (trigger_id) {
+		kc.getGTTs().then(function (resp) {
+			console.log(resp)
+		}).catch(function (error) {
+			console.log(error)
+		})
+	} else {
+		kc.getGTT(trigger_id).then(function (resp) {
+			console.log(resp)
+		}).catch(function (error) {
+			console.log(error)
+		})
+	}
+}
+
+function placeGTT() {
+	kc.placeGTT({
+		trigger_type: kc.GTT_TYPE_OCO,
+		tradingsymbol: "SBIN",
+		exchange: "NSE",
+		trigger_values: [300, 400],
+		last_price: 318,
+		orders: [{
+			transaction_type: kc.TRANSACTION_TYPE_SELL,
+			quantity: 1,
+			product: kc.PRODUCT_CNC,
+			order_type: kc.ORDER_TYPE_LIMIT,
+			price: 300
+		}, {
+			transaction_type: kc.TRANSACTION_TYPE_SELL,
+			quantity: 1,
+			product: kc.PRODUCT_CNC,
+			order_type: kc.ORDER_TYPE_LIMIT,
+			price: 400
+		}]
+	}).then(function (resp) {
+		console.log(resp)
+	}).catch(function (error) {
+		console.log(error)
+	})
+}
+
+function modifyGTT(trigger_id) {
+	kc.modifyGTT(trigger_id, {
+		trigger_type: kc.GTT_TYPE_OCO,
+		tradingsymbol: "SBIN",
+		exchange: "NSE",
+		trigger_values: [301, 401],
+		last_price: 318,
+		orders: [{
+			transaction_type: kc.TRANSACTION_TYPE_SELL,
+			quantity: 1,
+			product: kc.PRODUCT_CNC,
+			order_type: kc.ORDER_TYPE_LIMIT,
+			price: 300
+		}, {
+			transaction_type: kc.TRANSACTION_TYPE_SELL,
+			quantity: 1,
+			product: kc.PRODUCT_CNC,
+			order_type: kc.ORDER_TYPE_LIMIT,
+			price: 400
+		}]
+	}).then(function (resp) {
+		console.log(resp)
+	}).catch(function (error) {
+		console.log(error)
+	})
+}
+
+function deleteGTT(trigger_id) {
+	kc.deleteGTT(trigger_id).then(function (resp) {
+		console.log(resp)
+	}).catch(function (error) {
+		console.log(error)
+	})
 }
