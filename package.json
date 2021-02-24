@@ -4,7 +4,8 @@
   "description": "The official JS client library for the Kite Connect trading APIs",
   "main": "./lib/",
   "scripts": {
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,9 @@
     "ws": "^3.3.1"
   },
   "devDependencies": {
+    "chai": "^4.3.0",
     "jsdoc": "^3.4.0",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "mocha": "^8.3.0"
   }
 }
