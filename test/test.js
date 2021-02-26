@@ -19,7 +19,7 @@ kc.generateSession(request_token, secret)
         })
 
 // run testsuite
-testSuite()
+testSuite();
 
 function testSuite(){
     // fetch instruments data
@@ -373,7 +373,6 @@ function testSuite(){
                     price: 450
                 }]
             }
-                
             )
             .then(function(response) {
                 expect(response).to.have.property('trigger_id');
@@ -475,4 +474,4 @@ function testSuite(){
             }).catch(done); 
         })
     });
-}
+} 

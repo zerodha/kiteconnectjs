@@ -127,6 +127,12 @@ Here is an example demonstrating auto reconnection.
   		ticker.setMode(ticker.modeFull, items);
   	}
 
+# Run unit test
+
+```
+npm run test
+```
+
 ## Changelog
 
 [Check CHANGELOG.md](CHANGELOG.md)
