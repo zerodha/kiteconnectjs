@@ -17,78 +17,81 @@ Install via npm
 
 Getting started with API
 ------------------------
-	var KiteConnect = require("kiteconnect").KiteConnect;
+```javascript
+var KiteConnect = require("kiteconnect").KiteConnect;
 
-	var kc = new KiteConnect({
-		api_key: "your_api_key"
+var kc = new KiteConnect({
+	api_key: "your_api_key"
+});
+
+kc.generateSession("request_token", "api_secret")
+	.then(function(response) {
+		init();
+	})
+	.catch(function(err) {
+		console.log(err);
 	});
 
-	kc.generateSession("request_token", "api_secret")
+function init() {
+	// Fetch equity margins.
+	// You can have other api calls here.
+	kc.getMargins()
 		.then(function(response) {
-			init();
-		})
-		.catch(function(err) {
-			console.log(err);
+			// You got user's margin details.
+		}).catch(function(err) {
+			// Something went wrong.
 		});
-
-	function init() {
-		// Fetch equity margins.
-		// You can have other api calls here.
-		kc.getMargins()
-			.then(function(response) {
-				// You got user's margin details.
-			}).catch(function(err) {
-				// Something went wrong.
-			});
-	}
+}
+```
 
 API promises
 -------------
 All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
-
-	kiteConnectApiCall
-		.then(function(v) {
-		    // On success
-		})
-		.catch(function(e) {
-			// On rejected
-		});
-
+```javascript
+kiteConnectApiCall
+	.then(function(v) {
+	    // On success
+	})
+	.catch(function(e) {
+		// On rejected
+	});
+```
 Getting started WebSocket client
 --------------------------------
-	var KiteTicker = require("kiteconnect").KiteTicker;
-	var ticker = new KiteTicker({
-		api_key: "api_key",
-		access_token: "access_token"
-	});
+```javascript
+var KiteTicker = require("kiteconnect").KiteTicker;
+var ticker = new KiteTicker({
+	api_key: "api_key",
+	access_token: "access_token"
+});
 
-	ticker.connect();
-	ticker.on("ticks", onTicks);
-	ticker.on("connect", subscribe);
+ticker.connect();
+ticker.on("ticks", onTicks);
+ticker.on("connect", subscribe);
 
-	function onTicks(ticks) {
-		console.log("Ticks", ticks);
-	}
+function onTicks(ticks) {
+	console.log("Ticks", ticks);
+}
 
-	function subscribe() {
-		var items = [738561];
-		ticker.subscribe(items);
-		ticker.setMode(ticker.modeFull, items);
-	}
-
+function subscribe() {
+	var items = [738561];
+	ticker.subscribe(items);
+	ticker.setMode(ticker.modeFull, items);
+}
+```
 Auto re-connect WebSocket client
 -------------------------------
 Optionally you can enable client side auto re-connection to automatically reconnect if the connection is dropped.
 It is very useful at times when client side network is unreliable and patchy.
 
 All you need to do is enable auto re-connection with preferred interval and time. For example
+```javascript
+// Enable auto reconnect with 5 second interval and retry for maximum of 20 times.
+ticker.autoReconnect(true, 20, 5)
 
-	// Enable auto reconnect with 5 second interval and retry for maximum of 20 times.
-	ticker.autoReconnect(true, 20, 5)
-
-	// You can also set re-connection times to -1 for infinite re-connections
-	ticker.autoReconnect(true, -1, 5)
-
+// You can also set re-connection times to -1 for infinite re-connections
+ticker.autoReconnect(true, -1, 5)
+```
 - Event `reconnecting` is called when auto re-connection is triggered and event callback carries two additional params `reconnection interval set` and `current re-connection count`.
 
 - Event `noreconnect` is called when number of auto re-connections exceeds the maximum re-connection count set. For example if maximum re-connection count is set as `20` then after 20th re-connection this event will be triggered. Also note that the current process is exited when this event is triggered.
@@ -96,37 +99,37 @@ All you need to do is enable auto re-connection with preferred interval and time
 - Event `connect` will be triggered again when re-connection succeeds.
 
 Here is an example demonstrating auto reconnection.
+```javascript
+var KiteTicker = require("kiteconnect").KiteTicker;
+var ticker = new KiteTicker({
+	api_key: "api_key",
+	access_token: "access_token"
+});
 
-  	var KiteTicker = require("kiteconnect").KiteTicker;
-  	var ticker = new KiteTicker({
-  		api_key: "api_key",
-  		access_token: "access_token"
- 	});
+// set autoreconnect with 10 maximum reconnections and 5 second interval
+ticker.autoReconnect(true, 10, 5)
+ticker.connect();
+ticker.on("ticks", onTicks);
+ticker.on("connect", subscribe);
 
-  	// set autoreconnect with 10 maximum reconnections and 5 second interval
-  	ticker.autoReconnect(true, 10, 5)
-  	ticker.connect();
-  	ticker.on("ticks", onTicks);
-  	ticker.on("connect", subscribe);
+ticker.on("noreconnect", function() {
+	console.log("noreconnect");
+});
 
-  	ticker.on("noreconnect", function() {
-  		console.log("noreconnect");
-  	});
+ticker.on("reconnecting", function(reconnect_interval, reconnections) {
+	console.log("Reconnecting: attempt - ", reconnections, " innterval - ", reconnect_interval);
+});
 
-  	ticker.on("reconnecting", function(reconnect_interval, reconnections) {
-  		console.log("Reconnecting: attempt - ", reconnections, " innterval - ", reconnect_interval);
-  	});
+function onTicks(ticks) {
+	console.log("Ticks", ticks);
+}
 
-  	function onTicks(ticks) {
-  		console.log("Ticks", ticks);
-  	}
-
-  	function subscribe() {
-  		var items = [738561];
-  		ticker.subscribe(items);
-  		ticker.setMode(ticker.modeFull, items);
-  	}
-
+function subscribe() {
+	var items = [738561];
+	ticker.subscribe(items);
+	ticker.setMode(ticker.modeFull, items);
+}
+```
 ## Changelog
 
 [Check CHANGELOG.md](CHANGELOG.md)
