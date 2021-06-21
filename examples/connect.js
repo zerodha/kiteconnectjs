@@ -34,6 +34,7 @@ function init() {
 	getMargins();
 	getMargins("equity");
 	getPositions();
+	convertPosition();
 	getHoldings();
 	getOrders();
 	getOrderHistory();
@@ -60,6 +61,8 @@ function init() {
 	placeGTT();
 	modifyGTT();
 	deleteGTT("some_trigger_id");
+
+	basketMargins();
 
 	invalidateAccessToken()
 }
@@ -425,4 +428,44 @@ function deleteGTT(trigger_id) {
 	}).catch(function (error) {
 		console.log(error)
 	})
+}
+
+function convertPosition(){
+	kc.convertPosition({
+        exchange:"MCX",
+        tradingsymbol:"GOLDPETAL21JUNFUT",
+        transaction_type:"BUY",
+        position_type:"day",
+        quantity:4,
+        old_product:"MIS",
+        new_product:"NRML"
+    }).then(function (resp) {
+		console.log(resp)
+	}).catch(function (error) {
+		console.log(error)
+	})
+}
+
+function basketMargins(){
+	kc.orderBasketMargins([{
+		"exchange": "NFO",
+		"tradingsymbol": "NIFTY21JUN15400PE",
+		"transaction_type": "BUY",
+		"variety": "regular",
+		"product": "MIS",
+		"order_type": "MARKET",
+		"quantity": 75
+	},
+	{
+		"exchange": "NFO",
+		"tradingsymbol": "NIFTY21JUN14450PE",
+		"transaction_type": "SELL",
+		"variety": "regular",
+		"product": "MIS",
+		"order_type": "MARKET",
+		"quantity": 150
+	}], true, "compact").then(function (resp) {
+			console.log(resp);
+		}).catch(function(err) {
+			console.log(err); });
 }
