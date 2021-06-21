@@ -62,6 +62,7 @@ function init() {
 	modifyGTT();
 	deleteGTT("some_trigger_id");
 
+	orderMargins();
 	basketMargins();
 
 	invalidateAccessToken()
@@ -430,7 +431,7 @@ function deleteGTT(trigger_id) {
 	})
 }
 
-function convertPosition(){
+function convertPosition() {
 	kc.convertPosition({
         exchange:"MCX",
         tradingsymbol:"GOLDPETAL21JUNFUT",
@@ -446,7 +447,31 @@ function convertPosition(){
 	})
 }
 
-function basketMargins(){
+function orderMargins() {
+	kc.orderMargins([{
+        "exchange": "NFO",
+        "tradingsymbol": "NIFTY21JUN15400PE",
+        "transaction_type": "BUY",
+        "variety": "regular",
+        "product": "MIS",
+        "order_type": "MARKET",
+        "quantity": 75
+    },
+	{
+        "exchange": "NFO",
+        "tradingsymbol": "NIFTY21JUN14450PE",
+        "transaction_type": "SELL",
+        "variety": "regular",
+        "product": "MIS",
+        "order_type": "MARKET",
+        "quantity": 150
+    }], "compact").then(function(resp) {
+			console.log(resp);
+		}).catch(function(err) {
+            console.log(err); });
+}
+
+function basketMargins() {
 	kc.orderBasketMargins([{
 		"exchange": "NFO",
 		"tradingsymbol": "NIFTY21JUN15400PE",
