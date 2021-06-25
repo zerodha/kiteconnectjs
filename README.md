@@ -9,11 +9,19 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 - [Javascript client documentation](https://kite.trade/docs/kiteconnectjs/v3)
 - [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
 
+## Requirements
+
+- NodeJS v8.0.0+
+
 Installation
 ------------
-Install via npm
+Install via [npm](https://www.npmjs.com/package/kiteconnect)
 
-	npm install kiteconnect
+	npm install kiteconnect@latest
+
+Or via Yarn
+
+	yarn add kiteconnect
 
 Getting started with API
 ------------------------
