@@ -164,3 +164,6 @@ along with authenticated user data
 - Store this response in a session and use the
 stored `access_token` and initialise instances
 of Kite client for subsequent API calls.
+
+## Note
+[Date object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) by default timezone is always zero UTC offset, as denoted by the suffix "Z". If you want time string in your local time zone, you can convert it using [toLocaleString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString).
