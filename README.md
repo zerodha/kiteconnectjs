@@ -22,6 +22,15 @@ Install via [npm](https://www.npmjs.com/package/kiteconnect)
 Or via Yarn
 
 	yarn add kiteconnect
+	
+## Breaking changes - v4
+`v4` is a **breaking** major release with multiple internal modification to improve user experience.<br>
+
+Below are the breaking changes:
+- Upgrade deps and set minimum nodejs version to 8.0.0+
+- Return promise instead of throwing error on generateSession and renewAccessToken
+- Handle gtt payload validation and throw proper error
+- Change ticker response attributes naming as per [kite connect doc](https://kite.trade/docs/connect/v3/websocket/#quote-packet-structure)
 
 Getting started with API
 ------------------------
