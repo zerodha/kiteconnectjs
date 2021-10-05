@@ -1,5 +1,28 @@
-New features
-=============
+# Kite v4
+
+### Breaking changes
+- Upgrade deps and set minimum nodejs version to 8.0.0+
+- Return promise instead of throwing error on generateSession and renewAccessToken
+- Handle gtt payload validation and throw proper error
+- Change ticker response attributes naming as per [kite connect doc](https://kite.trade/docs/connect/v3/websocket/#quote-packet-structure)
+
+### New features
+- Order margin call : [orderMargins](https://github.com/zerodha/kiteconnectjs/blob/master/lib/connect.js#L704)
+- Basket order margin call : [orderBasketMargins](https://github.com/zerodha/kiteconnectjs/blob/master/lib/connect.js#L727)
+- Add OI param to `getHistoricalData`
+- Add global constant for postion types `POSITION_TYPE_DAY`, `POSITION_TYPE_OVERNIGHT` and `EXCHANGE_BCD`
+
+### Fixes
+- Remove `order_id` param from complete tradebook fetch `getTrades`
+- Fix `cancelMF` order_id param struct
+- Handle price conversion for BCD segment in ticker
+- Remove un-used `headers` param for `parseHistorical`
+- Update comment block for `getQuote, getOHLC, getLTP, placeOrder and placeMFOrder`
+
+
+# Kite v3
+
+### New features
 - method: `getProfile`
 - method: `getOHLC`
 - method: `getLTP`
@@ -19,8 +42,7 @@ New features
 - method: `invalidateRefreshToken`
 - constants for products, order type, transaction type, variety, validity, exchanges and margin segments
 
-API method name changes
-=======================
+### API method name changes
 
 | v2  						| v3 						|
 | -------------------------	| -------------------------	|
@@ -43,8 +65,7 @@ API method name changes
 | historical				| getHistoricalData 		|
 | triggerRange 				| getTriggerRange 			|
 
-Params and other changes
-========================
+### Params and other changes
 - `KiteConnect` takes all the params as object including `api_key`
 - `convertPosition` method takes all the params as object
 - All success response returns only `data` field in response instead with envelope
@@ -62,8 +83,7 @@ Params and other changes
 	- `getInstruments` field `expiry`
 	- `getMFInstruments` field `last_price_date`
 
-KiteTicker changes
-==================
+### KiteTicker changes
 - `KiteTicker` receives param `access_token` instead of `public_token`
 - New params addedd to `KiteTicker` initializer
 	- `reconnect` - Toggle auto reconnect on/off
