@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "data": {
+    "status": "OPEN",
+    "purchase_type": "FRESH",
+    "exchange_order_id": null,
+    "last_price": 10.4324,
+    "order_timestamp": "2021-06-29 12:20:28",
+    "fund": "BOI AXA Arbitrage Fund - Direct Plan",
+    "tradingsymbol": "INF761K01EE1",
+    "tag": null,
+    "placed_by": "ZV8062",
+    "last_price_date": "2021-06-29",
+    "folio": null,
+    "variety": "regular",
+    "exchange_timestamp": null,
+    "average_price": 0.0,
+    "settlement_id": null,
+    "transaction_type": "BUY",
+    "order_id": "2b6ad4b7-c84e-4c76-b459-f3a8994184f1",
+    "amount": 5000.0,
+    "status_message": "Insufficient fund. 1/5",
+    "quantity": 0
+  }
+}

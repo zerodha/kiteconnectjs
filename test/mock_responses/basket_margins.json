@@ -1,0 +1,75 @@
+{
+  "status": "success",
+  "data": {
+    "initial": {
+      "type": "",
+      "tradingsymbol": "",
+      "exchange": "",
+      "span": 0,
+      "exposure": 36475.7085,
+      "option_premium": 4728.75,
+      "additional": 0,
+      "bo": 0,
+      "cash": 0,
+      "var": 0,
+      "pnl": {
+        "realised": 0,
+        "unrealised": 0
+      },
+      "total": 41204.4585
+    },
+    "final": {
+      "type": "",
+      "tradingsymbol": "",
+      "exchange": "",
+      "span": 1.8189894035458565e-12,
+      "exposure": 36475.7085,
+      "option_premium": 4591.875,
+      "additional": 0,
+      "bo": 0,
+      "cash": 0,
+      "var": 0,
+      "pnl": {
+        "realised": 0,
+        "unrealised": 0
+      },
+      "total": 41067.5835
+    },
+    "orders": [
+      {
+        "type": "equity",
+        "tradingsymbol": "NIFTY21JUL15400PE",
+        "exchange": "NFO",
+        "span": 0,
+        "exposure": 0,
+        "option_premium": 4728.75,
+        "additional": 0,
+        "bo": 0,
+        "cash": 0,
+        "var": 0,
+        "pnl": {
+          "realised": 0,
+          "unrealised": 0
+        },
+        "total": 4728.75
+      },
+      {
+        "type": "equity",
+        "tradingsymbol": "NIFTY21JUL14450PE",
+        "exchange": "NFO",
+        "span": 0,
+        "exposure": 36475.7085,
+        "option_premium": 0,
+        "additional": 0,
+        "bo": 0,
+        "cash": 0,
+        "var": 0,
+        "pnl": {
+          "realised": 0,
+          "unrealised": 0
+        },
+        "total": 36475.7085
+      }
+    ]
+  }
+}

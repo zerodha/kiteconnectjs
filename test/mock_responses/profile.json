@@ -1,0 +1,38 @@
+{
+  "status": "success",
+  "data": {
+    "user_id": "AB1234",
+    "user_type": "individual",
+    "email": "xxxyyy@gmail.com",
+    "user_name": "AxAx Bxx",
+    "user_shortname": "AxAx",
+    "broker": "ZERODHA",
+    "exchanges": [
+      "BFO",
+      "MCX",
+      "NSE",
+      "CDS",
+      "BSE",
+      "BCD",
+      "MF",
+      "NFO"
+    ],
+    "products": [
+      "CNC",
+      "NRML",
+      "MIS",
+      "BO",
+      "CO"
+    ],
+    "order_types": [
+      "MARKET",
+      "LIMIT",
+      "SL",
+      "SL-M"
+    ],
+    "avatar_url": null,
+    "meta": {
+      "demat_consent": "physical"
+    }
+  }
+}

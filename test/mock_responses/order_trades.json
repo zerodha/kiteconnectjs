@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "trade_id": "10000000",
+      "order_id": "200000000000000",
+      "exchange": "MCX",
+      "tradingsymbol": "GOLDPETAL21JUNFUT",
+      "instrument_token": 58424839,
+      "product": "NRML",
+      "average_price": 4852,
+      "quantity": 1,
+      "exchange_order_id": "300000000000000",
+      "transaction_type": "BUY",
+      "fill_timestamp": "2021-05-31 16:00:36",
+      "order_timestamp": "16:00:36",
+      "exchange_timestamp": "2021-05-31 16:00:36"
+    }
+  ]
+}

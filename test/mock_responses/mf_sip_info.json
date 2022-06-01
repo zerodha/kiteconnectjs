@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "data": {
+    "status": "ACTIVE",
+    "sip_reg_num": "15158182",
+    "pending_instalments": 9998,
+    "created": "2021-05-22 10:45:29",
+    "step_up": {},
+    "dividend_type": "idcw",
+    "instalment_amount": 1000.00,
+    "tag": "coinandroidsip",
+    "instalments": 9999,
+    "next_instalment": "2021-07-12",
+    "transaction_type": "BUY",
+    "trigger_price": 0,
+    "fund": "HDFC Balanced Advantage Fund - Direct Plan",
+    "tradingsymbol": "INF179K01VY8",
+    "frequency": "monthly",
+    "last_instalment": "2021-06-10 08:37:11.273142",
+    "instalment_day": 10,
+    "sip_type": "amc_sip",
+    "completed_instalments": 1,
+    "sip_id": "846479755969168"
+  }
+}

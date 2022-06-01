@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": {
+    "enabled": true,
+    "net": 96426.33,
+    "available": {
+      "adhoc_margin": 0,
+      "cash": 97297.5,
+      "opening_balance": 97297.5,
+      "live_balance": 96426.32999999999,
+      "collateral": 0,
+      "intraday_payin": 0
+    },
+    "utilised": {
+      "debits": 871.17,
+      "exposure": 117.35,
+      "m2m_realised": 0,
+      "m2m_unrealised": 0,
+      "option_premium": 0,
+      "payout": -0,
+      "span": 563,
+      "holding_sales": 0,
+      "turnover": 0,
+      "liquid_collateral": 0,
+      "stock_collateral": 0,
+      "delivery": 0
+    }
+  }
+}

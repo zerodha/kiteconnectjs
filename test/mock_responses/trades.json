@@ -1,0 +1,65 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "trade_id": "10000000",
+      "order_id": "200000000000000",
+      "exchange": "NSE",
+      "tradingsymbol": "SBIN",
+      "instrument_token": 779521,
+      "product": "CNC",
+      "average_price": 420.65,
+      "quantity": 1,
+      "exchange_order_id": "300000000000000",
+      "transaction_type": "BUY",
+      "fill_timestamp": "2021-05-31 09:16:39",
+      "order_timestamp": "09:16:39",
+      "exchange_timestamp": "2021-05-31 09:16:39"
+    },
+    {
+      "trade_id": "40000000",
+      "order_id": "500000000000000",
+      "exchange": "CDS",
+      "tradingsymbol": "USDINR21JUNFUT",
+      "instrument_token": 412675,
+      "product": "MIS",
+      "average_price": 72.755,
+      "quantity": 1,
+      "exchange_order_id": "600000000000000",
+      "transaction_type": "BUY",
+      "fill_timestamp": "2021-05-31 11:18:27",
+      "order_timestamp": "11:18:27",
+      "exchange_timestamp": "2021-05-31 11:18:27"
+    },
+    {
+      "trade_id": "70000000",
+      "order_id": "800000000000000",
+      "exchange": "MCX",
+      "tradingsymbol": "GOLDPETAL21JUNFUT",
+      "instrument_token": 58424839,
+      "product": "NRML",
+      "average_price": 4852,
+      "quantity": 1,
+      "exchange_order_id": "312115100078593",
+      "transaction_type": "BUY",
+      "fill_timestamp": "2021-05-31 16:00:36",
+      "order_timestamp": "16:00:36",
+      "exchange_timestamp": "2021-05-31 16:00:36"
+    },
+    {
+      "trade_id": "90000000",
+      "order_id": "1100000000000000",
+      "exchange": "MCX",
+      "tradingsymbol": "GOLDPETAL21JUNFUT",
+      "instrument_token": 58424839,
+      "product": "NRML",
+      "average_price": 4852,
+      "quantity": 1,
+      "exchange_order_id": "1200000000000000",
+      "transaction_type": "BUY",
+      "fill_timestamp": "2021-05-31 16:08:41",
+      "order_timestamp": "16:08:41",
+      "exchange_timestamp": "2021-05-31 16:08:41"
+    }
+  ]
+}
