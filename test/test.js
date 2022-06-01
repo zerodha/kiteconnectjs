@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const KiteConnect = require('../lib/connect.js');
 
-const mockDir = './mock_responses';
+const mockDir = './kiteconnect-mocks';
 
 // run testsuite
 testSuite();
