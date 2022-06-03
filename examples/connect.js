@@ -52,7 +52,7 @@ function init() {
 	getMFSIPS();
 
 	regularOrderPlace("regular");
-	bracketOrderPlace();
+	icebergTTLOrderPlace("iceberg");
 	modifyOrder("regular");
 	cancelOrder("regular");
 
@@ -265,23 +265,24 @@ function regularOrderPlace(variety) {
 		});
 }
 
-function bracketOrderPlace() {
-	kc.placeOrder(kc.VARIETY_BO, {
-			"exchange": "NSE",
-			"tradingsymbol": "RELIANCE",
-			"transaction_type": "BUY",
-			"order_type": "LIMIT",
-			"quantity": 1,
-			"price": 900,
-			"squareoff": 10,
-			"stoploss": 10,
-			"validity": "DAY"
-		},
-	).then(function(resp) {
-		console.log(resp);
-	}).catch(function(err) {
-		console.log(err);
-	});
+function icebergTTLOrderPlace(variety) {
+	kc.placeOrder(variety, {
+        "exchange": "NSE",
+        "tradingsymbol": "SBIN",
+        "transaction_type": "BUY",
+        "quantity": 1000,
+        "product": "CNC",
+        "order_type": "LIMIT",
+        "validity":"TTL",
+        "price":432, 
+        "validity_ttl":10,
+        "iceberg_legs":5, 
+        "iceberg_quantity":200 
+    }).then(function(resp) {
+        console.log(resp);
+    }).catch(function(err) {
+        console.log(err);
+    });
 }
 
 function modifyOrder(variety) {

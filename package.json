@@ -4,7 +4,8 @@
   "description": "The official JS client library for the Kite Connect trading APIs",
   "main": "./lib/",
   "scripts": {
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,10 @@
   "homepage": "https://github.com/zerodhatech/kiteconnectjs#readme",
   "dependencies": {
     "axios": "^0.21.2",
+    "chai": "^4.3.6",
     "crypto-js": "^4.0.0",
+    "mocha": "^10.0.0",
+    "nock": "^13.2.4",
     "papaparse": "^5.3.1",
     "ws": "^6.2.2"
   },
@@ -39,5 +43,5 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "engineStrict" : true
+  "engineStrict": true
 }
