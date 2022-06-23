@@ -10,7 +10,7 @@ var options = {
 	"debug": false
 };
 
-kc = new KiteConnect(options);
+let  kc = new KiteConnect(options);
 kc.setSessionExpiryHook(sessionHook);
 
 if(!access_token) {
