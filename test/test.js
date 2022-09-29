@@ -204,6 +204,7 @@ async function testSuite() {
     it('fetch equity specific segment funds', (done) => {
       kc.getMargins('test')
           .then(function(response) {
+            console.log('RESPONSE', response);
             expect(response).to.have.property('equity');
             return done();
           })
