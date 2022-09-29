@@ -4,7 +4,6 @@ const nock = require('nock');
 const expect = require('chai').expect;
 const path = require('path');
 const fs = require('fs');
-const {promisify} = require('util');
 const KiteConnect = require('../lib/connect.js');
 
 const mockDir = './kiteconnect-mocks';
@@ -19,203 +18,164 @@ function parseJson(fileName) {
   return mockData;
 }
 
-async function createMockFiles() {
-  const writeFilePromise = promisify(fs.writeFile);
-  await Promise.all([
-    writeFilePromise('profile.json', {}),
-    writeFilePromise('margins.json', {}),
-    writeFilePromise('margins_equity.json', {}),
-    writeFilePromise('order_response.json', {}),
-    writeFilePromise('order_response.json', {}),
-    writeFilePromise('order_modify.json', {}),
-    writeFilePromise('order_modify.json', {}),
-    writeFilePromise('order_cancel.json', {}),
-    writeFilePromise('orders.json', {}),
-    writeFilePromise('order_info.json', {}),
-    writeFilePromise('trades.json', {}),
-    writeFilePromise('order_trades.json', {}),
-    writeFilePromise('holdings.json', {}),
-    writeFilePromise('positions.json', {}),
-    writeFilePromise('convert_position.json', {}),
-    writeFilePromise('mf_order_cancel.json', {}),
-    writeFilePromise('mf_orders.json', {}),
-    writeFilePromise('mf_orders_info.json', {}),
-    writeFilePromise('mf_sip_place.json', {}),
-    writeFilePromise('mf_sip_modify.json', {}),
-    writeFilePromise('mf_sip_cancel.json', {}),
-    writeFilePromise('mf_sips.json', {}),
-    writeFilePromise('mf_sip_info.json', {}),
-    writeFilePromise('mf_holdings.json', {}),
-    writeFilePromise('historical_minute.json', {}),
-    writeFilePromise('quote.json', {}),
-    writeFilePromise('ltp.json', {}),
-    writeFilePromise('gtt_place_order.json', {}),
-    writeFilePromise('gtt_modify_order.json', {}),
-    writeFilePromise('gtt_delete_order.json', {}),
-    writeFilePromise('gtt_get_orders.json', {}),
-    writeFilePromise('gtt_get_order.json', {}),
-    writeFilePromise('order_margins.json', {}),
-  ]);
-}
-
 async function testSuite() {
-  const kc = new KiteConnect({api_key: 'your api_key'});
-//    await createMockFiles();
-//   //  Chaining the mock requests
-//   nock(kc.root)
-//   // getProfile
-//       .get('/user/profile')
-//       .reply(200, parseJson('profile.json'))
+  const kc = new KiteConnect({api_key: 'your_api_key'});
+  //  await createMockFiles();
+  //  Chaining the mock requests
+  nock(kc.root)
+  // getProfile
+      .get('/user/profile')
+      .reply(200, parseJson('profile.json'))
 
-//   // getMargins
-//       .get('/user/margins')
-//       .reply(200, parseJson('margins.json'))
+  // getMargins
+      .get('/user/margins')
+      .reply(200, parseJson('margins.json'))
 
-//   // getMargins(segment)
-//       .get('/user/margins/test')
-//       .query({segment: 'test'})
-//       .reply(200, parseJson('margins_equity.json'))
+  // getMargins(segment)
+      .get('/user/margins/test')
+      .query({segment: 'test'})
+      .reply(200, parseJson('margins_equity.json'))
 
-//   // placeOrder
-//       .post('/orders/test')
-//       .reply(200, parseJson('order_response.json'))
+  // placeOrder
+      .post('/orders/test')
+      .reply(200, parseJson('order_response.json'))
 
-//   // modifyOrder
-//       .put('/orders/test/100')
-//       .reply(200, parseJson('order_modify.json'))
+  // modifyOrder
+      .put('/orders/test/100')
+      .reply(200, parseJson('order_modify.json'))
 
-//   // cancelOrder
-//       .delete('/orders/test/100')
-//       .query({variety: 'test', order_id: 100})
-//       .reply(200, parseJson('order_cancel.json'))
+  // cancelOrder
+      .delete('/orders/test/100')
+      .query({variety: 'test', order_id: 100})
+      .reply(200, parseJson('order_cancel.json'))
 
-//   // getOrders
-//       .get('/orders')
-//       .reply(200, parseJson('orders.json'))
+  // getOrders
+      .get('/orders')
+      .reply(200, parseJson('orders.json'))
 
-//   // getOrderHistory
-//       .get('/orders/100')
-//       .query({order_id: '100'})
-//       .reply(200, parseJson('order_info.json'))
+  // getOrderHistory
+      .get('/orders/100')
+      .query({order_id: '100'})
+      .reply(200, parseJson('order_info.json'))
 
-//   // getTrades
-//       .get('/trades')
-//       .reply(200, parseJson('trades.json'))
+  // getTrades
+      .get('/trades')
+      .reply(200, parseJson('trades.json'))
 
-//   // getOrderTrades
-//       .get('/orders/100/trades')
-//       .query({order_id: 100})
-//       .reply(200, parseJson('order_trades.json'))
+  // getOrderTrades
+      .get('/orders/100/trades')
+      .query({order_id: 100})
+      .reply(200, parseJson('order_trades.json'))
 
-//   // getHoldings
-//       .get('/portfolio/holdings')
-//       .reply(200, parseJson('holdings.json'))
+  // getHoldings
+      .get('/portfolio/holdings')
+      .reply(200, parseJson('holdings.json'))
 
-//   // getPositions
-//       .get('/portfolio/positions')
-//       .reply(200, parseJson('positions.json'))
+  // getPositions
+      .get('/portfolio/positions')
+      .reply(200, parseJson('positions.json'))
 
-//   // convertPosition
-//       .put('/portfolio/positions')
-//       .reply(200, parseJson('convert_position.json'))
+  // convertPosition
+      .put('/portfolio/positions')
+      .reply(200, parseJson('convert_position.json'))
 
-//   // placeMFOrder
-//       .post('/mf/orders')
-//       .reply(200, parseJson('mf_order_response.json'))
+  // placeMFOrder
+      .post('/mf/orders')
+      .reply(200, parseJson('mf_order_response.json'))
 
-//   // cancelMFOrder
-//       .delete('/mf/orders/100')
-//       .query({order_id: 100})
-//       .reply(200, parseJson('mf_order_cancel.json'))
+  // cancelMFOrder
+      .delete('/mf/orders/100')
+      .query({order_id: 100})
+      .reply(200, parseJson('mf_order_cancel.json'))
 
-//   // getMFOrders
-//       .get('/mf/orders')
-//       .reply(200, parseJson('mf_orders.json'))
+  // getMFOrders
+      .get('/mf/orders')
+      .reply(200, parseJson('mf_orders.json'))
 
-//   // getMFOrders(order_id)
-//       .get('/mf/orders/100')
-//       .query({order_id: 100})
-//       .reply(200, parseJson('mf_orders_info.json'))
+  // getMFOrders(order_id)
+      .get('/mf/orders/100')
+      .query({order_id: 100})
+      .reply(200, parseJson('mf_orders_info.json'))
 
-//   // placeMFSIP
-//       .post('/mf/sips')
-//       .reply(200, parseJson('mf_sip_place.json'))
+  // placeMFSIP
+      .post('/mf/sips')
+      .reply(200, parseJson('mf_sip_place.json'))
 
-//   // modifyMFSIP
-//       .put('/mf/sips/100')
-//       .reply(200, parseJson('mf_sip_modify.json'))
+  // modifyMFSIP
+      .put('/mf/sips/100')
+      .reply(200, parseJson('mf_sip_modify.json'))
 
-//   // cancelMFSIP
-//       .delete('/mf/sips/100')
-//       .query({sip_id: 100})
-//       .reply(200, parseJson('mf_sip_cancel.json'))
+  // cancelMFSIP
+      .delete('/mf/sips/100')
+      .query({sip_id: 100})
+      .reply(200, parseJson('mf_sip_cancel.json'))
 
-//   // getMFSIPS
-//       .get('/mf/sips')
-//       .reply(200, parseJson('mf_sips.json'))
+  // getMFSIPS
+      .get('/mf/sips')
+      .reply(200, parseJson('mf_sips.json'))
 
-//   // getMFSIPS(sip_id)
-//       .get('/mf/sips/100')
-//       .query({sip_id: 100})
-//       .reply(200, parseJson('mf_sip_info.json'))
+  // getMFSIPS(sip_id)
+      .get('/mf/sips/100')
+      .query({sip_id: 100})
+      .reply(200, parseJson('mf_sip_info.json'))
 
-//   // getMFHoldings
-//       .get('/mf/holdings')
-//       .reply(200, parseJson('mf_holdings.json'))
+  // getMFHoldings
+      .get('/mf/holdings')
+      .reply(200, parseJson('mf_holdings.json'))
 
-//   // getHistoricalData
-//       .get('/instruments/historical/100/minute')
-//       .query({
-//         instrument_token: '100',
-//         interval: 'minute',
-//         from: '2022-06-01 09:15:00',
-//         to: '2022-06-01 15:30:00',
-//         continuous: 0,
-//         oi: 0,
-//       })
-//       .reply(200, parseJson('historical_minute.json'))
+  // getHistoricalData
+      .get('/instruments/historical/100/minute')
+      .query({
+        instrument_token: '100',
+        interval: 'minute',
+        from: '2022-06-01 09:15:00',
+        to: '2022-06-01 15:30:00',
+        continuous: 0,
+        oi: 0,
+      })
+      .reply(200, parseJson('historical_minute.json'))
 
-//   // getQuote
-//       .get('/quote')
-//       .query({i: 'NSE:INFY'})
-//       .reply(200, parseJson('quote.json'))
+  // getQuote
+      .get('/quote')
+      .query({i: 'NSE:INFY'})
+      .reply(200, parseJson('quote.json'))
 
-//   // getLTP
-//       .get('/quote/ltp')
-//       .query({i: 'NSE:INFY'})
-//       .reply(200, parseJson('ltp.json'))
+  // getLTP
+      .get('/quote/ltp')
+      .query({i: 'NSE:INFY'})
+      .reply(200, parseJson('ltp.json'))
 
-//   // getOHLC
-//       .get('/quote/ohlc')
-//       .query({i: 'NSE:INFY'})
-//       .reply(200, parseJson('quote.json'))
+  // getOHLC
+      .get('/quote/ohlc')
+      .query({i: 'NSE:INFY'})
+      .reply(200, parseJson('ohlc.json'))
 
-//   // placeGTT
-//       .post('/gtt/triggers')
-//       .reply(200, parseJson('gtt_place_order.json'))
+  // placeGTT
+      .post('/gtt/triggers')
+      .reply(200, parseJson('gtt_place_order.json'))
 
-//   // modifyGTT
-//       .put('/gtt/triggers/100')
-//       .reply(200, parseJson('gtt_modify_order.json'))
+  // modifyGTT
+      .put('/gtt/triggers/100')
+      .reply(200, parseJson('gtt_modify_order.json'))
 
-//   // deleteGTT
-//       .delete('/gtt/triggers/100')
-//       .query({trigger_id: 100})
-//       .reply(200, parseJson('gtt_delete_order.json'))
+  // deleteGTT
+      .delete('/gtt/triggers/100')
+      .query({trigger_id: 100})
+      .reply(200, parseJson('gtt_delete_order.json'))
 
-//   // getGTTs
-//       .get('/gtt/triggers')
-//       .reply(200, parseJson('gtt_get_orders.json'))
+  // getGTTs
+      .get('/gtt/triggers')
+      .reply(200, parseJson('gtt_get_orders.json'))
 
-//   // getGTT(trigger_id)
-//       .get('/gtt/triggers/100')
-//       .query({trigger_id: 100})
-//       .reply(200, parseJson('gtt_get_order.json'))
+  // getGTT(trigger_id)
+      .get('/gtt/triggers/100')
+      .query({trigger_id: 100})
+      .reply(200, parseJson('gtt_get_order.json'))
 
-//   // orderMargins
-//       .post('/margins/orders')
-//       .query({mode: 'compact'})
-//       .reply(200, parseJson('order_margins.json'));
+  // orderMargins
+      .post('/margins/orders')
+      .query({mode: 'compact'})
+      .reply(200, parseJson('order_margins.json'));
 
   // fetch user profile detail
   describe('getProfile', function() {
@@ -244,7 +204,8 @@ async function testSuite() {
     it('fetch equity specific segment funds', (done) => {
       kc.getMargins('test')
           .then(function(response) {
-            expect(response).to.have.property('enabled');
+            expect(response).to.have.property('equity');
+            expect(response).to.have.property('commodity');
             return done();
           })
           .catch(done);
