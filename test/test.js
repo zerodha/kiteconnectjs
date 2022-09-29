@@ -205,7 +205,6 @@ async function testSuite() {
       kc.getMargins('test')
           .then(function(response) {
             expect(response).to.have.property('equity');
-            expect(response).to.have.property('commodity');
             return done();
           })
           .catch(done);

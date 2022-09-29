@@ -5,6 +5,7 @@
   "main": "./lib/",
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "prettier": "prettier **/*.js",
     "test": "mocha"
   },
   "repository": {
@@ -40,7 +41,8 @@
     "eslint": "^8.24.0",
     "eslint-config-google": "^0.14.0",
     "jsdoc": "^3.4.0",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "prettier": "^2.7.1"
   },
   "engines": {
     "node": ">=8.0.0"
