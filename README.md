@@ -170,6 +170,13 @@ function subscribe() {
 npm run test
 ```
 
+## Generate documentation
+
+```
+$ npm install -g jsdoc
+$ jsdoc -r ./lib -d ./docs
+```
+
 ## Changelog
 
 [Check CHANGELOG.md](CHANGELOG.md)
