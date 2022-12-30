@@ -1,4 +1,4 @@
-var packageInfo = require('../package.json');
+import packageInfo from '../package.json';
 
 function getPackageInfo() {
 	return packageInfo;
@@ -8,7 +8,7 @@ function getUserAgent() {
 	return "kiteconnectjs/" + packageInfo.version;
 }
 
-module.exports = {
-	getPackageInfo: getPackageInfo,
-	getUserAgent: getUserAgent
+export default {
+	getPackageInfo,
+	getUserAgent
 };
