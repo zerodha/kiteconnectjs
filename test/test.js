@@ -72,6 +72,10 @@ function testSuite(){
       .get("/portfolio/holdings")
       .reply(200, parseJson("holdings.json"))
 
+      // getHoldings
+      .get("/portfolio/holdings/auctions")
+      .reply(200, parseJson("auctions_list.json"))
+
       // getPositions
       .get("/portfolio/positions")
       .reply(200, parseJson("positions.json"))
@@ -305,6 +309,20 @@ function testSuite(){
                 expect(response).to.be.an("array");
                 expect(response).to.have.nested.property("[0].tradingsymbol");
                 expect(response).to.have.nested.property("[0].average_price");
+                return done();
+            }).catch(done); 
+        })
+    });
+
+    // Retrieves list of available instruments for a auction session
+    describe("getAuctionInstruments", function() {
+        it("Retrieves list of available instruments for a auction session", (done) => {
+            kc.getAuctionInstruments()
+            .then(function(response) {
+                expect(response).to.be.an("array");
+                expect(response).to.have.nested.property("[0].auction_number");
+                expect(response).to.have.nested.property("[0].instrument_token");
+                expect(response).to.have.nested.property("[0].tradingsymbol");
                 return done();
             }).catch(done); 
         })
