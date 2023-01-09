@@ -174,7 +174,7 @@ function testSuite(){
 
       // orderMargins
       .post("/margins/orders")
-      .query({ mode: "compact" })
+      .query({ mode: null })
       .reply(200, parseJson("order_margins.json"))
 
 
@@ -658,12 +658,16 @@ function testSuite(){
                     "order_type": "MARKET",
                     "quantity": 1
                 }
-                ], "compact")
+                ])
             .then(function(response) {
                 expect(response).to.have.nested.property("[0].type");
                 expect(response).to.have.nested.property("[0].var");
                 expect(response).to.have.nested.property("[0].span");
                 expect(response).to.have.nested.property("[0].exposure");
+                // Order charges
+                expect(response).to.have.nested.property("[0].charges.total");
+                expect(response).to.have.nested.property("[0].charges.transaction_tax");
+                expect(response).to.have.nested.property("[0].charges.gst.total");
                 return done();
             }).catch(done); 
         })
