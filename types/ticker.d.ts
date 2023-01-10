@@ -1,4 +1,4 @@
-type KiteTickerProps = {
+type KiteTickerParams = {
   /**
    * API key issued you.
    */
@@ -125,8 +125,8 @@ type KiteTicker = {
    * Getting started:
    * ---------------
    *
-   * 	var KiteTicker = require("kiteconnect").KiteTicker;
-   * 	var ticker = new KiteTicker({
+   *  import { KiteTicker } from "kiteconnect";
+   * 	const ticker = new KiteTicker({
    * 		api_key: "api_key",
    * 		access_token: "access_token"
    *	});
@@ -140,7 +140,7 @@ type KiteTicker = {
    * 	}
    *
    * 	function subscribe() {
-   * 		var items = [738561];
+   * 		const items = [738561];
    * 		ticker.subscribe(items);
    * 		ticker.setMode(ticker.modeFull, items);
    * 	}
@@ -233,8 +233,8 @@ type KiteTicker = {
    *
    * Here is an example demonstrating auto reconnection.
    *
-   * 	var KiteTicker = require("kiteconnect").KiteTicker;
-   * 	var ticker = new KiteTicker({
+   * 	import { KiteTicker } from "kiteconnect";
+   * 	const ticker = new KiteTicker({
    * 		api_key: "api_key",
    * 		access_token: "access_token"
    *	});
@@ -262,13 +262,13 @@ type KiteTicker = {
    * 	}
    *
    * 	function subscribe() {
-   * 		var items = [738561];
+   * 		const items = [738561];
    * 		ticker.subscribe(items);
    * 		ticker.setMode(ticker.modeFull, items);
    * 	}
    *
    */
-  new (props: KiteTickerProps): Ticker;
+  new (params: KiteTickerParams): Ticker;
 };
 
 // Extra interfaces which can be imported and used
