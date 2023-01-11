@@ -1,4 +1,116 @@
-type Exchange = 'NSE' | 'BSE' | 'NFO' | 'CDS' | 'BCD' | 'BFO' | 'MCX';
+type Exchange =
+  | Connect['EXCHANGE_NSE']
+  | Connect['EXCHANGE_BSE']
+  | Connect['EXCHANGE_NFO']
+  | Connect['EXCHANGE_CDS']
+  | Connect['EXCHANGE_BCD']
+  | Connect['EXCHANGE_BFO']
+  | Connect['EXCHANGE_MCX'];
+
+type TransactionType =
+  | Connect['TRANSACTION_TYPE_BUY']
+  | Connect['TRANSACTION_TYPE_SELL'];
+
+type Product =
+  | Connect['PRODUCT_NRML']
+  | Connect['PRODUCT_MIS']
+  | Connect['PRODUCT_CNC'];
+
+type OrderType =
+  | Connect['ORDER_TYPE_LIMIT']
+  | Connect['ORDER_TYPE_MARKET']
+  | Connect['ORDER_TYPE_SL']
+  | Connect['ORDER_TYPE_SLM'];
+
+type Variety =
+  | Connect['VARIETY_AMO']
+  | Connect['VARIETY_AUCTION']
+  | Connect['VARIETY_BO']
+  | Connect['VARIETY_CO']
+  | Connect['VARIETY_ICEBERG']
+  | Connect['VARIETY_REGULAR'];
+
+type Validity =
+  | Connect['VALIDITY_DAY']
+  | Connect['VALIDITY_IOC']
+  | Connect['VALIDITY_TTL'];
+
+type TriggerType = Connect['GTT_TYPE_OCO'] | Connect['GTT_TYPE_SINGLE'];
+
+type SessionData = {
+  /**
+   * The unique, permanent user id registered with the broker and the exchanges
+   */
+  user_id: string;
+  /**
+   * User's real name
+   */
+  user_name: string;
+  /**
+   * Shortened version of the user's real name
+   */
+  user_shortname: string;
+  /**
+   * User's email
+   */
+  email: string;
+  /**
+   * User's registered role at the broker. This will be `individual` for all retail users
+   */
+  user_type: string;
+  /**
+   * The broker ID
+   */
+  broker: string;
+  /**
+   * Exchanges enabled for trading on the user's account
+   */
+  exchanges: string[];
+  /**
+   * Margin product types enabled for the user
+   */
+  products: string[];
+  /**
+   * Order types enabled for the user
+   */
+  order_types: string[];
+  /**
+   * The API key for which the authentication was performed
+   */
+  api_key: string;
+  /**
+   * The authentication token that's used with every subsequent request
+   * Unless this is invalidated using the API, or invalidated by a master-logout
+   * from the Kite Web trading terminal, it'll expire at `6 AM` on the next day (regulatory requirement)
+   */
+  access_token: string;
+  /**
+   * A token for public session validation where requests may be exposed to the public
+   */
+  public_token: string;
+  /**
+   * A token for getting long standing read permissions.
+   * This is only available to certain approved platforms
+   */
+  refresh_token: string;
+  /**
+   * User's last login time
+   */
+  login_time: string;
+  /**
+   * A token for public session validation where requests may be exposed to the public
+   */
+  meta: {
+    /**
+     * empty, consent or physical
+     */
+    demat_consent: string;
+  };
+  /**
+   * Full URL to the user's avatar (PNG image) if there's one
+   */
+  avatar_url: string;
+};
 
 type Trigger = {
   id: number;
@@ -193,7 +305,7 @@ type Instrument = {
   exchange: Exchange;
 };
 
-type Margin = {
+type UserMargin = {
   /**
    * Indicates whether the segment is enabled for the user
    */
@@ -839,6 +951,202 @@ type Position = {
   day_sell_value: number;
 };
 
+type Margin = {
+  /**
+   * equity/commodity
+   */
+  type: string;
+  /**
+   * Trading symbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Name of the exchange
+   */
+  exchange: string;
+  /**
+   * SPAN margins
+   */
+  span: number;
+  /**
+   * Exposure margins
+   */
+  exposure: number;
+  /**
+   * Option premium
+   */
+  option_premium: number;
+  /**
+   * Additional margins
+   */
+  additional: number;
+  /**
+   * BO margins
+   */
+  bo: number;
+  /**
+   * Cash credit
+   */
+  cash: number;
+  /**
+   * VAR
+   */
+  var: number;
+  pnl: {
+    /**
+     * Realised profit and loss
+     */
+    realised: number;
+    /**
+     * Unrealised profit and loss
+     */
+    unrealised: number;
+  };
+  /**
+   * Margin leverage allowed for the trade
+   */
+  leverage: number;
+  /**
+   * The breakdown of the various charges that will be applied to an order
+   */
+  charges: {
+    /**
+     * Total charges
+     */
+    total: number;
+    /**
+     * Tax levied for each transaction on the exchanges
+     */
+    transaction_tax: number;
+    /**
+     * Type of transaction tax
+     */
+    transaction_tax_type: string;
+    /**
+     * Charge levied by the exchange on the total turnover of the day
+     */
+    exchange_turnover_charge: number;
+    /**
+     * Charge levied by SEBI on the total turnover of the day
+     */
+    sebi_turnover_charge: number;
+    /**
+     * The brokerage charge for a particular trade
+     */
+    brokerage: number;
+    /**
+     * Duty levied on the transaction value by Government of India
+     */
+    stamp_duty: number;
+    gst: {
+      /**
+       * Integrated Goods and Services Tax levied by the government
+       */
+      igst: number;
+      /**
+       * Central Goods and Services Tax levied by the government
+       */
+      cgst: number;
+      /**
+       * State Goods and Services Tax levied by the government
+       */
+      sgst: number;
+      /**
+       * Total GST
+       */
+      total: number;
+    };
+  };
+  /**
+   * Total margin block
+   */
+  total: number;
+};
+
+type MarginOrder = {
+  /**
+   * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+   */
+  exchange: Exchange;
+  /**
+   * Trading symbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * eg. BUY, SELL
+   */
+  transaction_type: TransactionType;
+  /**
+   * Order variety (regular, amo, bo, co etc.)
+   */
+  variety: Variety;
+  /**
+   * Margin product to use for the order
+   */
+  product: Product;
+  /**
+   * Order type (MARKET, LIMIT etc.)
+   */
+  order_type: OrderType;
+  /**
+   * Quantity of the order
+   */
+  quantity: number;
+  /**
+   * Price at which the order is going to be placed (LIMIT orders)
+   */
+  price: number;
+  /**
+   * Trigger price (for SL, SL-M, CO orders)
+   */
+  trigger_price: number;
+};
+
+type GTTParams = {
+  /**
+   * GTT type, its either self.GTT_TYPE_OCO or self.GTT_TYPE_SINGLE.
+   */
+  trigger_type: TriggerType;
+  /**
+   * Tradingsymbol of the instrument (ex. RELIANCE, INFY).
+   */
+  tradingsymbol: string;
+  /**
+   * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
+   */
+  exchange: Exchange;
+  /**
+   * List of trigger values, number of items depends on trigger type.
+   */
+  trigger_values: number[];
+  /**
+   * Price at which trigger is created. This is usually the last price of the instrument.
+   */
+  last_price: number;
+  orders: {
+    /**
+     * Transaction type (BUY or SELL).
+     */
+    transaction_type: TransactionType;
+    /**
+     * Order quantity
+     */
+    quantity: number;
+    /**
+     * Product code (NRML, MIS, CNC).
+     */
+    product: Product;
+    /**
+     * Order type (LIMIT, SL, SL-M, MARKET).
+     */
+    order_type: OrderType;
+    /**
+     * Order price.
+     */
+    price: number;
+  }[];
+};
+
 type KiteConnectParams = {
   /**
    * API key issued to you.
@@ -934,6 +1242,8 @@ type Connect = {
   // GTT types
   GTT_TYPE_OCO: 'two-leg';
   GTT_TYPE_SINGLE: 'single';
+
+  // GTT statuses
   GTT_STATUS_ACTIVE: 'active';
   GTT_STATUS_TRIGGERED: 'triggered';
   GTT_STATUS_DISABLED: 'disabled';
@@ -952,23 +1262,13 @@ type Connect = {
    * Cancel a mutual fund order.
    * @param order_id ID of the order.
    */
-  cancelMFOrder: (order_id: string) => Promise<{
-    status: string;
-    data: {
-      order_id: string;
-    };
-  }>;
+  cancelMFOrder: (order_id: string) => Promise<{ order_id: string }>;
 
   /**
    * Cancel a mutual fund SIP.
    * @param sip_id ID of the SIP.
    */
-  cancelMFSIP: (sip_id: string) => Promise<{
-    status: string;
-    data: {
-      sip_id: string;
-    };
-  }>;
+  cancelMFSIP: (sip_id: string) => Promise<{ sip_id: string }>;
 
   /**
    * Cancel an order
@@ -985,12 +1285,7 @@ type Connect = {
        */
       parent_order_id?: string;
     }
-  ) => Promise<{
-    status: string;
-    data: {
-      order_id: string;
-    };
-  }>;
+  ) => Promise<{ order_id: string }>;
 
   /**
    * Modify an open position's product type.
@@ -1008,7 +1303,7 @@ type Connect = {
     /**
      * Transaction type (BUY or SELL).
      */
-    transaction_type: 'BUY' | 'SELL';
+    transaction_type: TransactionType;
     /**
      * Position type (overnight, day).
      */
@@ -1020,23 +1315,18 @@ type Connect = {
     /**
      * Current product code (NRML, MIS, CNC).
      */
-    old_product: 'NRML' | 'MIS' | 'CNC';
+    old_product: Product;
     /**
      * New Product code (NRML, MIS, CNC).
      */
-    new_product: 'NRML' | 'MIS' | 'CNC';
-  }) => Promise<{
-    status: string;
-    data: boolean;
-  }>;
+    new_product: Product;
+  }) => Promise<boolean>;
 
   /**
    * Get list of order history.
    * @param trigger_id GTT ID
    */
-  deleteGTT: (
-    trigger_id: string
-  ) => Promise<{ status: string; data: { trigger_id: number } }>;
+  deleteGTT: (trigger_id: string) => Promise<{ trigger_id: number }>;
 
   /**
    * Exit an order
@@ -1053,12 +1343,7 @@ type Connect = {
        */
       parent_order_id?: string;
     }
-  ) => Promise<{
-    status: string;
-    data: {
-      order_id: string;
-    };
-  }>;
+  ) => Promise<{ order_id: string }>;
 
   /**
    * Do the token exchange with the `request_token` obtained after the login flow,
@@ -1070,80 +1355,7 @@ type Connect = {
   generateSession: (
     request_token: string,
     api_secret: string
-  ) => Promise<{
-    /**
-     * The unique, permanent user id registered with the broker and the exchanges
-     */
-    user_id: string;
-    /**
-     * User's real name
-     */
-    user_name: string;
-    /**
-     * Shortened version of the user's real name
-     */
-    user_shortname: string;
-    /**
-     * User's email
-     */
-    email: string;
-    /**
-     * User's registered role at the broker. This will be `individual` for all retail users
-     */
-    user_type: string;
-    /**
-     * The broker ID
-     */
-    broker: string;
-    /**
-     * Exchanges enabled for trading on the user's account
-     */
-    exchanges: string[];
-    /**
-     * Margin product types enabled for the user
-     */
-    products: string[];
-    /**
-     * Order types enabled for the user
-     */
-    order_types: string[];
-    /**
-     * The API key for which the authentication was performed
-     */
-    api_key: string;
-    /**
-     * The authentication token that's used with every subsequent request
-     * Unless this is invalidated using the API, or invalidated by a master-logout
-     * from the Kite Web trading terminal, it'll expire at `6 AM` on the next day (regulatory requirement)
-     */
-    access_token: string;
-    /**
-     * A token for public session validation where requests may be exposed to the public
-     */
-    public_token: string;
-    /**
-     * A token for getting long standing read permissions.
-     * This is only available to certain approved platforms
-     */
-    refresh_token: string;
-    /**
-     * User's last login time
-     */
-    login_time: string;
-    /**
-     * A token for public session validation where requests may be exposed to the public
-     */
-    meta: {
-      /**
-       * empty, consent or physical
-       */
-      demat_consent: string;
-    };
-    /**
-     * Full URL to the user's avatar (PNG image) if there's one
-     */
-    avatar_url: string;
-  }>;
+  ) => Promise<SessionData>;
 
   /**
    * Get list of order history.
@@ -1208,7 +1420,7 @@ type Connect = {
   /**
    * Retrieve the list of equity holdings.
    */
-  getHoldings: () => Promise<{ status: string; data: PortfolioHolding[] }>;
+  getHoldings: () => Promise<PortfolioHolding[]>;
 
   /**
    * Retrieve the list of market instruments available to trade.
@@ -1245,9 +1457,8 @@ type Connect = {
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
    */
-  getLTP: (instruments: string[]) => Promise<{
-    status: string;
-    data: Record<
+  getLTP: (instruments: string[]) => Promise<
+    Record<
       string,
       {
         /**
@@ -1259,25 +1470,22 @@ type Connect = {
          */
         last_price: number;
       }
-    >;
-  }>;
+    >
+  >;
 
   /**
    * Get account balance and cash margin details for a particular segment.
    * @param segment trading segment (eg: equity or commodity).
    */
   getMargins: (segment?: 'equity' | 'commodity') => Promise<{
-    status: 'string';
-    data: {
-      equity?: Margin;
-      commodity?: Margin;
-    };
+    equity?: UserMargin;
+    commodity?: UserMargin;
   }>;
 
   /**
    * Get list of mutual fund holdings.
    */
-  getMFHoldings: () => Promise<{ status: string; data: MFHolding[] }>;
+  getMFHoldings: () => Promise<MFHolding[]>;
 
   /**
    * Get list of mutual fund instruments.
@@ -1289,27 +1497,22 @@ type Connect = {
    * If no `order_id` is specified, all orders for the day are returned.
    * @param order_id ID of the order (optional) whose order details are to be retrieved.
    */
-  getMFOrders: (
-    order_id?: string
-  ) => Promise<{ status: string; data: MFOrder | MFOrder[] }>;
+  getMFOrders: (order_id?: string) => Promise<MFOrder | MFOrder[]>;
 
   /**
    * Get list of mutual fund SIPS.
    * If no `sip_id` is specified, all active and paused SIPs are returned.
    * @param sip_id ID of the SIP (optional) whose details are to be retrieved.
    */
-  getMFSIPS: (
-    sip_id?: string
-  ) => Promise<{ status: string; data: MFSIP | MFSIP[] }>;
+  getMFSIPS: (sip_id?: string) => Promise<MFSIP | MFSIP[]>;
 
   /**
    * Retrieve OHLC for list of instruments.
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
    */
-  getOHLC: (instruments: string[]) => Promise<{
-    status: string;
-    data: Record<
+  getOHLC: (instruments: string[]) => Promise<
+    Record<
       string,
       {
         /**
@@ -1339,21 +1542,19 @@ type Connect = {
           close: number;
         };
       }
-    >;
-  }>;
+    >
+  >;
 
   /**
    * Get list of order history.
    * @param order_id ID of the order whose order details to be retrieved.
    */
-  getOrderHistory: (
-    order_id: string
-  ) => Promise<{ status: string; data: Order[] }>;
+  getOrderHistory: (order_id: string) => Promise<Order[]>;
 
   /**
    * Get list of orders.
    */
-  getOrders: () => Promise<{ status: string; data: Order[] }>;
+  getOrders: () => Promise<Order[]>;
 
   /**
    * Retrieve the list of trades a particular order).
@@ -1361,75 +1562,66 @@ type Connect = {
    * These trades are individually recorded under an order.
    * @param order_id ID of the order whose trades are to be retrieved.
    */
-  getOrderTrades: (order_id: string) => Promise<{
-    status: string;
-    data: Trade[];
-  }>;
+  getOrderTrades: (order_id: string) => Promise<Trade[]>;
 
   /**
    * Retrieve positions.
    */
   getPositions: () => Promise<{
-    status: string;
-    data: {
-      net: Position[];
-      day: Position[];
-    };
+    net: Position[];
+    day: Position[];
   }>;
 
   /**
    * Get user profile details.
    */
   getProfile: () => Promise<{
-    status: string;
-    data: {
+    /**
+     * The unique, permanent user id registered with the broker and the exchanges
+     */
+    user_id: string;
+    /**
+     * User's real name
+     */
+    user_name: string;
+    /**
+     * Shortened version of the user's real name
+     */
+    user_shortname: string;
+    /**
+     * User's email
+     */
+    email: string;
+    /**
+     * User's registered role at the broker. This will be individual for all retail users
+     */
+    user_type: string;
+    /**
+     * The broker ID
+     */
+    broker: string;
+    /**
+     * Exchanges enabled for trading on the user's account
+     */
+    exchanges: string[];
+    /**
+     * Margin product types enabled for the user
+     */
+    products: string[];
+    /**
+     * Order types enabled for the user
+     */
+    order_types: string[];
+    meta: {
       /**
-       * The unique, permanent user id registered with the broker and the exchanges
+       * demat_consent: empty, consent or physical
        */
-      user_id: string;
-      /**
-       * User's real name
-       */
-      user_name: string;
-      /**
-       * Shortened version of the user's real name
-       */
-      user_shortname: string;
-      /**
-       * User's email
-       */
-      email: string;
-      /**
-       * User's registered role at the broker. This will be individual for all retail users
-       */
-      user_type: string;
-      /**
-       * The broker ID
-       */
-      broker: string;
-      /**
-       * Exchanges enabled for trading on the user's account
-       */
-      exchanges: string[];
-      /**
-       * Margin product types enabled for the user
-       */
-      products: string[];
-      /**
-       * Order types enabled for the user
-       */
-      order_types: string[];
-      meta: {
-        /**
-         * demat_consent: empty, consent or physical
-         */
-        demat_consent: string;
-      };
-      /**
-       * Full URL to the user's avatar (PNG image) if there's one
-       */
-      avatar_url: null | string;
+      demat_consent: string;
     };
+    /**
+     * Full URL to the user's avatar (PNG image) if there's one
+     */
+    avatar_url: null | string;
   }>;
 
   /**
@@ -1437,9 +1629,8 @@ type Connect = {
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
    */
-  getQuote: (instruments: string[]) => Promise<{
-    status: string;
-    data: Record<
+  getQuote: (instruments: string[]) => Promise<
+    Record<
       string,
       {
         /**
@@ -1556,16 +1747,13 @@ type Connect = {
           }[];
         };
       }
-    >;
-  }>;
+    >
+  >;
 
   /**
    * Retrieve the list of trades executed.
    */
-  getTrades: () => Promise<{
-    status: string;
-    data: Trade[];
-  }>;
+  getTrades: () => Promise<Trade[]>;
 
   /**
    * Retrieve the buy/sell trigger range for Cover Orders.
@@ -1576,10 +1764,380 @@ type Connect = {
   getTriggerRange: (
     exchange: Exchange,
     tradingsymbol: string,
-    transaction_type: 'BUY' | 'SELL'
+    transaction_type: TransactionType
   ) => Promise<any>;
+
+  /**
+   * Kill the session by invalidating the access token.
+   * If access_token is passed then it will be set as current access token and get in validated.
+   * @param access_token Token to invalidate. Default is the active `access_token`.
+   */
+  invalidateAccessToken: (access_token?: string) => Promise<boolean>;
+
+  /**
+   * Invalidate the refresh token.
+   * @param refresh_token Token to invalidate.
+   */
+  invalidateRefreshToken: (refresh_token: string) => Promise<boolean>;
+
+  /**
+   * Modify GTT.
+   * @param trigger_id GTT trigger ID.
+   * @param params Modify params
+   */
+  modifyGTT: (
+    trigger_id: string,
+    params: GTTParams
+  ) => Promise<{ status: 'success'; data: { trigger_id: number } }>;
+
+  /**
+   * Modify a mutual fund SIP.
+   * @param sip_id ID of the SIP.
+   * @param params Modify params.
+   * @returns
+   */
+  modifyMFSIP: (
+    sip_id: string,
+    params: {
+      /**
+       * Number of instalments to trigger.
+       * If set to -1, instalments are triggered at fixed intervals until the SIP is cancelled
+       */
+      instalments?: number;
+      /**
+       * Order frequency. weekly, monthly, or quarterly.
+       */
+      frequency?: 'weekly' | 'monthly' | 'quarterly';
+      /**
+       * If frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.
+       */
+      instalment_day?: string;
+      /**
+       * Pause or unpause an SIP (active or paused).
+       */
+      status?: 'active' | 'paused';
+    }
+  ) => Promise<{ status: 'success'; data: { sip_id: number } }>;
+
+  /**
+   * Modify an order
+   * @param variety Order variety (ex. bo, co, amo, regular).
+   * @param order_id ID of the order.
+   * @param params Order modify params.
+   */
+  modifyOrder: (
+    variety: Variety,
+    order_id: string,
+    params: {
+      /**
+       * Order quantity
+       */
+      quantity?: number;
+      /**
+       * Order Price
+       */
+      price?: number;
+      /**
+       * Order type (NRML, SL, SL-M, MARKET).
+       */
+      order_type?: OrderType;
+      /**
+       * Order validity (DAY, IOC).
+       */
+      validity?: Validity;
+      /**
+       * Disclosed quantity
+       */
+      disclosed_quantity?: number;
+      /**
+       * Trigger price
+       */
+      trigger_price?: number;
+      /**
+       * Parent order id incase of multilegged orders.
+       */
+      parent_order_id?: string;
+    }
+  ) => Promise<{ order_id: string }>;
+
+  /**
+   * Fetch basket margin for list of orders
+   * @param orders Margin fetch orders.
+   * @param consider_positions Boolean to consider users positions while calculating margins. Defauls to true
+   * @param mode (optional) Compact mode will only give the total margins
+   */
+  orderBasketMargins: (
+    orders: MarginOrder[],
+    consider_positions?: boolean,
+    mode?: 'compact'
+  ) => Promise<{
+    initial: Margin;
+    final: Margin;
+    orders: Margin[];
+  }>;
+
+  /**
+   * Fetch required margin for order/list of orders
+   * @param orders Margin fetch orders.
+   * @param mode (optional) Compact mode will only give the total margins
+   */
+  orderMargins: (orders: MarginOrder[], mode?: 'compact') => Promise<Margin[]>;
+
+  /**
+   * Place GTT.
+   * @param params Place GTT params
+   */
+  placeGTT: (params: GTTParams) => Promise<{ trigger_id: number }>;
+
+  /**
+   * Place a mutual fund order.
+   * @param params Order params.
+   */
+  placeMFOrder: (params: {
+    /**
+     * Tradingsymbol (ISIN) of the fund.
+     */
+    tradingsymbol: string;
+    /**
+     * Transaction type (BUY or SELL).
+     */
+    transaction_type: TransactionType;
+    /**
+     * Quantity to SELL. Not applicable on BUYs.
+     */
+    quantity?: number;
+    /**
+     * Amount worth of units to purchase. Not applicable on SELLs
+     */
+    amount?: number;
+    /**
+     * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
+     */
+    tag?: string;
+  }) => Promise<{ order_id: number }>;
+
+  /**
+   * Place a mutual fund SIP.
+   * @param params SIP params.
+   */
+  placeMFSIP: (params: {
+    /**
+     * Tradingsymbol (ISIN) of the fund.
+     */
+    tradingsymbol: string;
+    /**
+     * Amount worth of units to purchase.
+     */
+    amount: number;
+    /**
+     * Number of instalments to trigger.
+     * If set to -1, instalments are triggered at fixed intervals until the SIP is cancelled
+     */
+    instalments: number;
+    /**
+     * Order frequency. weekly, monthly, or quarterly.
+     */
+    frequency: 'weekly' | 'monthly' | 'quarterly';
+    /**
+     * Amount worth of units to purchase before the SIP starts.
+     */
+    initial_amount?: number;
+    /**
+     * If frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.
+     */
+    instalment_day?: string;
+    /**
+     * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
+     */
+    tag?: string;
+  }) => Promise<{ sip_id: number }>;
+
+  /**
+   * Place an order.
+   * @param variety Order variety (ex. bo, co, amo, regular).
+   * @param params Order params.
+   */
+  placeOrder: (
+    variety: Variety,
+    params: {
+      /**
+       * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
+       */
+      exchange: Exchange;
+      /**
+       * Tradingsymbol of the instrument (ex. RELIANCE, INFY).
+       */
+      tradingsymbol: string;
+      /**
+       * Transaction type (BUY or SELL).
+       */
+      transaction_type: TransactionType;
+      /**
+       * Order quantity
+       */
+      quantity: number;
+      /**
+       * Product code (NRML, MIS, CNC).
+       */
+      product: Product;
+      /**
+       * Order type (LIMIT, SL, SL-M, MARKET).
+       */
+      order_type: OrderType;
+      /**
+       * Order validity (DAY, IOC).
+       */
+      validity?: Validity;
+      /**
+       * Order Price
+       */
+      price?: number;
+      /**
+       * Disclosed quantity
+       */
+      disclosed_quantity?: number;
+      /**
+       * Trigger price
+       */
+      trigger_price?: number;
+      /**
+       * Square off value (only for bracket orders)
+       */
+      squareoff?: number;
+      /**
+       * Stoploss value (only for bracket orders)
+       */
+      stoploss?: number;
+      /**
+       * Trailing stoploss value (only for bracket orders)
+       */
+      trailing_stoploss?: number;
+      /**
+       * Order validity in minutes for TTL validity orders
+       */
+      validity_ttl?: number;
+      /**
+       * Total number of legs for iceberg order variety
+       */
+      iceberg_legs?: number;
+      /**
+       * Split quantity for each iceberg leg order
+       */
+      iceberg_quantity?: number;
+      /**
+       * A unique identifier for a particular auction
+       */
+      auction_number?: number;
+      /**
+       * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
+       */
+      tag?: string;
+    }
+  ) => Promise<{ order_id: string }>;
+
+  /**
+   * Renew access token by active refresh token. Renewed access token is implicitly set.
+   * @param refresh_token Token obtained from previous successful login.
+   * @param api_secret API secret issued with the API key.
+   */
+  renewAccessToken: (
+    refresh_token: string,
+    api_secret: string
+  ) => Promise<SessionData>;
+
+  /**
+   * Set access_token received after a successful authentication.
+   * @param access_token Token obtained in exchange for `request_token`.
+   * Once you have obtained `access_token`, you should persist it in a database or session to pass
+   * to the Kite Connect class initialisation for subsequent requests.
+   */
+  setAccessToken: (access_token: string) => void;
+
+  /**
+   * Set a callback hook for session (`TokenException` -- timeout, expiry etc.) errors.
+   * `access_token` (login session) can become invalid for a number of
+   * reasons, but it doesn't make sense for the client to try and catch it during every API call.
+   *
+   * A callback method that handles session errors can be set here and when the client encounters
+   * a token error at any point, it'll be called.
+   *
+   * This callback, for instance, can log the user out of the UI,
+   * clear session cookies, or initiate a fresh login.
+   * @param cb Callback
+   */
+  setSessionExpiryHook: (cb: Function) => void;
+
+  /**
+   * Validate postback data checksum
+   * @param postback_data Postback data received. Must be an json object with required keys order_id, checksum and order_timestamp
+   * @param api_secret Api secret of the app
+   */
+  validatePostback: (
+    postback_data: {
+      order_id: string;
+      checksum: string;
+      order_timestamp: string;
+    },
+    api_secret: string
+  ) => boolean;
 };
 
 type KiteConnect = {
+  /**
+   * @classdesc API client class. In production, you may initialise a single instance of this class per `api_key`.
+   * This module provides an easy to use abstraction over the HTTP APIs.
+   * The HTTP calls have been converted to methods and their JSON responses.
+   * See the **[Kite Connect API documentation](https://kite.trade/docs/connect/v3/)**
+   * for the complete list of APIs, supported parameters and values, and response formats.
+   *
+   * Getting started with API
+   * ------------------------
+   * ~~~~
+   *
+   * var KiteConnect = require("kiteconnect").KiteConnect;
+   *
+   * var kc = new KiteConnect({api_key: "your_api_key"});
+   *
+   * kc.generateSession("request_token", "api_secret")
+   * 	.then(function(response) {
+   * 		init();
+   * 	})
+   * 	.catch(function(err) {
+   * 		console.log(err);
+   * 	})
+   *
+   * function init() {
+   * 	// Fetch equity margins.
+   * 	// You can have other api calls here.
+   *
+   * 	kc.getMargins()
+   * 		.then(function(response) {
+   * 			// You got user's margin details.
+   * 		}).catch(function(err) {
+   * 			// Something went wrong.
+   * 		});
+   *  }
+   * ~~~~
+   *
+   * API promises
+   * -------------
+   * All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
+   *
+   * ~~~~
+   * kiteConnectApiCall
+   * 	.then(function(v) {
+   * 	    // On success
+   * 	})
+   * 	.catch(function(e) {
+   * 		// On rejected
+   * 	});
+   * ~~~~
+   *
+   * @example <caption>Initialize KiteConnect object</caption>
+   * var kc = KiteConnect("my_api_key", {timeout: 10, debug: false})
+   */
   new (params: KiteConnectParams): Connect;
 };
+
+declare const KiteConnect: KiteConnect;
+export default KiteConnect;

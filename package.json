@@ -3,6 +3,7 @@
   "version": "4.1.0",
   "description": "The official JS client library for the Kite Connect trading APIs",
   "main": "./lib/",
+  "types": "./types/index.d.ts",
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
     "test": "mocha"
