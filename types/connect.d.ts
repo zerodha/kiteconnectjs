@@ -468,6 +468,377 @@ type MFOrder = {
   tag: any;
 };
 
+type MFSIP = {
+  /**
+   * Unique SIP id
+   */
+  sip_id: string;
+  /**
+   * ISIN of the fund.
+   */
+  tradingsymbol: string;
+  /**
+   * Name of the fund
+   */
+  fund: string;
+  /**
+   * Dividend type (growth, payout)
+   */
+  dividend_type: string;
+  /**
+   * BUY or SELL
+   */
+  transaction_type: string;
+  /**
+   * ACTIVE, PAUSED or CANCELLED
+   */
+  status: string;
+  /**
+   * Date at which the SIP was registered by the API
+   */
+  created: Date;
+  /**
+   * Frequency at which order is triggered (monthly, weekly, or quarterly)
+   */
+  frequency: string;
+  /**
+   * Upcoming instalment date
+   */
+  next_instalment: string;
+  /**
+   * Amount worth of units to purchase in each instalment
+   */
+  instalment_amount: number;
+  /**
+   * Number of instalments (-1 in case of SIPs active until cancelled)
+   */
+  instalments: number;
+  /**
+   * Date at which the last instalment was triggered
+   */
+  last_instalment: Date;
+  /**
+   * Number of instalments pending (-1 in case of SIPs active until cancelled)
+   */
+  pending_instalments: number;
+  /**
+   * Calendar day in a month on which SIP order to be triggered (valid only incase of frequency monthly, else 0)
+   */
+  instalment_day: number;
+  /**
+   * Total number of completed instalments from the start
+   */
+  completed_instalments: number;
+  /**
+   * Tag that was sent with an order to identify it (alphanumeric, max 8 chars)
+   */
+  tag: string;
+  sip_reg_num: null | string;
+  trigger_price: number;
+  step_up: Record<string, number>;
+  sip_type: string;
+};
+
+type Order = {
+  /**
+   * Unique order ID
+   */
+  order_id: string;
+  /**
+   * Order ID of the parent order (only applicable in case of multi-legged orders like CO)
+   */
+  parent_order_id: null | string;
+  /**
+   * Exchange generated order ID. Orders that don't reach the exchange have null IDs
+   */
+  exchange_order_id: null | string;
+  /**
+   * ID of the user that placed the order. This may different from the user's ID for orders placed outside of Kite, for instance, by dealers at the brokerage using dealer terminals
+   */
+  placed_by: string;
+  /**
+   * Order variety (regular, amo, co etc.)
+   */
+  variety: string;
+  /**
+   * Current status of the order. Most common values or COMPLETE, REJECTED, CANCELLED, and OPEN. There may be other values as well.
+   */
+  status: string;
+  /**
+   * Exchange tradingsymbol of the of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Exchange
+   */
+  exchange: string;
+  /**
+   * The numerical identifier issued by the exchange representing the instrument. Used for subscribing to live market data over WebSocket
+   */
+  instrument_token: number;
+  /**
+   * BUY or SELL
+   */
+  transaction_type: string;
+  /**
+   * Order type (MARKET, LIMIT etc.)
+   */
+  order_type: string;
+  /**
+   * Margin product to use for the order (margins are blocked based on this) ?
+   */
+  product: string;
+  /**
+   * Order validity
+   */
+  validity: string;
+  /**
+   * Price at which the order was placed (LIMIT orders)
+   */
+  price: number;
+  /**
+   * Quantity ordered
+   */
+  quantity: number;
+  /**
+   * Trigger price (for SL, SL-M, CO orders)
+   */
+  trigger_price: number;
+  /**
+   * Average price at which the order was executed (only for COMPLETE orders)
+   */
+  average_price: number;
+  /**
+   * Pending quantity to be filled
+   */
+  pending_quantity: number;
+  /**
+   * Quantity that's been filled
+   */
+  filled_quantity: number;
+  /**
+   * Quantity to be disclosed (may be different from actual quantity) to the public exchange orderbook. Only for equities
+   */
+  disclosed_quantity: number;
+  /**
+   * Date at which the order was registered by the API
+   */
+  order_timestamp: Date;
+  /**
+   * Date at which the order was registered by the exchange. Orders that don't reach the exchange have null timestamps
+   */
+  exchange_timestamp: null | Date;
+  /**
+   * Timestamp at which an order's state changed at the exchange
+   */
+  exchange_update_timestamp: null | string;
+  /**
+   * Textual description of the order's status. Failed orders come with human readable explanation
+   */
+  status_message: null | string;
+  /**
+   * Raw textual description of the failed order's status, as received from the OMS
+   */
+  status_message_raw: null | string;
+  /**
+   * Quantity that's cancelled
+   */
+  cancelled_quantity: number;
+  /**
+   * Map of arbitrary fields that the system may attach to an order.
+   */
+  meta: object | string;
+  /**
+   * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
+   */
+  tag: null | string;
+  tags?: string[];
+  /**
+   * Unusable request id to avoid order duplication
+   */
+  guid: string;
+  /**
+   * 0 or 1
+   */
+  market_protection: number;
+};
+
+type Trade = {
+  /**
+   * Exchange generated trade ID
+   */
+  trade_id: string;
+  /**
+   * Unique order ID
+   */
+  order_id: string;
+  /**
+   * Exchange generated order ID
+   */
+  exchange_order_id: null | string;
+  /**
+   * Exchange tradingsymbol of the of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Exchange
+   */
+  exchange: string;
+  /**
+   * The numerical identifier issued by the exchange representing the instrument.
+   * Used for subscribing to live market data over WebSocket
+   */
+  instrument_token: number;
+  /**
+   * BUY or SELL
+   */
+  transaction_type: string;
+  /**
+   * Margin product to use for the order (margins are blocked based on this) ?
+   */
+  product: string;
+  /**
+   * Price at which the quantity was filled
+   */
+  average_price: number;
+  /**
+   * Filled quantity
+   */
+  filled: number;
+  quantity: number;
+  /**
+   * Date at which the trade was filled at the exchange
+   */
+  fill_timestamp: Date;
+  /**
+   * Date at which the order was registered by the API
+   */
+  order_timestamp: Date;
+  /**
+   * Date at which the order was registered by the exchange
+   */
+  exchange_timestamp: Date;
+};
+
+type Position = {
+  /**
+   * Exchange tradingsymbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Exchange
+   */
+  exchange: string;
+  /**
+   * The numerical identifier issued by the exchange representing the instrument. Used for subscribing to live market data over WebSocket
+   */
+  instrument_token: number;
+  /**
+   * Margin product applied to the position
+   */
+  product: string;
+  /**
+   * Quantity held
+   */
+  quantity: number;
+  /**
+   * Quantity held previously and carried forward over night
+   */
+  overnight_quantity: number;
+  /**
+   * The quantity/lot size multiplier used for calculating P&Ls.
+   */
+  multiplier: number;
+  /**
+   * Average price at which the net position quantity was acquired
+   */
+  average_price: number;
+  /**
+   * Closing price of the instrument from the last trading day
+   */
+  close_price: number;
+  /**
+   * Last traded market price of the instrument
+   */
+  last_price: number;
+  /**
+   * Net value of the position
+   */
+  value: number;
+  /**
+   * Net returns on the position; Profit and loss
+   */
+  pnl: number;
+  /**
+   * Mark to market returns (computed based on the last close and the last traded price)
+   */
+  m2m: number;
+  /**
+   * Unrealised intraday returns
+   */
+  unrealised: number;
+  /**
+   * Realised intraday returns
+   */
+  realised: number;
+  /**
+   * Quantity bought and added to the position
+   */
+  buy_quantity: number;
+  /**
+   * Average price at which quantities were bought
+   */
+  buy_price: number;
+  /**
+   * Net value of the bought quantities
+   */
+  buy_value: number;
+  /**
+   * Mark to market returns on the bought quantities
+   */
+  buy_m2m: number;
+  /**
+   * Quantity bought and added to the position during the day
+   */
+  day_buy_quantity: number;
+  /**
+   * Average price at which quantities were bought during the day
+   */
+  day_buy_price: number;
+  /**
+   * Net value of the quantities bought during the day
+   */
+  day_buy_value: number;
+  /**
+   * Quantity sold off from the position
+   */
+  sell_quantity: number;
+  /**
+   * Average price at which quantities were sold
+   */
+  sell_price: number;
+  /**
+   * Net value of the sold quantities
+   */
+  sell_value: number;
+  /**
+   * Mark to market returns on the sold quantities
+   */
+  sell_m2m: number;
+  /**
+   * Quantity sold off from the position during the day
+   */
+  day_sell_quantity: number;
+  /**
+   * Average price at which quantities were sold during the day
+   */
+  day_sell_price: number;
+  /**
+   * Net value of the quantities sold during the day
+   */
+  day_sell_value: number;
+};
+
 type KiteConnectParams = {
   /**
    * API key issued to you.
@@ -604,7 +975,6 @@ type Connect = {
    * @param variety Order variety (ex. bo, co, amo)
    * @param order_id ID of the order.
    * @param params Order params. regular).
-   * @returns
    */
   cancelOrder: (
     variety: 'regular' | 'bo' | 'co' | 'amo' | 'iceberg' | 'auction',
@@ -673,7 +1043,6 @@ type Connect = {
    * @param variety Order variety (ex. bo, co, amo)
    * @param order_id ID of the order.
    * @param params Order params.
-   * @returns
    */
   exitOrder: (
     variety: 'regular' | 'bo' | 'co' | 'amo' | 'iceberg' | 'auction',
@@ -873,7 +1242,8 @@ type Connect = {
 
   /**
    * Retrieve LTP for list of instruments.
-   * @param instruments is a list of instruments, Instrument are in the format of exchange:tradingsymbol. For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
+   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
    */
   getLTP: (instruments: string[]) => Promise<{
     status: string;
@@ -922,6 +1292,292 @@ type Connect = {
   getMFOrders: (
     order_id?: string
   ) => Promise<{ status: string; data: MFOrder | MFOrder[] }>;
+
+  /**
+   * Get list of mutual fund SIPS.
+   * If no `sip_id` is specified, all active and paused SIPs are returned.
+   * @param sip_id ID of the SIP (optional) whose details are to be retrieved.
+   */
+  getMFSIPS: (
+    sip_id?: string
+  ) => Promise<{ status: string; data: MFSIP | MFSIP[] }>;
+
+  /**
+   * Retrieve OHLC for list of instruments.
+   * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
+   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   */
+  getOHLC: (instruments: string[]) => Promise<{
+    status: string;
+    data: Record<
+      string,
+      {
+        /**
+         * The numerical identifier issued by the exchange representing the instrument.
+         */
+        instrument_token: number;
+        /**
+         * Last traded market price
+         */
+        last_price: number;
+        ohlc: {
+          /**
+           * Price at market opening
+           */
+          open: number;
+          /**
+           * Highest price today
+           */
+          high: number;
+          /**
+           * Lowest price today
+           */
+          low: number;
+          /**
+           * Closing price of the instrument from the last trading day
+           */
+          close: number;
+        };
+      }
+    >;
+  }>;
+
+  /**
+   * Get list of order history.
+   * @param order_id ID of the order whose order details to be retrieved.
+   */
+  getOrderHistory: (
+    order_id: string
+  ) => Promise<{ status: string; data: Order[] }>;
+
+  /**
+   * Get list of orders.
+   */
+  getOrders: () => Promise<{ status: string; data: Order[] }>;
+
+  /**
+   * Retrieve the list of trades a particular order).
+   * An order can be executed in tranches based on market conditions.
+   * These trades are individually recorded under an order.
+   * @param order_id ID of the order whose trades are to be retrieved.
+   */
+  getOrderTrades: (order_id: string) => Promise<{
+    status: string;
+    data: Trade[];
+  }>;
+
+  /**
+   * Retrieve positions.
+   */
+  getPositions: () => Promise<{
+    status: string;
+    data: {
+      net: Position[];
+      day: Position[];
+    };
+  }>;
+
+  /**
+   * Get user profile details.
+   */
+  getProfile: () => Promise<{
+    status: string;
+    data: {
+      /**
+       * The unique, permanent user id registered with the broker and the exchanges
+       */
+      user_id: string;
+      /**
+       * User's real name
+       */
+      user_name: string;
+      /**
+       * Shortened version of the user's real name
+       */
+      user_shortname: string;
+      /**
+       * User's email
+       */
+      email: string;
+      /**
+       * User's registered role at the broker. This will be individual for all retail users
+       */
+      user_type: string;
+      /**
+       * The broker ID
+       */
+      broker: string;
+      /**
+       * Exchanges enabled for trading on the user's account
+       */
+      exchanges: string[];
+      /**
+       * Margin product types enabled for the user
+       */
+      products: string[];
+      /**
+       * Order types enabled for the user
+       */
+      order_types: string[];
+      meta: {
+        /**
+         * demat_consent: empty, consent or physical
+         */
+        demat_consent: string;
+      };
+      /**
+       * Full URL to the user's avatar (PNG image) if there's one
+       */
+      avatar_url: null | string;
+    };
+  }>;
+
+  /**
+   * Retrieve quote and market depth for list of instruments.
+   * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
+   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   */
+  getQuote: (instruments: string[]) => Promise<{
+    status: string;
+    data: Record<
+      string,
+      {
+        /**
+         * The numerical identifier issued by the exchange representing the instrument.
+         */
+        instrument_token: number;
+        /**
+         * The exchange timestamp of the quote packet
+         */
+        timestamp: string;
+        /**
+         * Last trade timestamp
+         */
+        last_trade_time: null | string;
+        /**
+         * Last traded market price
+         */
+        last_price: number;
+        /**
+         * Volume traded today
+         */
+        volume: number;
+        /**
+         * The volume weighted average price of a stock at a given time during the day?
+         */
+        average_price: number;
+        /**
+         * Total quantity of buy orders pending at the exchange
+         */
+        buy_quantity: number;
+        /**
+         * Total quantity of sell orders pending at the exchange
+         */
+        sell_quantity: number;
+        /**
+         * Total number of outstanding contracts held by market participants exchange-wide (only F&O)
+         */
+        open_interest?: number;
+        /**
+         * Last traded quantity
+         */
+        last_quantity: number;
+        ohlc: {
+          /**
+           * Price at market opening
+           */
+          open: number;
+          /**
+           * Highest price today
+           */
+          high: number;
+          /**
+           * Lowest price today
+           */
+          low: number;
+          /**
+           * Closing price of the instrument from the last trading day
+           */
+          close: number;
+        };
+
+        /**
+         * The absolute change from yesterday's close to last traded price
+         */
+        net_change: number;
+        /**
+         * The current lower circuit limit
+         */
+        lower_circuit_limit: number;
+        /**
+         * The current upper circuit limit
+         */
+        upper_circuit_limit: number;
+        /**
+         * The Open Interest for a futures or options contract ?
+         */
+        oi: number;
+        /**
+         * The highest Open Interest recorded during the day
+         */
+        oi_day_high: number;
+        /**
+         * The lowest Open Interest recorded during the day
+         */
+        oi_day_low: number;
+        depth: {
+          buy: {
+            /**
+             * Price at which the depth stands
+             */
+            price: number;
+            /**
+             * Number of open BUY (bid) orders at the price
+             */
+            orders: number;
+            /**
+             * Net quantity from the pending orders
+             */
+            quantity: number;
+          }[];
+          sell: {
+            /**
+             * Price at which the depth stands
+             */
+            price: number;
+            /**
+             * Number of open SELL (ask) orders at the price
+             */
+            orders: number;
+            /**
+             * Net quantity from the pending orders
+             */
+            quantity: number;
+          }[];
+        };
+      }
+    >;
+  }>;
+
+  /**
+   * Retrieve the list of trades executed.
+   */
+  getTrades: () => Promise<{
+    status: string;
+    data: Trade[];
+  }>;
+
+  /**
+   * Retrieve the buy/sell trigger range for Cover Orders.
+   * @param exchange Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
+   * @param tradingsymbol Tranding symbol of the instrument (ex. RELIANCE, INFY).
+   * @param transaction_type Transaction type (BUY or SELL).
+   */
+  getTriggerRange: (
+    exchange: Exchange,
+    tradingsymbol: string,
+    transaction_type: 'BUY' | 'SELL'
+  ) => Promise<any>;
 };
 
 type KiteConnect = {
