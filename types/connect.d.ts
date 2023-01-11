@@ -1,3 +1,473 @@
+type Exchange = 'NSE' | 'BSE' | 'NFO' | 'CDS' | 'BCD' | 'BFO' | 'MCX';
+
+type Trigger = {
+  id: number;
+  user_id: string;
+  parent_trigger: any;
+  type: string;
+  created_at: string;
+  updated_at: string;
+  expires_at: string;
+  status:
+    | 'active'
+    | 'triggered'
+    | 'disabled'
+    | 'expired'
+    | 'cancelled'
+    | 'rejected'
+    | 'deleted';
+  condition: {
+    exchange: string;
+    last_price: number;
+    tradingsymbol: string;
+    trigger_values: number[];
+    instrument_token: number;
+  };
+  orders: {
+    exchange: string;
+    tradingsymbol: string;
+    product: string;
+    order_type: string;
+    transaction_type: string;
+    quantity: number;
+    price: number;
+    result: null | {
+      account_id: string;
+      exchange: string;
+      tradingsymbol: string;
+      validity: string;
+      product: string;
+      order_type: string;
+      transaction_type: string;
+      quantity: number;
+      price: number;
+      meta: string;
+      timestamp: string;
+      triggered_at: number;
+      order_result: {
+        status: string;
+        order_id: string;
+        rejection_reason: string;
+      };
+    };
+  }[];
+  meta: any;
+};
+
+type PortfolioHolding = {
+  /**
+   * Exchange tradingsymbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Exchange
+   */
+  exchange: string;
+  /**
+   * Unique instrument identifier (used for WebSocket subscriptions)
+   */
+  instrument_token: number;
+  /**
+   * The standard ISIN representing stocks listed on multiple exchanges
+   */
+  isin: string;
+  /**
+   * Margin product applied to the holding
+   */
+  product: string;
+  price: number;
+  /**
+   * Net quantity (T+1 + realised)
+   */
+  quantity: number;
+  /**
+   * Quantity sold from the net holding quantity
+   */
+  used_quantity: number;
+  /**
+   * Quantity on T+1 day after order execution. Stocks are usually delivered into DEMAT accounts on T+2
+   */
+  t1_quantity: number;
+  /**
+   * Quantity delivered to Demat
+   */
+  realised_quantity: number;
+  /**
+   * Quantity authorised at the depository for sale
+   */
+  authorised_quantity: number;
+  /**
+   * Date on which user can sell required holding stock
+   */
+  authorised_date: string;
+  /**
+   * Quantity carried forward over night
+   */
+  opening_quantity: number;
+  /**
+   * Quantity used as collateral
+   */
+  collateral_quantity: number;
+  /**
+   * Type of collateral
+   */
+  collateral_type: string;
+  /**
+   * Indicates whether holding has any price discrepancy
+   */
+  discrepancy: boolean;
+  /**
+   * Average price at which the net holding quantity was acquired
+   */
+  average_price: number;
+  /**
+   * Last traded market price of the instrument
+   */
+  last_price: number;
+  /**
+   * Closing price of the instrument from the last trading day
+   */
+  close_price: number;
+  /**
+   * Net returns on the stock; Profit and loss
+   */
+  pnl: number;
+  /**
+   * Day's change in absolute value for the stock
+   */
+  day_change: number;
+  /**
+   * Day's change in percentage for the stock
+   */
+  day_change_percentage: number;
+};
+
+type Instrument = {
+  /**
+   * Numerical identifier used for subscribing to live market quotes with the WebSocket API.
+   */
+  instrument_token: string;
+  /**
+   * The numerical identifier issued by the exchange representing the instrument.
+   */
+  exchange_token: string;
+  /**
+   * Exchange tradingsymbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * Name of the company (for equity instruments)
+   */
+  name: string;
+  /**
+   * Last traded market price
+   */
+  last_price: number;
+  /**
+   * Expiry date (for derivatives)
+   */
+  expiry: Date;
+  /**
+   * Strike (for options)
+   */
+  strike: number;
+  /**
+   * Value of a single price tick
+   */
+  tick_size: number;
+  /**
+   * Quantity of a single lot
+   */
+  lot_size: number;
+  /**
+   * EQ, FUT, CE, PE
+   */
+  instrument_type: 'EQ' | 'FUT' | 'CE' | 'PE';
+  /**
+   * Segment the instrument belongs to
+   */
+  segment: string;
+  /**
+   * Exchange
+   */
+  exchange: Exchange;
+};
+
+type Margin = {
+  /**
+   * Indicates whether the segment is enabled for the user
+   */
+  enabled: boolean;
+  /**
+   * Net cash balance available for trading (`intraday_payin` + `adhoc_margin` + `collateral`)
+   */
+  net: number;
+  available: {
+    /**
+     * Additional margin provided by the broker
+     */
+    adhoc_margin: number;
+    /**
+     * Raw cash balance in the account available for trading (also includes `intraday_payin`)
+     */
+    cash: number;
+    /**
+     * Opening balance at the day start
+     */
+    opening_balance: number;
+    /**
+     * Current available balance
+     */
+    live_balance: number;
+    /**
+     * Margin derived from pledged stocks
+     */
+    collateral: number;
+    /**
+     * Amount that was deposited during the day
+     */
+    intraday_payin: number;
+  };
+  utilised: {
+    /**
+     * Sum of all utilised margins (unrealised M2M + realised M2M + SPAN + Exposure + Premium + Holding sales)
+     */
+    debits: number;
+    /**
+     * Exposure margin blocked for all open F&O positions
+     */
+    exposure: number;
+    /**
+     * Booked intraday profits and losses
+     */
+    m2m_realised: number;
+    /**
+     * Un-booked (open) intraday profits and losses
+     */
+    m2m_unrealised: number;
+    /**
+     * Value of options premium received by shorting
+     */
+    option_premium: number;
+    /**
+     * Funds paid out or withdrawn to bank account during the day
+     */
+    payout: number;
+    /**
+     * SPAN margin blocked for all open F&O positions
+     */
+    span: number;
+    /**
+     * Value of holdings sold during the day
+     */
+    holding_sales: number;
+    /**
+     * Utilised portion of the maximum turnover limit (only applicable to certain clients)
+     */
+    turnover: number;
+    /**
+     * Margin utilised against pledged liquidbees ETFs and liquid mutual funds
+     */
+    liquid_collateral: number;
+    /**
+     * Margin utilised against pledged stocks/ETFs
+     */
+    stock_collateral: number;
+    /**
+     * Margin blocked when you sell securities (20% of the value of stocks sold) from your demat or T1 holdings
+     */
+    delivery: number;
+  };
+};
+
+type MFHolding = {
+  /**
+   * Folio number generated by AMC for the completed purchase order (null incase of SELL order)
+   */
+  folio: null | string;
+  /**
+   * Allotted NAV price for a completed BUY order; Selling NAV price for completed SELL order
+   */
+  average_price: number;
+  /**
+   * Last available NAV price of the fund
+   */
+  last_price: number;
+  /**
+   * Date for which last NAV is available
+   */
+  last_price_date: string;
+  pledged_quantity: number;
+  /**
+   * Name of the fund
+   */
+  fund: string;
+  /**
+   * ISIN of the fund.
+   */
+  tradingsymbol: string;
+  /**
+   * Net returns of the holding. Based on the last available NAV price.
+   */
+  pnl: number;
+  /**
+   * Quantity available in the client's holding for this ISIN.
+   */
+  quantity: number;
+};
+
+type MFInstrument = {
+  /**
+   * ISIN of the fund
+   */
+  tradingsymbol: string;
+  /**
+   * AMC code as per the exchange
+   */
+  amc: string;
+  /**
+   * Fund name
+   */
+  name: string;
+  purchase_allowed: boolean;
+  redemption_allowed: boolean;
+  /**
+   * Minimum purchase amount for the first BUY
+   */
+  minimum_purchase_amount: number;
+  /**
+   * Buy amount should be in multiple of this value
+   */
+  purchase_amount_multiplier: number;
+  /**
+   * Minimum additional BUY amount
+   */
+  minimum_additional_purchase_amount: number;
+  /**
+   * Minimum SELL quantity
+   */
+  minimum_redemption_quantity: number;
+  /**
+   * SELL quantity multiple
+   */
+  redemption_quantity_multiplier: number;
+  /**
+   * `growth` or `payout`
+   */
+  dividend_type: string;
+  /**
+   * `equity`, `debt`, `elss`
+   */
+  scheme_type: string;
+  /**
+   * `direct` or `regular`
+   */
+  plan: string;
+  /**
+   * Settlement type of the fund (`T1`, `T2` etc.)
+   */
+  settlement_type: string;
+  /**
+   * Last available NAV price of the fund
+   */
+  last_price: number;
+  /**
+   * Last available NAV's date
+   */
+  last_price_date: Date;
+};
+
+type MFOrder = {
+  /**
+   * Unique order id
+   */
+  order_id: string;
+  /**
+   * Exchange generated order id
+   */
+  exchange_order_id: null | string;
+  /**
+   * ISIN of the fund
+   */
+  tradingsymbol: string;
+  /**
+   * Current status of the order.
+   * Most common values or COMPLETE, REJECTED, CANCELLED, and OPEN. There may be other values as well
+   */
+  status: null | string;
+  /**
+   * Textual description of the order's status. Failed orders come with human readable explanation
+   */
+  status_message: null | string;
+  /**
+   * Folio number generated by AMC for the completed purchase order
+   */
+  folio: null | string;
+  /**
+   * FRESH or ADDITIONAL (null incase of SELL order)
+   */
+  /**
+   * Name of the fund
+   */
+  fund: string;
+  /**
+   * Date at which the order was registered by the API
+   */
+  order_timestamp: Date;
+  /**
+   * Date on which the order was registered by the exchange. Orders that don't reach the exchange have null timestamps
+   */
+  exchange_timestamp: Date;
+  /**
+   * Exchange settlement ID
+   */
+  settlement_id: string;
+  /**
+   * BUY or SELL
+   */
+  transaction_type: string;
+  /**
+   * Amount placed for purchase of units
+   */
+  amount: number;
+  /**
+   * Order variety (regular, sip)
+   */
+  variety: string;
+  /**
+   * FRESH or ADDITIONAL (null incase of SELL order)
+   */
+  purchase_type: null | string;
+  /**
+   * Number of units allotted or sold
+   */
+  quantity: number;
+  /**
+   * Buy or sell price
+   */
+  price: number;
+  /**
+   * Last available NAV price of the fund
+   */
+  last_price: number;
+  /**
+   * Allotted or sold NAV price
+   */
+  average_price: number;
+  /**
+   * Id of the user that placed the order
+   */
+  placed_by: string;
+  /**
+   * Date for which last NAV is available
+   */
+  last_price_date: string;
+  /**
+   * Tag that was sent with an order to identify it (alphanumeric, max 8 chars)
+   */
+  tag: any;
+};
+
 type KiteConnectParams = {
   /**
    * API key issued to you.
@@ -160,7 +630,7 @@ type Connect = {
     /**
      * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
      */
-    exchange: 'NSE' | 'BSE' | 'NFO' | 'BFO' | 'CDS' | 'MCX';
+    exchange: Exchange;
     /**
      * Tradingsymbol of the instrument (ex. RELIANCE, INFY).
      */
@@ -214,7 +684,12 @@ type Connect = {
        */
       parent_order_id?: string;
     }
-  ) => Promise<any>;
+  ) => Promise<{
+    status: string;
+    data: {
+      order_id: string;
+    };
+  }>;
 
   /**
    * Do the token exchange with the `request_token` obtained after the login flow,
@@ -300,6 +775,153 @@ type Connect = {
      */
     avatar_url: string;
   }>;
+
+  /**
+   * Get list of order history.
+   * @param trigger_id GTT trigger ID
+   */
+  getGTT: (trigger_id: string) => Promise<{ status: 'string'; data: Trigger }>;
+
+  /**
+   * Get GTTs list
+   */
+  getGTTs: () => Promise<{ status: 'string'; data: Trigger[] }>;
+
+  /**
+   * Retrieve historical data (candles) for an instrument.
+   * Although the actual response JSON from the API does not have field
+   * names such has 'open', 'high' etc., this functin call structures
+   * the data into an array of objects with field names. For example:
+   *
+   * ~~~~
+   * [{
+   * 	date: '2015-02-10T00:00:00+0530',
+   * 	open: 277.5,
+   * 	high: 290.8,
+   * 	low: 275.7,
+   * 	close: 287.3,
+   * 	volume: 22589681
+   * }, ....]
+   * ~~~~
+   *
+   * @param instrument_token Instrument identifier (retrieved from the instruments()) call.
+   * @param interval candle interval (minute, day, 5 minute etc.)
+   * @param from_date From date (String in format of 'yyyy-mm-dd HH:MM:SS' or Date object).
+   * @param to_date To date (String in format of 'yyyy-mm-dd HH:MM:SS' or Date object).
+   * @param continuous is a bool flag to get continuous data for futures and options instruments. Defaults to false.
+   * @param oi is a bool flag to include OI data for futures and options instruments. Defaults to false.
+   */
+  getHistoricalData: (
+    instrument_token: string,
+    interval:
+      | 'minute'
+      | 'day'
+      | '3minute'
+      | '5minute'
+      | '10minute'
+      | '15minute'
+      | '30minute'
+      | '60minute',
+    from_date: string | Date,
+    to_date: string | Date,
+    continuous?: boolean,
+    oi?: boolean
+  ) => Promise<{
+    date: Date;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    oi?: number;
+  }>;
+
+  /**
+   * Retrieve the list of equity holdings.
+   */
+  getHoldings: () => Promise<{ status: string; data: PortfolioHolding[] }>;
+
+  /**
+   * Retrieve the list of market instruments available to trade.
+   * Note that the results could be large, several hundred KBs in size,
+   * with tens of thousands of entries in the list.
+   * Response is array for objects. For example
+   * ~~~~
+   * 	{
+   * 		instrument_token: '131098372',
+   *		exchange_token: '512103',
+   *		tradingsymbol: 'NIDHGRN',
+   *		name: 'NIDHI GRANITES',
+   *		last_price: '0.0',
+   *		expiry: '',
+   *		strike: '0.0',
+   *		tick_size: '0.05',
+   *		lot_size: '1',
+   *		instrument_type: 'EQ',
+   *		segment: 'BSE',
+   *		exchange: 'BSE' }, ...]
+   * ~~~~
+   *
+   * @param segment Filter instruments based on exchange (NSE, BSE, NFO, BFO, CDS, MCX). If no `segment` is specified, all instruments are returned.
+   */
+  getInstruments: (segment?: Exchange[]) => Promise<Instrument[]>;
+
+  /**
+   * Get the remote login url to which a user should be redirected to initiate the login flow.
+   */
+  getLoginURL: () => string;
+
+  /**
+   * Retrieve LTP for list of instruments.
+   * @param instruments is a list of instruments, Instrument are in the format of exchange:tradingsymbol. For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   */
+  getLTP: (instruments: string[]) => Promise<{
+    status: string;
+    data: Record<
+      string,
+      {
+        /**
+         * The numerical identifier issued by the exchange representing the instrument.
+         */
+        instrument_token: number;
+        /**
+         * Last traded market price
+         */
+        last_price: number;
+      }
+    >;
+  }>;
+
+  /**
+   * Get account balance and cash margin details for a particular segment.
+   * @param segment trading segment (eg: equity or commodity).
+   */
+  getMargins: (segment?: 'equity' | 'commodity') => Promise<{
+    status: 'string';
+    data: {
+      equity?: Margin;
+      commodity?: Margin;
+    };
+  }>;
+
+  /**
+   * Get list of mutual fund holdings.
+   */
+  getMFHoldings: () => Promise<{ status: string; data: MFHolding[] }>;
+
+  /**
+   * Get list of mutual fund instruments.
+   */
+  getMFInstruments: () => Promise<MFInstrument[]>;
+
+  /**
+   * Get list of mutual fund orders.
+   * If no `order_id` is specified, all orders for the day are returned.
+   * @param order_id ID of the order (optional) whose order details are to be retrieved.
+   */
+  getMFOrders: (
+    order_id?: string
+  ) => Promise<{ status: string; data: MFOrder | MFOrder[] }>;
 };
 
 type KiteConnect = {
