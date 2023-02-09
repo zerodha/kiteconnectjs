@@ -1361,12 +1361,12 @@ type Connect = {
    * Get list of order history.
    * @param trigger_id GTT trigger ID
    */
-  getGTT: (trigger_id: string) => Promise<{ status: 'string'; data: Trigger }>;
+  getGTT: (trigger_id: string) => Promise<Trigger>;
 
   /**
    * Get GTTs list
    */
-  getGTTs: () => Promise<{ status: 'string'; data: Trigger[] }>;
+  getGTTs: () => Promise<Trigger[]>;
 
   /**
    * Retrieve historical data (candles) for an instrument.
@@ -1443,9 +1443,9 @@ type Connect = {
    *		exchange: 'BSE' }, ...]
    * ~~~~
    *
-   * @param segment Filter instruments based on exchange (NSE, BSE, NFO, BFO, CDS, MCX). If no `segment` is specified, all instruments are returned.
+   * @param exchange Filter instruments based on exchange (NSE, BSE, NFO, BFO, CDS, MCX). If no `segment` is specified, all instruments are returned.
    */
-  getInstruments: (segment?: Exchange[]) => Promise<Instrument[]>;
+  getInstruments: (exchange?: Exchange[]) => Promise<Instrument[]>;
 
   /**
    * Get the remote login url to which a user should be redirected to initiate the login flow.
@@ -1788,13 +1788,12 @@ type Connect = {
   modifyGTT: (
     trigger_id: string,
     params: GTTParams
-  ) => Promise<{ status: 'success'; data: { trigger_id: number } }>;
+  ) => Promise<{ trigger_id: number }>;
 
   /**
    * Modify a mutual fund SIP.
    * @param sip_id ID of the SIP.
    * @param params Modify params.
-   * @returns
    */
   modifyMFSIP: (
     sip_id: string,
@@ -1817,7 +1816,7 @@ type Connect = {
        */
       status?: 'active' | 'paused';
     }
-  ) => Promise<{ status: 'success'; data: { sip_id: number } }>;
+  ) => Promise<{ sip_id: number }>;
 
   /**
    * Modify an order
