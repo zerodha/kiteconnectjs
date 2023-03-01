@@ -1,0 +1,49 @@
+name: Deploy
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  publish-doc:
+    runs-on: ubuntu-20.04
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install -g jsdoc
+
+      - name: Building documentation for github page
+        run: jsdoc --configure ./.jsdoc.json
+
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/
+
+      - id: deployment
+        uses: actions/deploy-pages@v1
