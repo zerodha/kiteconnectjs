@@ -1,4 +1,4 @@
-type KiteTickerParams = {
+export  type KiteTickerParams = {
     /**
      * API key issued you.
      */
@@ -21,7 +21,7 @@ type KiteTickerParams = {
     max_delay?: number;
   };
   
-  type Ticker = {
+  export  type Ticker = {
     /**
      * Set mode full
      */
@@ -116,9 +116,10 @@ type KiteTickerParams = {
      * ticker.unsubscribe([738561]);
      */
     unsubscribe: (tokens: number[]) => number[];
+    parseBinary : (binpacks: ArrayBuffer) => object[]
   };
   
-  type KiteTicker = {
+  export  type KiteTicker = {
     /**
      * The WebSocket client for connecting to Kite connect streaming quotes service.
      *
