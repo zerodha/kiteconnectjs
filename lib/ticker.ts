@@ -1,5 +1,5 @@
-var WebSocket = require("ws");
-var utils = require("./utils");
+import WebSocket from "ws";
+import utils from "./utils";
 
 /**
  * The WebSocket client for connecting to Kite connect streaming quotes service.
@@ -7,8 +7,8 @@ var utils = require("./utils");
  * Getting started:
  * ---------------
  *
- * 	var KiteTicker = require("kiteconnect").KiteTicker;
- * 	var ticker = new KiteTicker({
+ * 	const KiteTicker = require("kiteconnect").KiteTicker;
+ * 	const ticker = new KiteTicker({
  * 		api_key: "api_key",
  * 		access_token: "access_token"
  *	});
@@ -22,7 +22,7 @@ var utils = require("./utils");
  * 	}
  *
  * 	function subscribe() {
- * 		var items = [738561];
+ * 		const items = [738561];
  * 		ticker.subscribe(items);
  * 		ticker.setMode(ticker.modeFull, items);
  * 	}
@@ -115,8 +115,8 @@ var utils = require("./utils");
  *
  * Here is an example demonstrating auto reconnection.
  *
- * 	var KiteTicker = require("kiteconnect").KiteTicker;
- * 	var ticker = new KiteTicker({
+ * 	const KiteTicker = require("kiteconnect").KiteTicker;
+ * 	const ticker = new KiteTicker({
  * 		api_key: "api_key",
  * 		access_token: "access_token"
  *	});
@@ -144,7 +144,7 @@ var utils = require("./utils");
  * 	}
  *
  * 	function subscribe() {
- * 		var items = [738561];
+ * 		const items = [738561];
  * 		ticker.subscribe(items);
  * 		ticker.setMode(ticker.modeFull, items);
  * 	}
@@ -160,10 +160,10 @@ var utils = require("./utils");
  * @param {number} [params.max_delay=60] in seconds is the maximum delay after which subsequent re-connection interval will become constant. Defaults to 60s and minimum acceptable value is 5s.
  * #param {string} [params.root="wss://websocket.kite.trade/"] Kite websocket root.
  */
-var KiteTicker = function(params) {
-	var root = params.root || "wss://ws.kite.trade/";
+const KiteTicker = function (params) {
+	const root = params.root || "wss://ws.kite.trade/";
 
-	var read_timeout = 5, // seconds
+	let read_timeout = 5, // seconds
 		reconnect_max_delay = 0,
 		reconnect_max_tries = 0,
 
@@ -173,16 +173,11 @@ var KiteTicker = function(params) {
 		mSetMode = "mode",
 
 		// incoming
-		mAlert = 10,
-		mMessage = 11,
-		mLogout = 12,
-		mReload = 13,
-		mClearCache = 14,
 
 		// public constants
-		modeFull  = "full", // Full quote including market depth. 164 bytes.
+		modeFull = "full", // Full quote including market depth. 164 bytes.
 		modeQuote = "quote", // Quote excluding market depth. 52 bytes.
-		modeLTP   = "ltp";
+		modeLTP = "ltp";
 
 	// public constants
 	/**
@@ -203,30 +198,31 @@ var KiteTicker = function(params) {
 	 */
 	this.modeLTP = modeLTP;
 
-	var ws = null,
-		triggers = {"connect": [],
-					"ticks": [],
-					"disconnect": [],
-					"error": [],
-					"close": [],
-					"reconnect": [],
-					"noreconnect": [],
-					"message": [],
-					"order_update": []},
-		read_timer = null,
-		last_read = 0,
-		reconnect_timer = null,
-		auto_reconnect = false,
+	let ws: any = null,
+		triggers = {
+			"connect": [],
+			"ticks": [],
+			"disconnect": [],
+			"error": [],
+			"close": [],
+			"reconnect": [],
+			"noreconnect": [],
+			"message": [],
+			"order_update": []
+		},
+		read_timer: any = null,
+		last_read: any = 0,
+		auto_reconnect: any = false,
 		current_reconnection_count = 0,
-		last_reconnect_interval = 0,
-		current_ws_url = null,
-		defaultReconnectMaxDelay = 60,
-		defaultReconnectMaxRetries = 50,
-		maximumReconnectMaxRetries = 300,
-		minimumReconnectMaxDelay = 5;
+		last_reconnect_interval: any = 0,
+		current_ws_url: any = null,
+		defaultReconnectMaxDelay: number = 60,
+		defaultReconnectMaxRetries: number = 50,
+		maximumReconnectMaxRetries: number = 300,
+		minimumReconnectMaxDelay: number = 5;
 
 	// segment constants
-	var NseCM = 1,
+	const NseCM = 1,
 		NseFO = 2,
 		NseCD = 3,
 		BseCM = 4,
@@ -249,7 +245,7 @@ var KiteTicker = function(params) {
 	 * @memberOf KiteTicker
 	 * @method autoReconnect
 	 */
-	this.autoReconnect = function(t, max_retry, max_delay) {
+	this.autoReconnect = function (t, max_retry, max_delay) {
 		autoReconnect(t, max_retry, max_delay)
 	};
 
@@ -259,12 +255,13 @@ var KiteTicker = function(params) {
 	 * @method connect
 	 * @instance
 	 */
-	this.connect = function() {
+	this.connect = function () {
 		// Skip if its already connected
-		if(ws && (ws.readyState == ws.CONNECTING || ws.readyState == ws.OPEN)) return;
+		if (!ws) return;
+		if (ws.readyState == ws.CONNECTING || ws.readyState == ws.OPEN) return;
 
-		var url = root + "?api_key=" + params.api_key +
-					"&access_token=" + params.access_token + "&uid=" + (new Date().getTime().toString());
+		const url = root + "?api_key=" + params.api_key +
+			"&access_token=" + params.access_token + "&uid=" + (new Date().getTime().toString());
 
 		ws = new WebSocket(url, {
 			headers: {
@@ -275,7 +272,7 @@ var KiteTicker = function(params) {
 
 		ws.binaryType = "arraybuffer";
 
-		ws.onopen = function() {
+		ws.onopen = function () {
 			// Reset last reconnect interval
 			last_reconnect_interval = null;
 			// Reset current_reconnection_count attempt
@@ -288,27 +285,28 @@ var KiteTicker = function(params) {
 			clearInterval(read_timer);
 
 			last_read = new Date();
-			read_timer = setInterval(function() {
-				if((new Date() - last_read ) / 1000 >= read_timeout) {
+			read_timer = setInterval(function () {
+				// @ts-ignore
+				if ((new Date() - last_read) / 1000 >= read_timeout) {
 					// reset current_ws_url incase current connection times out
 					// This is determined when last heart beat received time interval
 					// exceeds read_timeout value
 					current_ws_url = null;
-					if(ws) ws.close();
+					if (ws) ws.close();
 					clearInterval(read_timer);
 					triggerDisconnect();
 				}
 			}, read_timeout * 1000);
 		};
 
-		ws.onmessage = function(e) {
+		ws.onmessage = function (e) {
 			// Binary tick data.
-			if(e.data instanceof ArrayBuffer) {
+			if (e.data instanceof ArrayBuffer) {
 				// Trigger on message event when binary message is received
 				trigger("message", [e.data]);
-				if(e.data.byteLength > 2) {
-					var d = parseBinary(e.data);
-					if(d) trigger("ticks", [d]);
+				if (e.data.byteLength > 2) {
+					const d = parseBinary(e.data);
+					if (d) trigger("ticks", [d]);
 				}
 			} else {
 				parseTextMessage(e.data)
@@ -318,19 +316,19 @@ var KiteTicker = function(params) {
 			last_read = new Date();
 		};
 
-		ws.onerror = function(e) {
+		ws.onerror = function (e) {
 			trigger("error", [e]);
 
 			// Force close to avoid ghost connections
-			if(this && this.readyState == this.OPEN) this.close();
+			if (this && this.readyState == this.OPEN) this.close();
 		};
 
-		ws.onclose = function(e) {
+		ws.onclose = function (e) {
 			trigger("close", [e]);
 
 			// the ws id doesn't match the current global id,
 			// meaning it's a ghost close event. just ignore.
-			if(current_ws_url && (this.url != current_ws_url)) return;
+			if (current_ws_url && (this.url != current_ws_url)) return;
 
 			triggerDisconnect(e);
 		};
@@ -341,8 +339,8 @@ var KiteTicker = function(params) {
 	 * @method disconnect
 	 * @instance
 	 */
-	this.disconnect = function() {
-		if(ws && ws.readyState != ws.CLOSING && ws.readyState != ws.CLOSED) {
+	this.disconnect = function () {
+		if (ws && ws.readyState != ws.CLOSING && ws.readyState != ws.CLOSED) {
 			ws.close();
 		}
 	}
@@ -354,8 +352,8 @@ var KiteTicker = function(params) {
 	 * @instance
 	 * @returns {bool}
 	 */
-	this.connected = function() {
-		if(ws && ws.readyState == ws.OPEN) {
+	this.connected = function () {
+		if (ws && ws.readyState == ws.OPEN) {
 			return true;
 		} else {
 			return false;
@@ -386,8 +384,8 @@ var KiteTicker = function(params) {
 	 * ticker.on("connect", callback);
 	 * ticker.on("disconnect", callback);
 	 */
-	this.on = function(e, callback) {
-		if(triggers.hasOwnProperty(e)) {
+	this.on = function (e, callback) {
+		if (triggers.hasOwnProperty(e)) {
 			triggers[e].push(callback);
 		}
 	};
@@ -402,9 +400,9 @@ var KiteTicker = function(params) {
 	 * @example
 	 * ticker.subscribe([738561]);
 	 */
-	this.subscribe = function(tokens) {
-		if(tokens.length > 0) {
-			send({"a": mSubscribe, "v": tokens});
+	this.subscribe = function (tokens) {
+		if (tokens.length > 0) {
+			send({ "a": mSubscribe, "v": tokens });
 		}
 		return tokens;
 	};
@@ -419,9 +417,9 @@ var KiteTicker = function(params) {
 	 * @example
 	 * ticker.unsubscribe([738561]);
 	 */
-	this.unsubscribe = function(tokens) {
-		if(tokens.length > 0) {
-			send({"a": mUnSubscribe, "v": tokens});
+	this.unsubscribe = function (tokens) {
+		if (tokens.length > 0) {
+			send({ "a": mUnSubscribe, "v": tokens });
 		}
 		return tokens;
 	};
@@ -437,9 +435,9 @@ var KiteTicker = function(params) {
 	 * @example
 	 * ticker.setMode(ticker.modeFull, [738561]);
 	 */
-	this.setMode = function(mode, tokens) {
-		if(tokens.length > 0) {
-			send({"a": mSetMode, "v": [mode, tokens]});
+	this.setMode = function (mode, tokens) {
+		if (tokens.length > 0) {
+			send({ "a": mSetMode, "v": [mode, tokens] });
 		}
 		return tokens;
 	};
@@ -452,7 +450,7 @@ var KiteTicker = function(params) {
 	 * @param {ArrayBufferTypes} binpacks - tick buffer packets
 	 */
 
-	this.parseBinary = function(binpacks) {
+	this.parseBinary = function (binpacks) {
 		return parseBinary(binpacks);
 	}
 
@@ -465,39 +463,39 @@ var KiteTicker = function(params) {
 
 		// Set reconnect constraints
 		reconnect_max_tries = max_retry >= maximumReconnectMaxRetries ? maximumReconnectMaxRetries : max_retry;
-		reconnect_max_delay = max_delay <= minimumReconnectMaxDelay  ? minimumReconnectMaxDelay : max_delay;
+		reconnect_max_delay = max_delay <= minimumReconnectMaxDelay ? minimumReconnectMaxDelay : max_delay;
 	}
 
-	function triggerDisconnect(e) {
+	function triggerDisconnect(e?) {
 		ws = null;
 		trigger("disconnect", [e]);
-		if(auto_reconnect) attemptReconnection();
+		if (auto_reconnect) attemptReconnection();
 	}
 
 	// send a message via the socket
 	// automatically encodes json if possible
 	function send(message) {
-		if(!ws || ws.readyState != ws.OPEN) return;
+		if (!ws || ws.readyState != ws.OPEN) return;
 
 		try {
-			if(typeof(message) == "object") {
+			if (typeof (message) == "object") {
 				message = JSON.stringify(message);
 			}
 			ws.send(message);
-		} catch(e) { ws.close(); };
+		} catch (e) { ws.close(); };
 	}
 
 	// trigger event callbacks
-	function trigger(e, args) {
+	function trigger(e, args?) {
 		if (!triggers[e]) return
-		for(var n=0; n<triggers[e].length; n++) {
+		for (let n = 0; n < triggers[e].length; n++) {
 			triggers[e][n].apply(triggers[e][n], args ? args : []);
 		}
 	}
 
 	function parseTextMessage(data) {
-        try {
-            data = JSON.parse(data)
+		try {
+			data = JSON.parse(data)
 		} catch (e) {
 			return
 		}
@@ -510,20 +508,20 @@ var KiteTicker = function(params) {
 	// parse received binary message. each message is a combination of multiple tick packets
 	// [2-bytes num packets][size1][tick1][size2][tick2] ...
 	function parseBinary(binpacks) {
-		var packets = splitPackets(binpacks),
-			ticks = [];
+		const packets = splitPackets(binpacks),
+			ticks: any[] = [];
 
-		for(var n=0; n<packets.length; n++) {
-			var bin = packets[n],
+		for (let n = 0; n < packets.length; n++) {
+			const bin: any = packets[n],
 				instrument_token = buf2long(bin.slice(0, 4)),
 				segment = instrument_token & 0xff;
 
-			var tradable = true;
+			let tradable = true;
 			if (segment === Indices) tradable = false;
 
 			// Add price divisor based on segment
-			var divisor = 100.0;
-			if (segment === NseCD) { 
+			let divisor = 100.0;
+			if (segment === NseCD) {
 				divisor = 10000000.0;
 
 			} else if (segment == BseCD) {
@@ -536,95 +534,95 @@ var KiteTicker = function(params) {
 					tradable: tradable,
 					mode: modeLTP,
 					instrument_token: instrument_token,
-					last_price: buf2long(bin.slice(4,8)) / divisor
+					last_price: buf2long(bin.slice(4, 8)) / divisor
 				});
-			// Parse indices quote and full mode
+				// Parse indices quote and full mode
 			} else if (bin.byteLength === 28 || bin.byteLength === 32) {
-				var mode = modeQuote;
+				let mode = modeQuote;
 				if (bin.byteLength === 32) mode = modeFull;
 
-                var tick = {
-                    tradable: tradable,
-                    mode: mode,
-                    instrument_token: instrument_token,
-                    last_price: buf2long(bin.slice(4,8)) / divisor,
-                    ohlc: {
-                        high: buf2long(bin.slice(8, 12)) / divisor,
-                        low: buf2long(bin.slice(12, 16)) / divisor,
-                        open: buf2long(bin.slice(16, 20)) / divisor,
-                        close: buf2long(bin.slice(20, 24)) / divisor
+				const tick: any = {
+					tradable: tradable,
+					mode: mode,
+					instrument_token: instrument_token,
+					last_price: buf2long(bin.slice(4, 8)) / divisor,
+					ohlc: {
+						high: buf2long(bin.slice(8, 12)) / divisor,
+						low: buf2long(bin.slice(12, 16)) / divisor,
+						open: buf2long(bin.slice(16, 20)) / divisor,
+						close: buf2long(bin.slice(20, 24)) / divisor
 					},
 					change: buf2long(bin.slice(24, 28))
 				};
 
-                // Compute the change price using close price and last price
-                if(tick.ohlc.close != 0) {
-                    tick.change = (tick.last_price - tick.ohlc.close) * 100 / tick.ohlc.close;
+				// Compute the change price using close price and last price
+				if (tick.ohlc.close != 0) {
+					tick.change = (tick.last_price - tick.ohlc.close) * 100 / tick.ohlc.close;
 				}
 
-                // Full mode with timestamp in seconds
-                if (bin.byteLength === 32) {
+				// Full mode with timestamp in seconds
+				if (bin.byteLength === 32) {
 					tick.exchange_timestamp = null;
-					var timestamp = buf2long(bin.slice(28, 32));
+					const timestamp = buf2long(bin.slice(28, 32));
 					if (timestamp) tick.exchange_timestamp = new Date(timestamp * 1000);
 				}
 
 				ticks.push(tick);
 			} else if (bin.byteLength === 44 || bin.byteLength === 184) {
-				var mode = modeQuote;
+				let mode = modeQuote;
 				if (bin.byteLength === 184) mode = modeFull;
 
-				var tick = {
-                    tradable: tradable,
-                    mode: mode,
-                    instrument_token: instrument_token,
-                    last_price: buf2long(bin.slice(4, 8)) / divisor,
-                    last_traded_quantity: buf2long(bin.slice(8, 12)),
-                    average_traded_price: buf2long(bin.slice(12, 16)) / divisor,
-                    volume_traded: buf2long(bin.slice(16, 20)),
-                    total_buy_quantity: buf2long(bin.slice(20, 24)),
-                    total_sell_quantity: buf2long(bin.slice(24, 28)),
-                    ohlc: {
-                        open: buf2long(bin.slice(28, 32)) / divisor,
-                        high: buf2long(bin.slice(32, 36)) / divisor,
-                        low: buf2long(bin.slice(36, 40)) / divisor,
-                        close: buf2long(bin.slice(40, 44)) / divisor
-                    }
-				};
+				const tick = {
+					tradable: tradable,
+					mode: mode,
+					instrument_token: instrument_token,
+					last_price: buf2long(bin.slice(4, 8)) / divisor,
+					last_traded_quantity: buf2long(bin.slice(8, 12)),
+					average_traded_price: buf2long(bin.slice(12, 16)) / divisor,
+					volume_traded: buf2long(bin.slice(16, 20)),
+					total_buy_quantity: buf2long(bin.slice(20, 24)),
+					total_sell_quantity: buf2long(bin.slice(24, 28)),
+					ohlc: {
+						open: buf2long(bin.slice(28, 32)) / divisor,
+						high: buf2long(bin.slice(32, 36)) / divisor,
+						low: buf2long(bin.slice(36, 40)) / divisor,
+						close: buf2long(bin.slice(40, 44)) / divisor
+					}
+				} as any;
 
-                // Compute the change price using close price and last price
-                if (tick.ohlc.close != 0) {
-                    tick.change = (tick.last_price - tick.ohlc.close) * 100 / tick.ohlc.close;
+				// Compute the change price using close price and last price
+				if (tick.ohlc.close != 0) {
+					tick.change = (tick.last_price - tick.ohlc.close) * 100 / tick.ohlc.close;
 				}
 
 				// Parse full mode
 				if (bin.byteLength === 184) {
 					// Parse last trade time
 					tick.last_trade_time = null;
-					var last_trade_time = buf2long(bin.slice(44, 48));
+					const last_trade_time = buf2long(bin.slice(44, 48));
 					if (last_trade_time) tick.last_trade_time = new Date(last_trade_time * 1000);
 
 					// Parse timestamp
 					tick.exchange_timestamp = null;
-					var timestamp = buf2long(bin.slice(60, 64));
+					const timestamp = buf2long(bin.slice(60, 64));
 					if (timestamp) tick.exchange_timestamp = new Date(timestamp * 1000);
 
 					// Parse OI
 					tick.oi = buf2long(bin.slice(48, 52));
-                    tick.oi_day_high = buf2long(bin.slice(52, 56));
+					tick.oi_day_high = buf2long(bin.slice(52, 56));
 					tick.oi_day_low = buf2long(bin.slice(56, 60));
 					tick.depth = {
 						buy: [],
 						sell: []
 					};
 
-					var s = 0, depth = bin.slice(64, 184);
-					for (var i=0; i<10; i++) {
+					let s = 0, depth = bin.slice(64, 184);
+					for (let i = 0; i < 10; i++) {
 						s = i * 12;
 						tick.depth[i < 5 ? "buy" : "sell"].push({
-							quantity:	buf2long(depth.slice(s, s + 4)),
-							price:		buf2long(depth.slice(s + 4, s + 8)) / divisor,
-							orders: 	buf2long(depth.slice(s + 8, s + 10))
+							quantity: buf2long(depth.slice(s, s + 4)),
+							price: buf2long(depth.slice(s + 4, s + 8)) / divisor,
+							orders: buf2long(depth.slice(s + 8, s + 10))
 						});
 					}
 				}
@@ -639,14 +637,14 @@ var KiteTicker = function(params) {
 	// split one long binary message into individual tick packets
 	function splitPackets(bin) {
 		// number of packets
-		var num = buf2long(bin.slice(0, 2)),
+		let num = buf2long(bin.slice(0, 2)),
 			j = 2,
-			packets = [];
+			packets: any[] = [];
 
-		for(var i=0; i<num; i++) {
+		for (let i = 0; i < num; i++) {
 			// first two bytes is the packet length
-			var size = buf2long(bin.slice(j, j+2)),
-				packet = bin.slice(j+2, j+2+size);
+			const size = buf2long(bin.slice(j, j + 2)),
+				packet = bin.slice(j + 2, j + 2 + size);
 
 			packets.push(packet);
 
@@ -658,7 +656,7 @@ var KiteTicker = function(params) {
 
 	function attemptReconnection() {
 		// Try reconnecting only so many times.
-		if(current_reconnection_count > reconnect_max_tries) {
+		if (current_reconnection_count > reconnect_max_tries) {
 			trigger("noreconnect");
 			process.exit(1);
 		}
@@ -677,24 +675,24 @@ var KiteTicker = function(params) {
 
 		trigger("reconnect", [current_reconnection_count, last_reconnect_interval]);
 
-		reconnect_timer = setTimeout(function() {
+		setTimeout(function () {
 			self.connect();
 		}, last_reconnect_interval * 1000);
 	}
 
 	// Big endian byte array to long.
 	function buf2long(buf) {
-		var b = new Uint8Array(buf),
+		let b = new Uint8Array(buf),
 			val = 0,
 			len = b.length;
 
-		for(var i=0, j=len-1; i<len; i++, j--) {
-			val += b[j] << (i*8);
+		for (let i = 0, j = len - 1; i < len; i++, j--) {
+			val += b[j] << (i * 8);
 		}
 
 		return val;
 	}
-	var self = this;
+	const self = this;
 };
 
-module.exports = KiteTicker;
+export default KiteTicker;

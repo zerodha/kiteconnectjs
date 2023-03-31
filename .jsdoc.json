@@ -5,7 +5,7 @@
     },
     "source": {
         "include": ["lib", "package.json", "README.md"],
-        "includePattern": ".js$",
+        "includePattern": ".ts$",
         "excludePattern": "(node_modules/|docs)"
     },
     "plugins": [

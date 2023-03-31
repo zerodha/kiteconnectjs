@@ -1,10 +1,10 @@
 "use strict";
 
-var axios = require("axios");
-var csvParse = require("papaparse");
-var sha256 = require("crypto-js/sha256");
-var querystring = require("querystring");
-var utils = require("./utils");
+import axios from "axios";
+import csvParse from "papaparse";
+import sha256 from "crypto-js/sha256";
+import querystring from "querystring";
+import utils from "./utils";
 
 /**
  * @classdesc API client class. In production, you may initialise a single instance of this class per `api_key`.
@@ -17,9 +17,9 @@ var utils = require("./utils");
  * ------------------------
  * ~~~~
  *
- * var KiteConnect = require("kiteconnect").KiteConnect;
+ * const KiteConnect = require("kiteconnect").KiteConnect;
  *
- * var kc = new KiteConnect({api_key: "your_api_key"});
+ * const kc = new KiteConnect({api_key: "your_api_key"});
  *
  * kc.generateSession("request_token", "api_secret")
  * 	.then(function(response) {
@@ -73,11 +73,11 @@ var utils = require("./utils");
  *	for a request to complete before it fails.
  *
  * @example <caption>Initialize KiteConnect object</caption>
- * var kc = KiteConnect("my_api_key", {timeout: 10, debug: false})
+ * const kc = KiteConnect("my_api_key", {timeout: 10, debug: false})
  */
-var KiteConnect = function(params) {
-    var self = this
-    var defaults = {
+const KiteConnect = function(params) {
+    const self = this;
+    const defaults = {
         "root": "https://api.kite.trade",
         "login": "https://kite.zerodha.com/connect/login",
         "debug": false,
@@ -92,10 +92,10 @@ var KiteConnect = function(params) {
     self.default_login_uri = defaults.login;
     self.session_expiry_hook = null;
 
-    var kiteVersion = 3; // Kite version to send in header
-    var userAgent = utils.getUserAgent();  // User agent to be sent with every request
+    const kiteVersion = 3; // Kite version to send in header
+    const userAgent = utils.getUserAgent();  // User agent to be sent with every request
 
-    var routes = {
+    const routes = {
         "api.token": "/session/token",
         "api.token.invalidate": "/session/token",
         "api.token.renew": "/session/refresh_token",
@@ -148,7 +148,7 @@ var KiteConnect = function(params) {
         "gtt.delete": "/gtt/triggers/{trigger_id}"
     };
 
-    var requestInstance = axios.create({
+    const requestInstance = axios.create({
         baseURL: self.root,
         timeout: self.timeout,
         headers: {
@@ -170,7 +170,7 @@ var KiteConnect = function(params) {
     requestInstance.interceptors.response.use(function(response) {
         if (self.debug) console.log(response);
 
-        var contentType = response.headers["content-type"];
+        const contentType = response.headers["content-type"];
         if (contentType === "application/json" && typeof response.data === "object") {
             // Throw incase of error
             if (response.data.error_type) throw response.data;
@@ -260,7 +260,7 @@ var KiteConnect = function(params) {
     */
     self.ORDER_TYPE_SL = "SL";
 
-    // Varities
+    // varities
     /**
     * @memberOf KiteConnect
     */
@@ -466,14 +466,14 @@ var KiteConnect = function(params) {
      */
     self.generateSession = function(request_token, api_secret) {
         return new Promise(function (resolve, reject) {
-            var checksum = sha256(self.api_key + request_token + api_secret).toString();
-            var p = _post("api.token", {
+            const checksum = sha256(self.api_key + request_token + api_secret).toString();
+            const p = _post("api.token", {
                     api_key: self.api_key,
                     request_token: request_token,
                     checksum: checksum
                 }, null, formatGenerateSession);
 
-            p.then(function(resp) {
+            p.then(function(resp: any) {
                 // Set access token.
                 if (resp && resp.access_token) {
                     self.setAccessToken(resp.access_token);
@@ -514,15 +514,15 @@ var KiteConnect = function(params) {
      */
     self.renewAccessToken = function(refresh_token, api_secret) {
         return new Promise(function (resolve, reject) {
-            var checksum = sha256(self.api_key + refresh_token + api_secret).toString();
+            const checksum = sha256(self.api_key + refresh_token + api_secret).toString();
 
-            var p = _post("api.token.renew", {
+            const p = _post("api.token.renew", {
                 api_key: self.api_key,
                 refresh_token: refresh_token,
                 checksum: checksum
             });
 
-            p.then(function(resp) {
+            p.then(function(resp: any) {
                 if (resp && resp.access_token) {
                     self.setAccessToken(resp.access_token);
                 }
@@ -913,7 +913,7 @@ regular).
 
     // Convert Date object to string of format yyyy-mm-dd HH:MM:SS
     function _getDateTimeString(date) {
-        var isoString = date.toISOString();
+        const isoString = date.toISOString();
         return isoString.replace("T", " ").split(".")[0];
     }
 
@@ -1098,7 +1098,7 @@ regular).
             trigger_values: params.trigger_values,
             last_price: parseFloat(params.last_price)
         }
-        let orders = []
+        let orders = [] as any[];
         for (let o of params.orders) {
             orders.push({
                 transaction_type: o.transaction_type,
@@ -1195,8 +1195,8 @@ regular).
             throw new Error("Invalid postback data or api_secret");
         }
 
-        var inputString = postback_data.order_id + postback_data.order_timestamp + api_secret;
-        var checksum;
+        const inputString = postback_data.order_id + postback_data.order_timestamp + api_secret;
+        let checksum;
         try {
             checksum = sha256(inputString).toString();
         } catch (e) {
@@ -1224,9 +1224,9 @@ regular).
     function formatQuoteResponse(data) {
         if (!data.data || typeof data.data !== "object") return data;
 
-        for (var k in data.data) {
-            var item = data.data[k];
-            for (var field of ["timestamp", "last_trade_time"]) {
+        for (const k in data.data) {
+            const item = data.data[k];
+            for (const field of ["timestamp", "last_trade_time"]) {
                 if (item[field] && item[field].length === 19) {
                     item[field] = new Date(item[field]);
                 }
@@ -1239,18 +1239,18 @@ regular).
     // Format response ex. datetime string to date
     function formatResponse(data) {
         if (!data.data || typeof data.data !== "object") return data;
-        var list = [];
+        let list: any = [];
         if (data.data instanceof Array) {
             list = data.data;
         } else {
             list = [data.data]
         }
 
-        var results = [];
-        var fields = ["order_timestamp", "exchange_timestamp", "created", "last_instalment", "fill_timestamp"];
+        const results: any[] = [];
+        const fields = ["order_timestamp", "exchange_timestamp", "created", "last_instalment", "fill_timestamp"];
 
-        for (var item of list) {
-            for (var field of fields) {
+        for (const item of list) {
+            for (const field of fields) {
                 if (item[field] && item[field].length === 19) {
                     item[field] = new Date(item[field]);
                 }
@@ -1272,10 +1272,10 @@ regular).
         // Return if its an error
         if (jsonData.error_type) return jsonData;
 
-        var results = [];
-        for(var i=0; i<jsonData.data.candles.length; i++) {
-            var d = jsonData.data.candles[i];
-            var c = {
+        const results = [] as any[];
+        for(let i=0; i<jsonData.data.candles.length; i++) {
+            const d = jsonData.data.candles[i];
+            const c = {
                 "date": new Date(d[0]),
                 "open": d[1],
                 "high": d[2],
@@ -1298,8 +1298,8 @@ regular).
     function transformInstrumentsResponse(data, headers) {
         // Parse CSV responses
         if (headers["content-type"] === "text/csv") {
-            var parsedData = csvParse.parse(data, {"header": true}).data;
-            for (var item of parsedData) {
+            const parsedData = csvParse.parse(data, {"header": true}).data;
+            for (const item of parsedData as any) {
                 item["last_price"] = parseFloat(item["last_price"]);
                 item["strike"] = parseFloat(item["strike"]);
                 item["tick_size"] = parseFloat(item["tick_size"]);
@@ -1319,8 +1319,8 @@ regular).
     function transformMFInstrumentsResponse(data, headers) {
         // Parse CSV responses
         if (headers["content-type"] === "text/csv") {
-            var parsedData = csvParse.parse(data, {"header": true}).data;
-            for (var item of parsedData) {
+            const parsedData = csvParse.parse(data, {"header": true}).data;
+            for (const item of parsedData as any) {
                 item["minimum_purchase_amount"] = parseFloat(item["minimum_purchase_amount"]);
                 item["purchase_amount_multiplier"] = parseFloat(item["purchase_amount_multiplier"]);
                 item["minimum_additional_purchase_amount"] = parseFloat(item["minimum_additional_purchase_amount"]);
@@ -1341,30 +1341,30 @@ regular).
         return data;
     }
 
-    function _get(route, params, responseType, responseTransformer, isJSON = false) {
+    function _get(route, params?, responseType?, responseTransformer?, isJSON = false) {
         return request(route, "GET", params || {}, responseType, responseTransformer, isJSON);
     }
 
-    function _post(route, params, responseType, responseTransformer, isJSON = false, queryParams=null) {
+    function _post(route, params, responseType?, responseTransformer?, isJSON = false, queryParams: any =null) {
         return request(route, "POST", params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
-    function _put(route, params, responseType, responseTransformer, isJSON = false, queryParams=null) {
+    function _put(route, params, responseType?, responseTransformer?, isJSON = false, queryParams=null) {
         return request(route, "PUT", params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
-    function _delete(route, params, responseType, responseTransformer, isJSON = false) {
+    function _delete(route, params, responseType?, responseTransformer?, isJSON = false) {
         return request(route, "DELETE", params || {}, responseType, responseTransformer, isJSON);
     }
 
-    function request(route, method, params, responseType, responseTransformer, isJSON, queryParams) {
+    function request(route, method, params, responseType?, responseTransformer?, isJSON?, queryParams?) {
         // Check access token
         if (!responseType) responseType = "json";
-        var uri = routes[route];
+        let uri = routes[route];
 
         // Replace variables in "RESTful" URLs with corresponding params
         if(uri.indexOf("{") !== -1) {
-            var k;
+            let k;
             for(k in params) {
                 if(params.hasOwnProperty(k)) {
                     uri = uri.replace("{" + k + "}", params[k]);
@@ -1372,7 +1372,7 @@ regular).
             }
         }
 
-        let payload = null;
+        let payload: null | string = null;
         if (method === "GET" || method === "DELETE") {
             queryParams = params;
         } else {
@@ -1385,7 +1385,7 @@ regular).
             }
         }
 
-        var options = {
+        const options: any = {
             method: method,
             url: uri,
             params: queryParams,
@@ -1396,7 +1396,7 @@ regular).
 
         // Send auth token
         if (self.access_token) {
-            var authHeader = self.api_key + ":" + self.access_token;
+            const authHeader = self.api_key + ":" + self.access_token;
             options["headers"]["Authorization"] = "token " + authHeader;
         }
 
@@ -1408,11 +1408,11 @@ regular).
         }
         // Set response transformer
         if (responseTransformer) {
-            options.transformResponse = axios.defaults.transformResponse.concat(responseTransformer);
+            options.transformResponse = (axios.defaults.transformResponse as any).concat(responseTransformer);
         }
 
         return requestInstance.request(options);
     }
 }
 
-module.exports = KiteConnect;
+export default KiteConnect;

@@ -3,7 +3,7 @@
 const path = require("path");
 const fs = require("fs");
 const expect = require("chai").expect;
-var KiteTicker = require("../lib/ticker.js");
+var KiteTicker = require("../dist/ticker.js").default;
 
 
 // Ticker binary packets

@@ -4,7 +4,7 @@ const nock = require("nock");
 const expect = require("chai").expect;
 const path = require("path");
 const fs = require("fs");
-const KiteConnect = require("../lib/connect.js");
+const KiteConnect = require("../dist/connect.js").default;
 
 const mockDir = "./kiteconnect-mocks";
 
