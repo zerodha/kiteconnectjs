@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "resolveJsonModule": true,
+      "noImplicitThis": false,
+      "target": "es2015",
+      "module": "commonjs",                               
+      "esModuleInterop": true,                             
+      "strict": true
+    },
+    "files": ["test.ts", "test_ticker.ts"],   
+    "exclude": ["../constants/**/*.ts", "../interfaces/**/*.ts", "../lib/**/*.ts"]
+}
+  

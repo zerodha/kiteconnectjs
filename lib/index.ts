@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import KiteTicker from "./ticker";
-import KiteConnect from "./connect";
+import KiteTicker from './ticker';
+import KiteConnect from './connect';
 
 export default {
     KiteTicker,

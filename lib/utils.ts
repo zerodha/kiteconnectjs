@@ -5,7 +5,7 @@ function getPackageInfo() {
 }
 
 function getUserAgent() {
-	return "kiteconnectjs/" + packageInfo.version;
+	return 'kiteconnectjs/' + packageInfo.version;
 }
 
 export default {
