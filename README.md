@@ -21,7 +21,7 @@ Install via [npm](https://www.npmjs.com/package/kiteconnect)
 
     npm install kiteconnect@latest
 
-Or via Yarn
+Or via [yarn](https://yarnpkg.com/package/kiteconnect)
 
     yarn add kiteconnect
 
