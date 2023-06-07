@@ -348,7 +348,7 @@ function testSuite(){
         it('convert existing position', (done) => {
             kc.convertPosition ({
                 'tradingsymbol': 'SBIN',
-                'exchange': ExchangeTypes.EXCHANGE_NSE,
+                'exchange': ExchangeTypes.NSE,
                 'transaction_type': TransactionTypes.BUY,
                 'position_type': PositionTypes.POSITION_TYPE_DAY,
                 'quantity':1,
@@ -554,20 +554,20 @@ function testSuite(){
             kc.placeGTT({
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.EXCHANGE_NSE,
+                exchange: ExchangeTypes.NSE,
                 trigger_values: [350, 450],
                 last_price: 400,
                 orders: [{
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
-                    order_type: OrderTypes.ORDER_TYPE_LIMIT,
+                    order_type: OrderTypes.LIMIT,
                     price: 350
                 }, {
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
-                    order_type: OrderTypes.ORDER_TYPE_LIMIT,
+                    order_type: OrderTypes.LIMIT,
                     price: 450
                 }]
             }
@@ -613,20 +613,20 @@ function testSuite(){
             kc.modifyGTT(100, {
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.EXCHANGE_NSE,
+                exchange: ExchangeTypes.NSE,
                 trigger_values: [358, 458],
                 last_price: 400,
                 orders: [{
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
-                    order_type: OrderTypes.ORDER_TYPE_LIMIT,
+                    order_type: OrderTypes.LIMIT,
                     price: 358
                 }, {
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
-                    order_type: OrderTypes.ORDER_TYPE_LIMIT,
+                    order_type: OrderTypes.LIMIT,
                     price: 458
                 }]})
             .then(function(response: AnyObject) {

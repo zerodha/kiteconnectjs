@@ -7,7 +7,6 @@ import querystring from 'querystring';
 import utils from './utils';
 import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, TransactionTypes, KiteConectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams } from '../interfaces';
 import { DEFAULTS, ROUTES } from '../constants';
-import { Url } from 'url';
 
 
 /**
@@ -85,17 +84,85 @@ import { Url } from 'url';
 
 
 class KiteConnect implements KiteConectInterface {
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {string}
+     */
     api_key: string;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?(string | null)}
+     */
     access_token?: string | null;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?string}
+     */
     root?: string;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?string}
+     */
     login_uri?: string;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?boolean}
+     */
     debug?: boolean;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?number}
+     */
     timeout?: number;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?string}
+     */
     default_connect_uri?: string;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?(string | null)}
+     */
     session_expiry_hook?: string | null;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @type {?string}
+     */
     default_login_uri?: string;
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @private
+     * @type {AxiosInstance}
+     */
     private requestInstance: AxiosInstance;
 
+    /**
+     * Creates an instance of KiteConnect.
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @constructor
+     * @param {KiteConnectParams} params
+     */
     constructor(params: KiteConnectParams) {
         this.api_key = params.api_key;
         this.root = params.root || DEFAULTS.root;
@@ -107,6 +174,13 @@ class KiteConnect implements KiteConectInterface {
         this.requestInstance = this.createAxiosInstance();
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @private
+     * @returns {*}
+     */
     private createAxiosInstance() {
         const kiteVersion = 3; // Kite version to send in header
         const userAgent = utils.getUserAgent();  // User agent to be sent with every request
@@ -183,18 +257,48 @@ class KiteConnect implements KiteConectInterface {
         return requestInstance;
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @param {string} accessToken
+     */
     setAccessToken(accessToken: string) {
         this.access_token = accessToken;
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @param {Function} cb
+     */
     setSessionExpiryHook = function (cb: Function) {
         this.session_expiry_hook = cb;
     };
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:49
+     *
+     * @returns {string}
+     */
     getLoginURL() {
         return `${this.default_login_uri}?api_key=${this.api_key}&v=3`;
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {string} request_token
+     * @param {string} api_secret
+     * @returns {*}
+     */
     generateSession(request_token: string, api_secret: string) {
         return new Promise(function (resolve, reject) {
             const checksum = sha256(this.api_key + request_token + api_secret).toString();
@@ -214,15 +318,38 @@ class KiteConnect implements KiteConectInterface {
                 return reject(err);
             });
         });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {?string} [access_token]
+     * @returns {*}
+     */
     invalidateAccessToken(access_token?: string) {
         return this._delete('api.token.invalidate', {
             api_key: this.api_key,
             access_token: access_token || this.access_token,
         });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {string} refresh_token
+     * @param {string} api_secret
+     * @returns {*}
+     */
     renewAccessToken(refresh_token: string, api_secret: string) {
         return new Promise((resolve, reject) => {
             const checksum = sha256(this.api_key + refresh_token + api_secret).toString();
@@ -242,8 +369,19 @@ class KiteConnect implements KiteConectInterface {
                 return reject(err);
             });
         });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {string} refresh_token
+     * @returns {*}
+     */
     invalidateRefreshToken = function (refresh_token: string) {
         return this._delete('api.token.invalidate', {
             api_key: this.api_key,
@@ -251,82 +389,261 @@ class KiteConnect implements KiteConectInterface {
         });
     };
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getProfile() {
         return this._get('user.profile');
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {?string} [segment]
+     * @returns {*}
+     */
     getMargins(segment?: string) {
         if (segment) {
             return this._get('user.margins.segment', { 'segment': segment });
         } else {
             return this._get('user.margins');
         }
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Varieties} variety
+     * @param {PlaceOrderParams} params
+     * @returns {*}
+     */
     placeOrder(variety: Varieties, params: PlaceOrderParams) {
         params.variety = variety;
         return this._post('order.place', params);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Varieties} variety
+     * @param {(string | number)} order_id
+     * @param {ModifyOrderParams} params
+     * @returns {*}
+     */
     modifyOrder(variety: Varieties, order_id: string | number, params: ModifyOrderParams) {
         params.variety = variety;
         params.order_id = order_id;
         return this._put('order.modify', params);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Varieties} variety
+     * @param {(string | number)} order_id
+     * @param {?CancelOrderParams} [params]
+     * @returns {*}
+     */
     cancelOrder(variety: Varieties, order_id: string | number, params?: CancelOrderParams) {
         params = params || {};
         params.variety = variety;
         params.order_id = order_id;
         return this._delete('order.cancel', params);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Varieties} variety
+     * @param {string} order_id
+     * @param {ExitOrderParams} params
+     * @returns {*}
+     */
     exitOrder(variety: Varieties, order_id: string, params: ExitOrderParams) {
         return this.cancelOrder(variety, order_id, params);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getOrders() {
         return this._get('orders', null, null, this.formatResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} order_id
+     * @returns {*}
+     */
     getOrderHistory(order_id: string | number) {
         return this._get('order.info', { 'order_id': order_id }, null, this.formatResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getTrades() {
         return this._get('trades', null, null, this.formatResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} order_id
+     * @returns {*}
+     */
     getOrderTrades(order_id: string | number) {
         return this._get('order.trades', { 'order_id': order_id }, null, this.formatResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Order[]} orders
+     * @param {*} [mode=null]
+     * @returns {*}
+     */
     orderMargins(orders: Order[], mode = null) {
         return this._post('order.margins', orders, null, undefined, true,
             { 'mode': mode });
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Order[]} orders
+     * @param {boolean} [consider_positions=true]
+     * @param {*} [mode=null]
+     * @returns {*}
+     */
     orderBasketMargins(orders: Order[], consider_positions = true, mode = null) {
         return this._post('order.margins.basket', orders, null, undefined, true,
             { 'consider_positions': consider_positions, 'mode': mode });
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getHoldings() {
         return this._get('portfolio.holdings');
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getAuctionInstruments() {
         return this._get('portfolio.holdings.auction');
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getPositions() {
         return this._get('portfolio.positions');
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Order} params
+     * @returns {*}
+     */
     convertPosition(params: Order) {
         return this._put('portfolio.positions.convert', params);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {boolean} exchange
+     * @returns {*}
+     */
     getInstruments(exchange: boolean) {
         if (exchange) {
             return this._get('market.instruments', {
@@ -335,20 +652,69 @@ class KiteConnect implements KiteConectInterface {
         } else {
             return this._get('market.instruments.all', null, null, this.transformInstrumentsResponse);
         }
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string[] | string)} instruments
+     * @returns {*}
+     */
     getQuote(instruments: string[] | string) {
         return this._get('market.quote', { 'i': instruments }, null, formatQuoteResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string[] | string)} instruments
+     * @returns {*}
+     */
     getOHLC(instruments: string[] | string) {
         return this._get('market.quote.ohlc', { 'i': instruments });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string[] | string)} instruments
+     * @returns {*}
+     */
     getLTP(instruments: string[] | string) {
         return this._get('market.quote.ltp', { 'i': instruments });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} instrument_token
+     * @param {string} interval
+     * @param {(string | Date)} from_date
+     * @param {(string | Date)} to_date
+     * @param {(number | boolean)} [continuous=false]
+     * @param {(number | boolean)} [oi=false]
+     * @returns {*}
+     */
     getHistoricalData(instrument_token: string | number, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
         continuous = continuous ? 1 : 0;
         oi = oi ? 1 : 0;
@@ -363,24 +729,60 @@ class KiteConnect implements KiteConectInterface {
             continuous: continuous,
             oi: oi
         }, null, this.parseHistorical);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {?(string | number)} [order_id]
+     * @returns {*}
+     */
     getMFOrders(order_id?: string | number) {
         if (order_id) {
             return this._get('mf.order.info', { 'order_id': order_id }, null, this.formatResponse);
         } else {
             return this._get('mf.orders', null, null, this.formatResponse);
         }
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {PlaceMFOrderParams} params
+     * @returns {*}
+     */
     placeMFOrder(params: PlaceMFOrderParams) {
         return this._post('mf.order.place', params);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} order_id
+     * @returns {*}
+     */
     cancelMFOrder(order_id: string | number) {
         return this._delete('mf.order.cancel', { 'order_id': order_id })
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {?(string | number)} [sip_id]
+     * @returns {*}
+     */
     getMFSIPS(sip_id?: string | number) {
         if (sip_id) {
             return this._get('mf.sip.info', { 'sip_id': sip_id }, null, this.formatResponse);
@@ -389,35 +791,93 @@ class KiteConnect implements KiteConectInterface {
         }
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Order} params
+     * @returns {*}
+     */
     placeMFSIP(params: Order) {
         return this._post('mf.sip.place', params);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} sip_id
+     * @param {Order} params
+     * @returns {*}
+     */
     modifyMFSIP(sip_id: string | number, params: Order) {
         params.sip_id = sip_id;
         return this._put('mf.sip.modify', params);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} sip_id
+     * @returns {*}
+     */
     cancelMFSIP(sip_id: string | number) {
         return this._delete('mf.sip.cancel', { 'sip_id': sip_id });
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getMFHoldings() {
         return this._get('mf.holdings');
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getMFInstruments() {
         return this._get('mf.instruments', null, null, transformMFInstrumentsResponse);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @returns {*}
+     */
     getGTTs() {
         return this._get('gtt.triggers', null, null, this.formatResponse);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} trigger_id
+     * @returns {*}
+     */
     getGTT(trigger_id: string | number) {
         return this._get('gtt.trigger_info', { 'trigger_id': trigger_id }, null, this.formatResponse);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {Order} params
+     * @returns {{ condition: { exchange: ExchangeTypes; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
+     */
     _getGTTPayload(params: Order) {
         if (params.trigger_type !== GTTStatusTypes.GTT_TYPE_OCO && params.trigger_type !== GTTStatusTypes.GTT_TYPE_SINGLE) {
             throw new Error('Invalid `params.trigger_type`')
@@ -447,8 +907,19 @@ class KiteConnect implements KiteConectInterface {
             })
         }
         return { condition, orders };
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {PlaceGTTParams} params
+     * @returns {*}
+     */
     placeGTT(params: PlaceGTTParams) {
         const payload = this._getGTTPayload(params);
         return this._post('gtt.place', {
@@ -456,8 +927,20 @@ class KiteConnect implements KiteConectInterface {
             orders: JSON.stringify(payload.orders),
             type: params.trigger_type
         });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} trigger_id
+     * @param {ModifyGTTParams} params
+     * @returns {*}
+     */
     modifyGTT(trigger_id: string | number, params: ModifyGTTParams) {
         const payload = this._getGTTPayload(params as Order);
         return this._put('gtt.modify', {
@@ -466,12 +949,35 @@ class KiteConnect implements KiteConectInterface {
             condition: JSON.stringify(payload.condition),
             orders: JSON.stringify(payload.orders)
         });
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {(string | number)} trigger_id
+     * @returns {*}
+     */
     deleteGTT(trigger_id: string | number) {
         return this._delete('gtt.delete', { 'trigger_id': trigger_id }, null, undefined);
-    };
+    }/**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     */
+    ;
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @param {AnyObject} postback_data
+     * @param {string} api_secret
+     * @returns {boolean}
+     */
     validatePostback(postback_data: AnyObject, api_secret: string) {
         if (!postback_data || !postback_data.checksum || !postback_data.order_id ||
             !postback_data.order_timestamp || !api_secret) {
@@ -489,22 +995,86 @@ class KiteConnect implements KiteConectInterface {
         return postback_data.checksum === checksum;
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {string} route
+     * @param {?(AnyObject | null)} [params]
+     * @param {?(string | null)} [responseType]
+     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {boolean} [isJSON=false]
+     * @returns {*}
+     */
     private _get(route: string, params?: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
         return this.request(route, 'GET', params || {}, responseType, responseTransformer, isJSON);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {string} route
+     * @param {(AnyObject | null)} params
+     * @param {?(string | null)} [responseType]
+     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {boolean} [isJSON=false]
+     * @param {(AnyObject | null)} [queryParams=null]
+     * @returns {*}
+     */
     private _post(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams: AnyObject | null = null) {
         return this.request(route, 'POST', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {string} route
+     * @param {(AnyObject | null)} params
+     * @param {?(string | null)} [responseType]
+     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {boolean} [isJSON=false]
+     * @param {*} [queryParams=null]
+     * @returns {*}
+     */
     private _put(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams = null) {
         return this.request(route, 'PUT', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {string} route
+     * @param {(AnyObject | null)} params
+     * @param {?(string | null)} [responseType]
+     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {boolean} [isJSON=false]
+     * @returns {*}
+     */
     private _delete(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
         return this.request(route, 'DELETE', params || {}, responseType, responseTransformer, isJSON);
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {string} route
+     * @param {Method} method
+     * @param {AnyObject} params
+     * @param {?(string | null)} [responseType]
+     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?boolean} [isJSON]
+     * @param {?(Record<string, any> | null)} [queryParams]
+     * @returns {*}
+     */
     private request(route: string, method: Method, params: AnyObject, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON?: boolean, queryParams?: Record<string, any> | null) {
         // Check access token
         if (!responseType) responseType = 'json';
@@ -563,6 +1133,14 @@ class KiteConnect implements KiteConectInterface {
     }
 
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {AnyObject} jsonData
+     * @returns {AnyObject}
+     */
     private parseHistorical(jsonData: AnyObject): AnyObject {
         // Return if its an error
         if (jsonData.error_type) return jsonData;
@@ -590,6 +1168,15 @@ class KiteConnect implements KiteConectInterface {
         return { 'data': results };
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {*} data
+     * @param {AnyObject} headers
+     * @returns {*}
+     */
     private transformInstrumentsResponse(data: any, headers: AnyObject) {
         // Parse CSV responses
         if (headers['content-type'] === 'text/csv') {
@@ -611,6 +1198,14 @@ class KiteConnect implements KiteConectInterface {
         return data;
     }
 
+    /**
+     * 
+     * @date 07/06/2023 - 21:37:48
+     *
+     * @private
+     * @param {AnyObject} data
+     * @returns {AnyObject}
+     */
     private formatResponse(data: AnyObject) {
         if (!data.data || typeof data.data !== 'object') return data;
         let list: any = [];
@@ -645,6 +1240,13 @@ class KiteConnect implements KiteConectInterface {
 
 }
 
+/**
+ * 
+ * @date 07/06/2023 - 21:37:48
+ *
+ * @param {AnyObject} data
+ * @returns {AnyObject}
+ */
 function formatGenerateSession(data: AnyObject) {
     if (!data.data || typeof data.data !== 'object') return data;
 
@@ -655,6 +1257,13 @@ function formatGenerateSession(data: AnyObject) {
     return data;
 }
 
+/**
+ * 
+ * @date 07/06/2023 - 21:37:48
+ *
+ * @param {AnyObject} data
+ * @returns {AnyObject}
+ */
 function formatQuoteResponse(data: AnyObject) {
     if (!data.data || typeof data.data !== 'object') return data;
 
@@ -672,6 +1281,14 @@ function formatQuoteResponse(data: AnyObject) {
 
 // Format response ex. datetime string to date
 
+/**
+ * 
+ * @date 07/06/2023 - 21:37:48
+ *
+ * @param {*} data
+ * @param {AnyObject} headers
+ * @returns {*}
+ */
 function transformMFInstrumentsResponse(data: any, headers: AnyObject) {
     // Parse CSV responses
     if (headers['content-type'] === 'text/csv') {
@@ -698,6 +1315,13 @@ function transformMFInstrumentsResponse(data: any, headers: AnyObject) {
 }
 
 
+/**
+ * 
+ * @date 07/06/2023 - 21:37:48
+ *
+ * @param {Date} date
+ * @returns {*}
+ */
 function _getDateTimeString(date: Date) {
     const isoString = date.toISOString();
     return isoString.replace('T', ' ').split('.')[0];

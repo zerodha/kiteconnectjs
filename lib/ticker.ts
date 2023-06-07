@@ -2,6 +2,12 @@ import WebSocket from 'ws';
 import { AnyObject, KiteTickerInterface, KiteTickerParams } from '../interfaces';
 import utils from './utils';
 
+/**
+ * 
+ * @date 07/06/2023 - 21:38:00
+ *
+ * @type {number}
+ */
 let read_timeout = 5, // seconds
 	reconnect_max_delay = 0,
 	reconnect_max_tries = 0,
@@ -18,6 +24,12 @@ let read_timeout = 5, // seconds
 	modeQuote = 'quote', // Quote excluding market depth. 52 bytes.
 	modeLTP = 'ltp';
 
+/**
+ * 
+ * @date 07/06/2023 - 21:38:00
+ *
+ * @type {(WebSocket | null)}
+ */
 let ws: WebSocket | null = null,
 	triggers: AnyObject = {
 		'connect': [],
@@ -42,6 +54,12 @@ let ws: WebSocket | null = null,
 	minimumReconnectMaxDelay: number = 5;
 
 // segment constants
+/**
+ * 
+ * @date 07/06/2023 - 21:38:00
+ *
+ * @type {1}
+ */
 const NseCM = 1,
 	NseFO = 2,
 	NseCD = 3,
@@ -212,15 +230,76 @@ const NseCM = 1,
  * #param {string} [params.root='wss://websocket.kite.trade/'] Kite websocket root.
  */
 class KiteTicker implements KiteTickerInterface {
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {string}
+	 */
 	modeFull: string;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {string}
+	 */
 	modeQuote: string;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {string}
+	 */
 	modeLTP: string;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {?string}
+	 */
 	api_key?: string;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {?string}
+	 */
 	access_token?: string;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {?boolean}
+	 */
 	reconnect?: boolean;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {?number}
+	 */
 	max_retry?: number;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {?number}
+	 */
 	max_delay?: number;
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @type {string}
+	 */
 	root: string;
+	/**
+	 * Creates an instance of KiteTicker.
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @constructor
+	 * @param {KiteTickerParams} params
+	 */
 	constructor(params: KiteTickerParams) {
 		this.root = params.root || 'wss://ws.kite.trade/';
 		// public constants
@@ -246,6 +325,14 @@ class KiteTicker implements KiteTickerInterface {
 		this.autoReconnect(params.reconnect, params.max_retry as number, params.max_delay as number);
 	}
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @param {boolean} t
+	 * @param {number} max_retry
+	 * @param {number} max_delay
+	 */
 	autoReconnect(t: boolean, max_retry: number, max_delay: number) {
 		auto_reconnect = (t == true);
 
@@ -256,8 +343,16 @@ class KiteTicker implements KiteTickerInterface {
 		// Set reconnect constraints
 		reconnect_max_tries = max_retry >= maximumReconnectMaxRetries ? maximumReconnectMaxRetries : max_retry;
 		reconnect_max_delay = max_delay <= minimumReconnectMaxDelay ? minimumReconnectMaxDelay : max_delay;
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 */
 	connect() {
 		// Skip if its already connected
 		if (!ws) return;
@@ -335,8 +430,16 @@ class KiteTicker implements KiteTickerInterface {
 
 			this.triggerDisconnect(e);
 		};
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 */
 	attemptReconnection() {
 		// Try reconnecting only so many times.
 		if (current_reconnection_count > reconnect_max_tries) {
@@ -363,43 +466,107 @@ class KiteTicker implements KiteTickerInterface {
 		}, last_reconnect_interval * 1000);
 	}
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:38:00
+	 *
+	 * @param {?WebSocket.CloseEvent} [e]
+	 */
 	triggerDisconnect(e?: WebSocket.CloseEvent) {
 		ws = null;
 		trigger('disconnect', [e]);
 		if (auto_reconnect) this.attemptReconnection();
 	}
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @returns {boolean}
+	 */
 	connected() {
 		return (ws && ws.readyState == ws.OPEN);
 	}
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @param {string} e
+	 * @param {Function} callback
+	 */
 	on(e: string, callback: Function) {
 		if (triggers.hasOwnProperty(e)) {
 			(triggers as AnyObject)[e].push(callback);
 		}
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @param {(string[] | number[])} tokens
+	 * @returns {{}}
+	 */
 	subscribe(tokens: string[] | number[]) {
 		if (tokens.length > 0) {
 			send({ 'a': mSubscribe, 'v': tokens });
 		}
 		return tokens;
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @param {(string[] | number[])} tokens
+	 * @returns {{}}
+	 */
 	unsubscribe(tokens: string[] | number[]) {
 		if (tokens.length > 0) {
 			send({ 'a': mUnSubscribe, 'v': tokens });
 		}
 		return tokens;
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @param {string} mode
+	 * @param {(string[] | number[])} tokens
+	 * @returns {{}}
+	 */
 	setMode(mode: string, tokens: string[] | number[]) {
 		if (tokens.length > 0) {
 			send({ 'a': mSetMode, 'v': [mode, tokens] });
 		}
 		return tokens;
-	};
+	}/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 */
+	;
 
+	/**
+	 * 
+	 * @date 07/06/2023 - 21:37:59
+	 *
+	 * @param {ArrayBuffer} binpacks
+	 * @returns {{}}
+	 */
 	parseBinary(binpacks: ArrayBuffer) {
 		return parseBinary(binpacks);
 	}
@@ -410,6 +577,12 @@ class KiteTicker implements KiteTickerInterface {
 
 // send a message via the socket
 // automatically encodes json if possible
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {(AnyObject | string)} message
+ */
 function send(message: AnyObject | string) {
 	if (!ws || ws.readyState != ws.OPEN) return;
 
@@ -422,6 +595,13 @@ function send(message: AnyObject | string) {
 }
 
 // trigger event callbacks
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {string} e
+ * @param {?any[]} [args]
+ */
 function trigger(e: string, args?: any[]) {
 	if (!triggers[e]) return
 	for (let n = 0; n < triggers[e].length; n++) {
@@ -429,6 +609,12 @@ function trigger(e: string, args?: any[]) {
 	}
 }
 
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {(string | AnyObject)} data
+ */
 function parseTextMessage(data: string | AnyObject) {
 	try {
 		data = JSON.parse(data as string)
@@ -443,6 +629,13 @@ function parseTextMessage(data: string | AnyObject) {
 
 // parse received binary message. each message is a combination of multiple tick packets
 // [2-bytes num packets][size1][tick1][size2][tick2] ...
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {ArrayBuffer} binpacks
+ * @returns {{}}
+ */
 function parseBinary(binpacks: ArrayBuffer) {
 	const packets = splitPackets(binpacks),
 		ticks: any[] = [];
@@ -571,6 +764,13 @@ function parseBinary(binpacks: ArrayBuffer) {
 }
 
 // split one long binary message into individual tick packets
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {ArrayBuffer} bin
+ * @returns {{}}
+ */
 function splitPackets(bin: ArrayBuffer) {
 	// number of packets
 	let num = buf2long(bin.slice(0, 2)),
@@ -591,6 +791,13 @@ function splitPackets(bin: ArrayBuffer) {
 }
 
 // Big endian byte array to long.
+/**
+ * 
+ * @date 07/06/2023 - 21:37:59
+ *
+ * @param {ArrayBuffer} buf
+ * @returns {number}
+ */
 function buf2long(buf: ArrayBuffer) {
 	let b = new Uint8Array(buf),
 		val = 0,

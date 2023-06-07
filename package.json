@@ -5,7 +5,7 @@
   "main": "./dist",
   "types": "./types/index.d.ts",
   "scripts": {
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "generate-docs": "typedoc --entryPoints \"lib/**/*.ts\" \"interfaces/**/*.ts\"  --out ./docs",
     "build": "tsc --project tsconfig.json",
     "build-test": "tsc --project test/tsconfig.json",
     "eslint:fix": "eslint",
@@ -41,6 +41,7 @@
     "querystring": "^0.2.1",
     "rimraf": "^3.0.2",
     "taffydb": "^2.7.3",
+    "typedoc": "^0.24.8",
     "ws": "^6.2.2"
   },
   "devDependencies": {
