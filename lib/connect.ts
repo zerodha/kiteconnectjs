@@ -1,6 +1,6 @@
 'use strict';
 
-import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosTransformer, Method } from 'axios';
 import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
 import querystring from 'querystring';
@@ -286,28 +286,28 @@ class KiteConnect implements KiteConectInterface {
     };
 
     getOrders() {
-        return this._get('orders', null, null, formatResponse);
+        return this._get('orders', null, null, this.formatResponse);
     };
 
     getOrderHistory(order_id: string | number) {
-        return this._get('order.info', { 'order_id': order_id }, null, formatResponse);
+        return this._get('order.info', { 'order_id': order_id }, null, this.formatResponse);
     };
 
     getTrades() {
-        return this._get('trades', null, null, formatResponse);
+        return this._get('trades', null, null, this.formatResponse);
     };
 
     getOrderTrades(order_id: string | number) {
-        return this._get('order.trades', { 'order_id': order_id }, null, formatResponse);
+        return this._get('order.trades', { 'order_id': order_id }, null, this.formatResponse);
     };
 
     orderMargins(orders: Order[], mode = null) {
-        return this._post('order.margins', orders, null, null, true,
+        return this._post('order.margins', orders, null, undefined, true,
             { 'mode': mode });
     }
 
     orderBasketMargins(orders: Order[], consider_positions = true, mode = null) {
-        return this._post('order.margins.basket', orders, null, null, true,
+        return this._post('order.margins.basket', orders, null, undefined, true,
             { 'consider_positions': consider_positions, 'mode': mode });
     }
 
@@ -331,9 +331,9 @@ class KiteConnect implements KiteConectInterface {
         if (exchange) {
             return this._get('market.instruments', {
                 'exchange': exchange
-            }, null, transformInstrumentsResponse);
+            }, null, this.transformInstrumentsResponse);
         } else {
-            return this._get('market.instruments.all', null, null, transformInstrumentsResponse);
+            return this._get('market.instruments.all', null, null, this.transformInstrumentsResponse);
         }
     };
 
@@ -362,23 +362,14 @@ class KiteConnect implements KiteConectInterface {
             to: to_date,
             continuous: continuous,
             oi: oi
-        }, null, parseHistorical);
-    };
-
-    getTriggerRange(transaction_type: TransactionTypes, instruments: string[]) {
-        return this._get('market.trigger_range',
-            {
-                'i': instruments,
-                'transaction_type': transaction_type.toLowerCase()
-            }
-        );
+        }, null, this.parseHistorical);
     };
 
     getMFOrders(order_id?: string | number) {
         if (order_id) {
-            return this._get('mf.order.info', { 'order_id': order_id }, null, formatResponse);
+            return this._get('mf.order.info', { 'order_id': order_id }, null, this.formatResponse);
         } else {
-            return this._get('mf.orders', null, null, formatResponse);
+            return this._get('mf.orders', null, null, this.formatResponse);
         }
     };
 
@@ -392,9 +383,9 @@ class KiteConnect implements KiteConectInterface {
 
     getMFSIPS(sip_id?: string | number) {
         if (sip_id) {
-            return this._get('mf.sip.info', { 'sip_id': sip_id }, null, formatResponse);
+            return this._get('mf.sip.info', { 'sip_id': sip_id }, null, this.formatResponse);
         } else {
-            return this._get('mf.sips', null, null, formatResponse);
+            return this._get('mf.sips', null, null, this.formatResponse);
         }
     }
 
@@ -420,11 +411,11 @@ class KiteConnect implements KiteConectInterface {
     }
 
     getGTTs() {
-        return this._get('gtt.triggers', null, null, formatResponse);
+        return this._get('gtt.triggers', null, null, this.formatResponse);
     }
 
     getGTT(trigger_id: string | number) {
-        return this._get('gtt.trigger_info', { 'trigger_id': trigger_id }, null, formatResponse);
+        return this._get('gtt.trigger_info', { 'trigger_id': trigger_id }, null, this.formatResponse);
     };
 
     _getGTTPayload(params: Order) {
@@ -478,7 +469,7 @@ class KiteConnect implements KiteConectInterface {
     };
 
     deleteGTT(trigger_id: string | number) {
-        return this._delete('gtt.delete', { 'trigger_id': trigger_id }, null, null);
+        return this._delete('gtt.delete', { 'trigger_id': trigger_id }, null, undefined);
     };
 
     validatePostback(postback_data: AnyObject, api_secret: string) {
@@ -498,23 +489,23 @@ class KiteConnect implements KiteConectInterface {
         return postback_data.checksum === checksum;
     }
 
-    private _get(route: string, params?: AnyObject | null, responseType?: string | null, responseTransformer?: any, isJSON = false) {
+    private _get(route: string, params?: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
         return this.request(route, 'GET', params || {}, responseType, responseTransformer, isJSON);
     }
 
-    private _post(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: any, isJSON = false, queryParams: AnyObject | null = null) {
+    private _post(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams: AnyObject | null = null) {
         return this.request(route, 'POST', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
-    private _put(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: any, isJSON = false, queryParams = null) {
+    private _put(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams = null) {
         return this.request(route, 'PUT', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
-    private _delete(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: any, isJSON = false) {
+    private _delete(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
         return this.request(route, 'DELETE', params || {}, responseType, responseTransformer, isJSON);
     }
 
-    private request(route: string, method: Method, params: AnyObject, responseType?: string | null, responseTransformer?: any, isJSON?: boolean, queryParams?: AnyObject | null) {
+    private request(route: string, method: Method, params: AnyObject, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON?: boolean, queryParams?: Record<string, any> | null) {
         // Check access token
         if (!responseType) responseType = 'json';
         let uri = ROUTES[route];
@@ -572,7 +563,84 @@ class KiteConnect implements KiteConectInterface {
     }
 
 
+    private parseHistorical(jsonData: AnyObject): AnyObject {
+        // Return if its an error
+        if (jsonData.error_type) return jsonData;
+    
+        const results = [] as any[];
+        for (let i = 0; i < jsonData.data.candles.length; i++) {
+            const d = jsonData.data.candles[i];
+            const c: AnyObject = {
+                'date': new Date(d[0]),
+                'open': d[1],
+                'high': d[2],
+                'low': d[3],
+                'close': d[4],
+                'volume': d[5]
+            }
+    
+            // Add OI field if its returned
+            if (d[6]) {
+                c['oi'] = d[6]
+            }
+    
+            results.push(c);
+        }
+    
+        return { 'data': results };
+    }
 
+    private transformInstrumentsResponse(data: any, headers: AnyObject) {
+        // Parse CSV responses
+        if (headers['content-type'] === 'text/csv') {
+            const parsedData = csvParse.parse(data, { 'header': true }).data;
+            for (const item of parsedData as any) {
+                item['last_price'] = parseFloat(item['last_price']);
+                item['strike'] = parseFloat(item['strike']);
+                item['tick_size'] = parseFloat(item['tick_size']);
+                item['lot_size'] = parseInt(item['lot_size']);
+    
+                if (item['expiry'] && item['expiry'].length === 10) {
+                    item['expiry'] = new Date(item['expiry']);
+                }
+            }
+    
+            return parsedData;
+        }
+    
+        return data;
+    }
+
+    private formatResponse(data: AnyObject) {
+        if (!data.data || typeof data.data !== 'object') return data;
+        let list: any = [];
+        if (data.data instanceof Array) {
+            list = data.data;
+        } else {
+            list = [data.data]
+        }
+    
+        const results: any[] = [];
+        const fields = ['order_timestamp', 'exchange_timestamp', 'created', 'last_instalment', 'fill_timestamp'];
+    
+        for (const item of list) {
+            for (const field of fields) {
+                if (item[field] && item[field].length === 19) {
+                    item[field] = new Date(item[field]);
+                }
+            }
+    
+            results.push(item);
+        }
+    
+        if (data.data instanceof Array) {
+            data.data = results;
+        } else {
+            data.data = results[0];
+        }
+    
+        return data;
+    }
 
 
 }
@@ -603,84 +671,6 @@ function formatQuoteResponse(data: AnyObject) {
 }
 
 // Format response ex. datetime string to date
-function formatResponse(data: AnyObject) {
-    if (!data.data || typeof data.data !== 'object') return data;
-    let list: any = [];
-    if (data.data instanceof Array) {
-        list = data.data;
-    } else {
-        list = [data.data]
-    }
-
-    const results: any[] = [];
-    const fields = ['order_timestamp', 'exchange_timestamp', 'created', 'last_instalment', 'fill_timestamp'];
-
-    for (const item of list) {
-        for (const field of fields) {
-            if (item[field] && item[field].length === 19) {
-                item[field] = new Date(item[field]);
-            }
-        }
-
-        results.push(item);
-    }
-
-    if (data.data instanceof Array) {
-        data.data = results;
-    } else {
-        data.data = results[0];
-    }
-
-    return data;
-}
-
-function parseHistorical(jsonData: AnyObject) {
-    // Return if its an error
-    if (jsonData.error_type) return jsonData;
-
-    const results = [] as any[];
-    for (let i = 0; i < jsonData.data.candles.length; i++) {
-        const d = jsonData.data.candles[i];
-        const c: AnyObject = {
-            'date': new Date(d[0]),
-            'open': d[1],
-            'high': d[2],
-            'low': d[3],
-            'close': d[4],
-            'volume': d[5]
-        }
-
-        // Add OI field if its returned
-        if (d[6]) {
-            c['oi'] = d[6]
-        }
-
-        results.push(c);
-    }
-
-    return { 'data': results };
-}
-
-function transformInstrumentsResponse(data: any, headers: AnyObject) {
-    // Parse CSV responses
-    if (headers['content-type'] === 'text/csv') {
-        const parsedData = csvParse.parse(data, { 'header': true }).data;
-        for (const item of parsedData as any) {
-            item['last_price'] = parseFloat(item['last_price']);
-            item['strike'] = parseFloat(item['strike']);
-            item['tick_size'] = parseFloat(item['tick_size']);
-            item['lot_size'] = parseInt(item['lot_size']);
-
-            if (item['expiry'] && item['expiry'].length === 10) {
-                item['expiry'] = new Date(item['expiry']);
-            }
-        }
-
-        return parsedData;
-    }
-
-    return data;
-}
 
 function transformMFInstrumentsResponse(data: any, headers: AnyObject) {
     // Parse CSV responses
