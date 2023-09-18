@@ -75,9 +75,9 @@ type KiteTickerParams = {
      * ~~~~
      *
      * @example
-     * ticker.on("ticks", callback);
-     * ticker.on("connect", callback);
-     * ticker.on("disconnect", callback);
+     * ticker.on('ticks', callback);
+     * ticker.on('connect', callback);
+     * ticker.on('disconnect', callback);
      */
     on: (
       event:
@@ -125,18 +125,18 @@ type KiteTickerParams = {
      * Getting started:
      * ---------------
      *
-     *  import { KiteTicker } from "kiteconnect";
+     *  import { KiteTicker } from 'kiteconnect';
      * 	const ticker = new KiteTicker({
-     * 		api_key: "api_key",
-     * 		access_token: "access_token"
+     * 		api_key: 'api_key',
+     * 		access_token: 'access_token'
      *	});
      *
      * 	ticker.connect();
-     * 	ticker.on("ticks", onTicks);
-     * 	ticker.on("connect", subscribe);
+     * 	ticker.on('ticks', onTicks);
+     * 	ticker.on('connect', subscribe);
      *
      * 	function onTicks(ticks) {
-     * 		console.log("Ticks", ticks);
+     * 		console.log('Ticks', ticks);
      * 	}
      *
      * 	function subscribe() {
@@ -233,32 +233,32 @@ type KiteTickerParams = {
      *
      * Here is an example demonstrating auto reconnection.
      *
-     * 	import { KiteTicker } from "kiteconnect";
+     * 	import { KiteTicker } from 'kiteconnect';
      * 	const ticker = new KiteTicker({
-     * 		api_key: "api_key",
-     * 		access_token: "access_token"
+     * 		api_key: 'api_key',
+     * 		access_token: 'access_token'
      *	});
      *
      * 	// set autoreconnect with 10 maximum reconnections and 5 second interval
      * 	ticker.autoReconnect(true, 10, 5)
      * 	ticker.connect();
-     * 	ticker.on("ticks", onTicks);
-     * 	ticker.on("connect", subscribe);
+     * 	ticker.on('ticks', onTicks);
+     * 	ticker.on('connect', subscribe);
      *
-     * 	ticker.on("noreconnect", function() {
-     * 		console.log("noreconnect");
+     * 	ticker.on('noreconnect', function() {
+     * 		console.log('noreconnect');
      * 	});
      *
-     * 	ticker.on("reconnect", function(reconnect_count, reconnect_interval) {
-     * 		console.log("Reconnecting: attempt - ", reconnect_count, " interval - ", reconnect_interval);
+     * 	ticker.on('reconnect', function(reconnect_count, reconnect_interval) {
+     * 		console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval);
      * 	});
      *
-     *  ticker.on("message", function(binary_msg){
-     *		console.log("Binary message", binary_msg);
+     *  ticker.on('message', function(binary_msg){
+     *		console.log('Binary message', binary_msg);
      *  });
      *
      * 	function onTicks(ticks) {
-     * 		console.log("Ticks", ticks);
+     * 		console.log('Ticks', ticks);
      * 	}
      *
      * 	function subscribe() {

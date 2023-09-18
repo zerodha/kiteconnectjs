@@ -1165,13 +1165,13 @@ type KiteConnectParams = {
    * API end point root. Unless you explicitly want to send API requests to a
    * non-default endpoint, this can be ignored.
    *
-   * Defaults to "https://api.kite.trade"
+   * Defaults to 'https://api.kite.trade'
    */
   root?: string;
   /**
    * Kite connect login url
    *
-   * Defaults to "https://kite.trade/connect/login"
+   * Defaults to 'https://kite.trade/connect/login'
    */
   login_uri?: string;
   /**
@@ -1455,7 +1455,7 @@ type Connect = {
   /**
    * Retrieve LTP for list of instruments.
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
-   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
   getLTP: (instruments: string[]) => Promise<
     Record<
@@ -1509,7 +1509,7 @@ type Connect = {
   /**
    * Retrieve OHLC for list of instruments.
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
-   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
   getOHLC: (instruments: string[]) => Promise<
     Record<
@@ -1627,7 +1627,7 @@ type Connect = {
   /**
    * Retrieve quote and market depth for list of instruments.
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
-   * For example NSE:INFY and for list of instruments ["NSE:RELIANCE", "NSE:SBIN", ..]
+   * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
   getQuote: (instruments: string[]) => Promise<
     Record<
@@ -2093,11 +2093,11 @@ type KiteConnect = {
    * ------------------------
    * ~~~~
    *
-   * var KiteConnect = require("kiteconnect").KiteConnect;
+   * var KiteConnect = require('kiteconnect').KiteConnect;
    *
-   * var kc = new KiteConnect({api_key: "your_api_key"});
+   * var kc = new KiteConnect({api_key: 'your_api_key'});
    *
-   * kc.generateSession("request_token", "api_secret")
+   * kc.generateSession('request_token', 'api_secret')
    * 	.then(function(response) {
    * 		init();
    * 	})
@@ -2133,7 +2133,7 @@ type KiteConnect = {
    * ~~~~
    *
    * @example <caption>Initialize KiteConnect object</caption>
-   * var kc = KiteConnect("my_api_key", {timeout: 10, debug: false})
+   * var kc = KiteConnect('my_api_key', {timeout: 10, debug: false})
    */
   new (params: KiteConnectParams): Connect;
 };

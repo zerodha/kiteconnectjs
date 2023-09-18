@@ -6,6 +6,9 @@ logs
 *.log
 npm-debug.log*
 dist
+docs
+
+**/*.js
 
 # Runtime data
 pids

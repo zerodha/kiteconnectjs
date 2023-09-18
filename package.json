@@ -2,12 +2,14 @@
   "name": "kiteconnect",
   "version": "4.1.0",
   "description": "The official JS client library for the Kite Connect trading APIs",
-  "main": "./dist/",
+  "main": "./dist",
   "types": "./types/index.d.ts",
   "scripts": {
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "build": "tsc",
-    "test": "tsc && mocha"
+    "generate-docs": "typedoc --entryPoints \"lib/**/*.ts\" \"interfaces/**/*.ts\"  --out ./docs",
+    "build": "tsc --project tsconfig.json",
+    "build-test": "tsc --project test/tsconfig.json",
+    "eslint:fix": "eslint",
+    "test": "npm run build && npm run build-test && mocha --allowJs test/**/*.js && rimraf **/*.js"
   },
   "repository": {
     "type": "git",
@@ -36,14 +38,21 @@
     "mocha": "^10.0.0",
     "nock": "^13.2.4",
     "papaparse": "^5.3.1",
+    "querystring": "^0.2.1",
+    "rimraf": "^3.0.2",
+    "taffydb": "^2.7.3",
+    "typedoc": "^0.24.8",
     "ws": "^6.2.2"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.4",
     "@types/crypto-js": "^4.1.1",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
     "@types/papaparse": "^5.3.5",
+    "@types/ws": "^8.5.4",
     "eslint": "^8.30.0",
-    "jsdoc": "^3.4.0",
+    "jsdoc": "^4.0.2",
     "minami": "^1.1.1",
     "typescript": "^4.9.4"
   },
