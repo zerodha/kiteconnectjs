@@ -1,65 +1,64 @@
 /**
- * 
- * @date 07/06/2023 - 21:38:22
+ * Represents parameters for the Kite Ticker.
  *
- * @export
- * @interface KiteTickerParams
- * @typedef {KiteTickerParams}
+ * @remarks
+ * This interface defines the parameters required to initialize the Kite Ticker.
+ *
+ * @public
+ * @name KiteTickerParams
  */
 export interface KiteTickerParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
-     * @type {?string}
+     * @type {string}
      */
-    api_key?: string;
+    api_key: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
-     * @type {?string}
+     * @type {string}
      */
-    access_token?: string;
+    access_token: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
      * @type {?boolean}
      */
     reconnect?: boolean;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
      * @type {?number}
      */
     max_retry?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
      * @type {?number}
      */
     max_delay?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:22
-     *
-     * @type {string}
+     * @type {?string}
      */
-    root: string;
+    root?: string;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:22
+ * Represents the interface for KiteTicker.
  *
- * @export
- * @interface KiteTickerInterface
- * @typedef {KiteTickerInterface}
- * @extends {KiteTickerParams}
+ * @remarks
+ * This interface extends the KiteTickerParams interface, adding additional functionality and properties specific to KiteTicker.
+ *
+ * @public
+ * @name KiteTickerInterface
  */
 export interface KiteTickerInterface extends KiteTickerParams {
     
+}
+
+/**
+ * Represents the tick response for the Last Traded Price (LTP) mode.
+ *
+ * @remarks
+ * This interface defines the structure of a tick response in LTP mode,
+ *
+ * @public
+ * @name TickLTP
+ */
+ export interface TickLTP {
+    mode: string;
+    tradable: boolean;
+    instrument_token: number;
+    last_price: number;
 }

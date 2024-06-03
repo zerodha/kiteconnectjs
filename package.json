@@ -25,7 +25,7 @@
     "stock",
     "market"
   ],
-  "author": "Vivek R",
+  "author": "Rakesh Ranjan",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zerodhatech/kiteconnectjs/issues"
@@ -49,15 +49,17 @@
     "@types/crypto-js": "^4.1.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
-    "@types/papaparse": "^5.3.5",
+    "@types/papaparse": "^5.3.14",
     "@types/ws": "^8.5.4",
-    "eslint": "^8.30.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
     "jsdoc": "^4.0.2",
     "minami": "^1.1.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5",
+    "typescript-eslint": "^7.5.0"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=20.0.0"
   },
   "engineStrict": true
 }

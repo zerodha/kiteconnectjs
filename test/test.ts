@@ -180,6 +180,10 @@ function testSuite(){
       .query({ mode: null })
       .reply(200, parseJson('order_margins.json'))
 
+      // getvirtualContractNote
+      .post('/charges/orders')
+      .reply(200, parseJson('virtual_contract_note.json'))
+
 
     // fetch user profile detail
     describe('getProfile', function() {
@@ -558,12 +562,16 @@ function testSuite(){
                 trigger_values: [350, 450],
                 last_price: 400,
                 orders: [{
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
                     order_type: OrderTypes.LIMIT,
                     price: 350
                 }, {
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
@@ -617,12 +625,16 @@ function testSuite(){
                 trigger_values: [358, 458],
                 last_price: 400,
                 orders: [{
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
                     order_type: OrderTypes.LIMIT,
                     price: 358
                 }, {
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
@@ -670,6 +682,36 @@ function testSuite(){
                 // Order charges
                 expect(response).to.have.nested.property('[0].charges.total');
                 expect(response).to.have.nested.property('[0].charges.transaction_tax');
+                expect(response).to.have.nested.property('[0].charges.gst.total');
+                return done();
+            }).catch(done); 
+        })
+    });
+
+    // Virtual contract note API
+    describe('getvirtualContractNote', function() {
+        it('Fetch Virtual contract note charges', (done) => {
+            kc.getvirtualContractNote([
+                {
+                    'order_id': '111111111',
+                    'exchange': ExchangeTypes.NSE,
+                    'tradingsymbol': 'SBIN',
+                    'transaction_type': TransactionTypes.BUY,
+                    'variety': Varieties.VARIETY_REGULAR,
+                    'product': Products.MIS,
+                    'order_type': OrderTypes.MARKET,
+                    'quantity': 1,
+                    'average_price': 560
+                }
+                ])
+            .then(function(response: AnyObject) {
+                expect(response).to.have.nested.property('[0].transaction_type');
+                expect(response).to.have.nested.property('[0].tradingsymbol');
+                expect(response).to.have.nested.property('[0].price');
+                // Order charges
+                expect(response).to.have.nested.property('[0].charges.total');
+                expect(response).to.have.nested.property('[0].charges.transaction_tax');
+                expect(response).to.have.nested.property('[0].charges.transaction_tax_type');
                 expect(response).to.have.nested.property('[0].charges.gst.total');
                 return done();
             }).catch(done); 

@@ -1,15 +1,10 @@
 /**
- * 
- * @date 07/06/2023 - 21:38:08
+ * Represents an object with string keys and values of any type.
  *
- * @export
- * @interface AnyObject
- * @typedef {AnyObject}
+ * @public
+ * @interface
+ * @name AnyObject
  */
-export interface AnyObject {
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:08
-     */
+ export interface AnyObject {
     [key: string]: any;
 }

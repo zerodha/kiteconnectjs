@@ -17,6 +17,7 @@ export const ROUTES: { [key: string]: string } = {
     'order.trades': '/orders/{order_id}/trades',
     'order.margins': '/margins/orders',
     'order.margins.basket': '/margins/basket',
+    "order.contract_note": "/charges/orders",
 
     'portfolio.positions': '/portfolio/positions',
     'portfolio.holdings': '/portfolio/holdings',

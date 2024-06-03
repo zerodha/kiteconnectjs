@@ -2,7 +2,6 @@ import packageInfo from '../package.json';
 
 /**
  * 
- * @date 07/06/2023 - 21:38:03
  *
  * @returns {*}
  */
@@ -12,7 +11,6 @@ function getPackageInfo() {
 
 /**
  * 
- * @date 07/06/2023 - 21:38:03
  *
  * @returns {string}
  */
