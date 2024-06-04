@@ -1,6 +1,6 @@
 {
   "name": "kiteconnect",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "The official JS client library for the Kite Connect trading APIs",
   "main": "./dist",
   "types": "./types/index.d.ts",
@@ -59,7 +59,7 @@
     "typescript-eslint": "^7.5.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   },
   "engineStrict": true
 }
