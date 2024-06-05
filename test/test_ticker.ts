@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
 //@ts-ignore
-import { default as KiteTicker } from '../lib/ticker';
+import { KiteTicker } from '../lib/ticker';
 
 
 // Ticker binary packets

@@ -1,4 +1,4 @@
-# The Kite Connect API Javascript client - v4
+# The Kite Connect API Javascript client - v5
 
 The official Javascript node client for communicating with the [Kite Connect API](https://kite.trade).
 
@@ -13,7 +13,7 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 
 ## Requirements
 
-- NodeJS v8.0.0+
+- NodeJS v18.0.0+
 
 ## Installation
 
@@ -25,9 +25,9 @@ Or via [yarn](https://yarnpkg.com/package/kiteconnect)
 
     yarn add kiteconnect
 
-## Breaking changes - v4
+## Breaking changes - v5
 
-`v4` is a **breaking** major release with multiple internal modification to improve user experience.<br>
+`v5` is a **breaking** major release with multiple internal modification including for typescript.<br>
 
 Below are the breaking changes:
 

@@ -133,9 +133,9 @@ export interface KiteConnectParams {
 
 /**
  * @public
- * @name KiteConectInterface
+ * @name KiteConnectInterface
  */
-export interface KiteConectInterface extends KiteConnectParams {
+export interface KiteConnectInterface extends KiteConnectParams {
 
 };
 

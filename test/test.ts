@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs';
 //@ts-ignore
-import { default as KiteConnect } from '../lib/connect';
+import { KiteConnect } from '../lib/connect';
 import { AnyObject } from '../interfaces/any-object.js';
 import { ExchangeTypes, GTTStatusTypes, OrderTypes, PositionTypes, Products, TransactionTypes, Varieties } from '../interfaces';
 

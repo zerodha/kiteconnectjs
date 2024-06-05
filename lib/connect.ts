@@ -5,7 +5,7 @@ import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
 import querystring from 'querystring';
 import utils from './utils';
-import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, TransactionTypes, KiteConectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams } from '../interfaces';
+import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams } from '../interfaces';
 import { DEFAULTS, ROUTES } from '../constants';
 
 
@@ -81,7 +81,7 @@ import { DEFAULTS, ROUTES } from '../constants';
 
 
 
-class KiteConnect implements KiteConectInterface {
+export class KiteConnect implements KiteConnectInterface {
     /**
      * @type {string}
      */
@@ -595,13 +595,25 @@ class KiteConnect implements KiteConectInterface {
     };
 
     /**
+     * Retrieve historical data (candles) for an instrument.
+     * For example:
+     * ~~~~
+     * [{
+     * 	date: '2015-02-10T00:00:00+0530',
+     * 	open: 277.5,
+     * 	high: 290.8,
+     * 	low: 275.7,
+     * 	close: 287.3,
+     * 	volume: 22589681
+     * }, ....]
+     * ~~~~
      * @param {(string | number)} instrument_token
      * @param {string} interval
      * @param {(string | Date)} from_date
      * @param {(string | Date)} to_date
      * @param {(number | boolean)} [continuous=false]
      * @param {(number | boolean)} [oi=false]
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     getHistoricalData(instrument_token: string | number, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
         continuous = continuous ? 1 : 0;
@@ -716,31 +728,31 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     *
-     *
-     * @returns {*}
+     * Get GTTs list
+     * 
+     * @returns {Promise<any>}
      */
     getGTTs() {
         return this._get('gtt.triggers', null, null, this.formatResponse);
     }
 
     /**
-     *
+     * Get specific GTT history
      *
      * @param {(string | number)} trigger_id
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     getGTT(trigger_id: string | number) {
         return this._get('gtt.trigger_info', { 'trigger_id': trigger_id }, null, this.formatResponse);
     };
 
     /**
-     *
+     * Get API params from user defined GTT params
      *
      * @param {PlaceGTTParams} params
      * @returns {{ condition: { exchange: ExchangeTypes; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
      */
-    _getGTTPayload(params: PlaceGTTParams) {
+    private _getGTTPayload(params: PlaceGTTParams) {
         if (params.trigger_type !== GTTStatusTypes.GTT_TYPE_OCO && params.trigger_type !== GTTStatusTypes.GTT_TYPE_SINGLE) {
             throw new Error('Invalid `params.trigger_type`')
         }
@@ -772,10 +784,9 @@ class KiteConnect implements KiteConectInterface {
     };
 
     /**
-     *
-     *
+     * Place GTT.
      * @param {PlaceGTTParams} params
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     placeGTT(params: PlaceGTTParams) {
         const payload = this._getGTTPayload(params);
@@ -787,11 +798,11 @@ class KiteConnect implements KiteConectInterface {
     };
 
     /**
-     *
+     * Modify GTT Order
      *
      * @param {(string | number)} trigger_id
      * @param {PlaceGTTParams} params
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     modifyGTT(trigger_id: string | number, params: PlaceGTTParams) {
         const payload = this._getGTTPayload(params);
@@ -804,17 +815,17 @@ class KiteConnect implements KiteConectInterface {
     };
 
     /**
-     *
+     * Delete specific GTT order
      *
      * @param {(string | number)} trigger_id
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     deleteGTT(trigger_id: string | number) {
         return this._delete('gtt.delete', { 'trigger_id': trigger_id }, null, undefined);
     };
 
     /**
-     *
+     * Validate postback data checksum
      *
      * @param {AnyObject} postback_data
      * @param {string} api_secret
@@ -1156,5 +1167,3 @@ function _getDateTimeString(date: Date) {
     const isoString = date.toISOString();
     return isoString.replace('T', ' ').split('.')[0];
 }
-
-export default KiteConnect;

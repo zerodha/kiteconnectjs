@@ -135,21 +135,33 @@ const NseCM = 1,
       Indices = 9;
 
 /**
- * The WebSocket client for connecting to Kite connect streaming quotes service. Getting started:
- * --------------- 	const KiteTicker = require('kiteconnect').KiteTicker;
- * 	const ticker = new KiteTicker({
+ * @classdesc
+ * Ticker client class. The WebSocket client for connecting to Kite connect streaming quotes service. 
+ * 
+ * Getting started:
+ * ---------------------------
+ * 
+ * ~~~~
+ * const KiteTicker = require('kiteconnect').KiteTicker;
+ * const ticker = new KiteTicker({
  * 		api_key: 'api_key',
  * 		access_token: 'access_token'
- *	}); 	ticker.connect();
- * 	ticker.on('ticks', onTicks);
- * 	ticker.on('connect', subscribe); 	function onTicks(ticks) {
- * 		console.log('Ticks', ticks);
- * 	} 	function subscribe() {
- * 		const items = [738561];
- * 		ticker.subscribe(items);
- * 		ticker.setMode(ticker.modeFull, items);
- * 	} Tick structure (passed to the tick callback you assign):
- * ---------------------------
+ * }); 	
+ * ticker.connect();
+ * ticker.on('ticks', onTicks);
+ * ticker.on('connect', subscribe);
+ * function onTicks(ticks) {
+ * 	console.log('Ticks', ticks);
+ * }
+ * function subscribe() {
+ * 	const items = [738561];
+ * 	ticker.subscribe(items);
+ * 	ticker.setMode(ticker.modeFull, items);
+ * }
+ * ~~~~
+ * 
+ * -------------
+ * ~~~~
  * [{ tradable: true,
  *    mode: 'full',
  *    instrument_token: 208947,
@@ -218,9 +230,10 @@ const NseCM = 1,
  *				 orders: 13
  *			  }]
  *		}
- *	}, ...] Auto reconnection
- * -----------------
- * Auto reonnection is enabled by default and it can be disabled by passing `reconnect` param while initialising `KiteTicker`. Auto reonnection mechanism is based on [Exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) algorithm in which
+ *	}, ...]
+ * ~~~~
+ * 
+ * Auto reconnection is enabled by default and it can be disabled by passing `reconnect` param while initialising `KiteTicker`. Auto reonnection mechanism is based on [Exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) algorithm in which
  * next retry interval will be increased exponentially. `max_delay` and `max_tries` params can be used to tweak
  * the alogrithm where `max_delay` is the maximum delay after which subsequent reconnection interval will become constant and
  * `max_tries` is maximum number of retries before it quits reconnection.
@@ -228,29 +241,42 @@ const NseCM = 1,
  * minimum interval which is 2 seconds and keep increasing up to 60 seconds after which it becomes constant and when reconnection attempt
  * is reached upto 50 then it stops reconnecting.
  * Callback `reconnect` will be called with current reconnect attempt and next reconnect interval and
- * `on_noreconnect` is called when reconnection attempts reaches max retries. Here is an example demonstrating auto reconnection. 	const KiteTicker = require('kiteconnect').KiteTicker;
- * 	const ticker = new KiteTicker({
- * 		api_key: 'api_key',
- * 		access_token: 'access_token'
- *	}); 	// set autoreconnect with 10 maximum reconnections and 5 second interval
- * 	ticker.autoReconnect(true, 10, 5)
- * 	ticker.connect();
- * 	ticker.on('ticks', onTicks);
- * 	ticker.on('connect', subscribe); 	ticker.on('noreconnect', function() {
- * 		console.log('noreconnect');
- * 	}); 	ticker.on('reconnect', function(reconnect_count, reconnect_interval) {
- * 		console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval);
- * 	});
+ * `on_noreconnect` is called when reconnection attempts reaches max retries. 
  * 
- *  ticker.on('message', function(binary_msg){
- *		console.log('Binary message', binary_msg);
- *  }); 	function onTicks(ticks) {
- * 		console.log('Ticks', ticks);
- * 	} 	function subscribe() {
- * 		const items = [738561];
- * 		ticker.subscribe(items);
- * 		ticker.setMode(ticker.modeFull, items);
- * 	}
+ * Here is an example demonstrating auto reconnection.
+ * -------------
+ * ~~~~
+ * const KiteTicker = require('kiteconnect').KiteTicker;
+ * const ticker = new KiteTicker({
+ * 	api_key: 'api_key',
+ * 	access_token: 'access_token'
+ * }); 	
+ * 
+ * // set autoreconnect with 10 maximum reconnections and 5 second interval
+ * ticker.autoReconnect(true, 10, 5)
+ * ticker.connect();
+ * ticker.on('ticks', onTicks);
+ * ticker.on('connect', subscribe); 	
+ * ticker.on('noreconnect', function() {
+ * 	console.log('noreconnect');
+ * }); 	
+ * ticker.on('reconnect', function(reconnect_count, reconnect_interval) {
+ * 	console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval);
+ * });
+ * ticker.on('message', function(binary_msg){
+ *	console.log('Binary message', binary_msg);
+ * });
+ * 
+ * function onTicks(ticks) {
+ * 	console.log('Ticks', ticks);
+ * }
+ * function subscribe() {
+ * 	const items = [738561];
+ * 	ticker.subscribe(items);
+ * 	ticker.setMode(ticker.modeFull, items);
+ * }
+ * ~~~~
+ * 
  * @constructor
  * @name KiteTicker
  * @param {Object} params
@@ -261,7 +287,7 @@ const NseCM = 1,
  * @param {number} [params.max_delay=60] in seconds is the maximum delay after which subsequent re-connection interval will become constant. Defaults to 60s and minimum acceptable value is 5s.
  * @param {string} [params.root='wss://websocket.kite.trade/'] Kite websocket root.
  */
-class KiteTicker implements KiteTickerInterface {
+export class KiteTicker implements KiteTickerInterface {
 	/**
 	 * @type {string}
 	 */
@@ -767,5 +793,3 @@ function buf2long(buf: ArrayBuffer) {
 
 	return val;
 }
-
-export default KiteTicker;
