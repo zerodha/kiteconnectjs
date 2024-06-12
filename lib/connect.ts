@@ -3,9 +3,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosTransformer, Method } from 'axios';
 import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
-import querystring from 'querystring';
+import qs from 'qs';
 import utils from './utils';
-import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams } from '../interfaces';
+import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, MarginOrder, VirtualContractParam, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams, ConvertPositionParams, Exchanges } from '../interfaces';
 import { DEFAULTS, ROUTES } from '../constants';
 
 
@@ -20,43 +20,56 @@ import { DEFAULTS, ROUTES } from '../constants';
  * ------------------------
  * ~~~~
  *
- * const KiteConnect = require('kiteconnect').KiteConnect;
- *
- * const kc = new KiteConnect({api_key: 'your_api_key'});
- *
- * kc.generateSession('request_token', 'api_secret')
- * 	.then(function(response) {
- * 		init();
- * 	})
- * 	.catch(function(err) {
- * 		console.log(err);
- * 	})
- *
- * function init() {
- * 	// Fetch equity margins.
- * 	// You can have other api calls here.
- *
- * 	kc.getMargins()
- * 		.then(function(response) {
- * 			// You got user's margin details.
- * 		}).catch(function(err) {
- * 			// Something went wrong.
- * 		});
- *  }
+ * import { KiteConnect } from 'kiteconnect';
+ * 
+ * const apiKey = 'your_api_key'
+ * const apiSecret = 'your_api_secret'
+ * const requestToken = 'your_request_token'
+ * 
+ * const kc = new KiteConnect({ api_key: apiKey })
+ * 
+ * async function init() {
+ *     try {
+ *         await generateSession()
+ *         await getProfile()
+ *     } catch (err) {
+ *         console.error(err)
+ *     }
+ * }  
+ * 
+ * async function generateSession() {
+ *     try {
+ *         const response = await kc.generateSession(requestToken, apiSecret)
+ *         kc.setAccessToken(response.access_token)
+ *         console.log('Session generated:', response)
+ *     } catch (err) {
+ *         console.error('Error generating session:', err)
+ *     }
+ * }
+ * 
+ * async function getProfile() {
+ *     try {
+ *         const profile = await kc.getProfile()
+ *         console.log('Profile:', profile)
+ *     } catch (err) {
+ *         console.error('Error getting profile:', err)
+ *     }
+ * }
+ * // Initialize the API calls
+ * init();
  * ~~~~
  *
  * API promises
  * -------------
- * All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
- *
+ * All API calls return a promise which you can `await` to handle asynchronously.
+ * 
  * ~~~~
- * kiteConnectApiCall
- * 	.then(function(v) {
- * 	    // On success
- * 	})
- * 	.catch(function(e) {
- * 		// On rejected
- * 	});
+ * try {
+ *     const result = await kiteConnectApiCall;
+ *     // On success
+ * } catch (error) {
+ *     // On rejection
+ * }
  * ~~~~
  *
  * @constructor
@@ -76,7 +89,7 @@ import { DEFAULTS, ROUTES } from '../constants';
  *	for a request to complete before it fails.
  *
  * @example <caption>Initialize KiteConnect object</caption>
- * const kc = KiteConnect('my_api_key', {timeout: 10, debug: false})
+ * const kc = new KiteConnect({ api_key: apiKey })
  */
 
 
@@ -107,13 +120,9 @@ export class KiteConnect implements KiteConnectInterface {
      */
     timeout?: number;
     /**
-     * @type {?string}
+     * @type {?(function | null)}
      */
-    default_connect_uri?: string;
-    /**
-     * @type {?(string | null)}
-     */
-    session_expiry_hook?: string | null;
+    session_expiry_hook?: (() => void) | null;
     /**
      * @type {?string}
      */
@@ -123,6 +132,68 @@ export class KiteConnect implements KiteConnectInterface {
      * @type {AxiosInstance}
      */
     private requestInstance: AxiosInstance;
+
+    // Constants
+    readonly PRODUCT_MIS: string = 'MIS';
+    readonly PRODUCT_CNC: string = 'CNC';
+    readonly PRODUCT_NRML: string = 'NRML';
+
+    // Order types
+    readonly ORDER_TYPE_MARKET: string = 'MARKET';
+    readonly ORDER_TYPE_LIMIT: string = 'LIMIT';
+    readonly ORDER_TYPE_SLM: string = 'SL-M';
+    readonly ORDER_TYPE_SL: string ='SL';
+
+    // Varieties
+    readonly VARIETY_REGULAR: string = 'regular';
+    readonly VARIETY_CO: string = 'co';
+    readonly VARIETY_AMO: string = 'amo';
+    readonly VARIETY_ICEBERG: string = 'iceberg';
+    readonly VARIETY_AUCTION: string = 'auction';
+
+    // Transaction types
+    readonly TRANSACTION_TYPE_BUY: string = 'BUY';
+    readonly TRANSACTION_TYPE_SELL: string = 'SELL';
+
+    // Validities
+    readonly VALIDITY_DAY: string = 'DAY';
+    readonly VALIDITY_IOC: string = 'IOC';
+    readonly VALIDITY_TTL:  string = 'TTL';
+
+    // Exchanges
+    readonly EXCHANGE_NSE: string = 'NSE';
+    readonly EXCHANGE_BSE: string = 'BSE';
+    readonly EXCHANGE_NFO: string = 'NFO';
+    readonly EXCHANGE_CDS: string = 'CDS';
+    readonly EXCHANGE_BCD: string = 'BCD';
+    readonly EXCHANGE_BFO: string = 'BFO';
+    readonly EXCHANGE_MCX: string = 'MCX';
+
+    // Margins segments
+    readonly MARGIN_EQUITY: string = 'equity';
+    readonly MARGIN_COMMODITY: string = 'commodity';
+
+    // Statuses
+    readonly STATUS_CANCELLED: string = 'CANCELLED';
+    readonly STATUS_REJECTED: string = 'REJECTED';
+    readonly STATUS_COMPLETE: string = 'COMPLETE';
+
+    // GTT types
+    readonly GTT_TYPE_OCO: string = 'two-leg';
+    readonly GTT_TYPE_SINGLE: string = 'single';
+
+    // GTT statuses
+    readonly GTT_STATUS_ACTIVE: string = 'active';
+    readonly GTT_STATUS_TRIGGERED: string = 'triggered';
+    readonly GTT_STATUS_DISABLED: string = 'disabled';
+    readonly GTT_STATUS_EXPIRED: string = 'expired';
+    readonly GTT_STATUS_CANCELLED: string = 'cancelled';
+    readonly GTT_STATUS_REJECTED: string = 'rejected';
+    readonly GTT_STATUS_DELETED: string = 'deleted';
+
+    // Position types
+    readonly POSITION_TYPE_DAY: string = 'day';
+    readonly POSITION_TYPE_OVERNIGHT: string = 'overnight';
 
     /**
      * Creates an instance of KiteConnect.
@@ -136,7 +207,7 @@ export class KiteConnect implements KiteConnectInterface {
         this.timeout = params.timeout || DEFAULTS.timeout;
         this.debug = params.debug || DEFAULTS.debug;
         this.access_token = params.access_token || null;
-        this.default_connect_uri = DEFAULTS.login;
+        this.default_login_uri = DEFAULTS.login;
         this.session_expiry_hook = null;
         this.requestInstance = this.createAxiosInstance();
     }
@@ -158,7 +229,18 @@ export class KiteConnect implements KiteConnectInterface {
                 'User-Agent': userAgent
             },
             paramsSerializer(params) {
-                return querystring.stringify(params);
+                const searchParams = new URLSearchParams();
+                for (const key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        const value = params[key];
+                        if (Array.isArray(value)) {
+                            value.forEach(val => searchParams.append(key, val));
+                        } else {
+                            searchParams.append(key, value);
+                        }
+                    }
+                }
+                return searchParams.toString();
             }
         });
 
@@ -188,7 +270,7 @@ export class KiteConnect implements KiteConnectInterface {
                     'message': 'Unknown content type (' + contentType + ') with response: (' + response.data + ')'
                 };
             }
-        }, function (error) {
+        }, (error) => {
             let resp = {
                 'message': 'Unknown error',
                 'error_type': 'GeneralException',
@@ -200,7 +282,7 @@ export class KiteConnect implements KiteConnectInterface {
                 // that falls out of the range of 2xx
                 if (error.response.data && error.response.data.error_type) {
                     if (error.response.data.error_type === 'TokenException' && this.session_expiry_hook) {
-                        this.session_expiry_hook()
+                        this.session_expiry_hook();
                     }
 
                     resp = error.response.data;
@@ -268,7 +350,7 @@ export class KiteConnect implements KiteConnectInterface {
      * @returns {Promise<any>} A promise that resolves when the session generation is successful and rejects if an error occurs.
      */
     generateSession(request_token: string, api_secret: string): Promise<any> {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             const checksum = sha256(this.api_key + request_token + api_secret).toString();
             const p = this._post('api.token', {
                 api_key: this.api_key,
@@ -276,7 +358,7 @@ export class KiteConnect implements KiteConnectInterface {
                 checksum: checksum
             }, null, formatGenerateSession);
 
-            p.then(function (resp: any) {
+            p.then((resp: any) => {
                 // Set access token.
                 if (resp && resp.access_token) {
                     this.setAccessToken(resp.access_token);
@@ -296,7 +378,7 @@ export class KiteConnect implements KiteConnectInterface {
      * If no access token is provided, the method uses the default access token associated with the instance.
      *
      * @param {string} [access_token] - The access token to invalidate. If not provided, the default access token is used.
-     * @returns {Promise<any>} A promise that resolves when the DELETE request is complete.
+     * @returns {Promise<boolean>} A promise that resolves when the DELETE request is complete.
      */
     invalidateAccessToken(access_token?: string): Promise<any> {
         return this._delete('api.token.invalidate', {
@@ -306,18 +388,18 @@ export class KiteConnect implements KiteConnectInterface {
     };
 
     /**
- * Renews the access token using the provided refresh token and API secret.
- *
- * @remarks
- * This method sends a request to renew the access token using the given refresh token
- * and API secret. If the renewal is successful, the promise resolves to the renewed
- * access token. If the renewal fails, the promise is rejected with an error message.
- *
- * @param {string} refresh_token - The refresh token used for renewing the access token.
- * @param {string} api_secret - The API secret required for the renewal process.
- * @returns {Promise<any>} A promise that resolves to the renewed access token if successful.
- *          If the renewal fails, the promise is rejected with an error message.
- */
+     * Renews the access token using the provided refresh token and API secret.
+     *
+     * @remarks
+     * This method sends a request to renew the access token using the given refresh token
+     * and API secret. If the renewal is successful, the promise resolves to the renewed
+     * access token. If the renewal fails, the promise is rejected with an error message.
+     *
+     * @param {string} refresh_token - The refresh token used for renewing the access token.
+     * @param {string} api_secret - The API secret required for the renewal process.
+     * @returns {Promise<any>} A promise that resolves to the renewed access token if successful.
+     *          If the renewal fails, the promise is rejected with an error message.
+     */
     renewAccessToken(refresh_token: string, api_secret: string): Promise<any> {
         return new Promise((resolve, reject) => {
             const checksum = sha256(this.api_key + refresh_token + api_secret).toString();
@@ -328,7 +410,7 @@ export class KiteConnect implements KiteConnectInterface {
                 checksum: checksum
             });
 
-            p.then(function (resp: any) {
+            p.then((resp: any) => {
                 if (resp && resp.access_token) {
                     this.setAccessToken(resp.access_token);
                 }
@@ -472,11 +554,11 @@ export class KiteConnect implements KiteConnectInterface {
     /**
      * Calculates margins for the specified orders.
      * 
-     * @param {Order[]} orders - The array of orders for which margins are to be calculated.
-     * @param {*} [mode=null] - The mode for margin calculation (optional).
+     * @param {MarginOrder[]} orders - The array of orders for which margins are to be calculated.
+     * @param {string} [mode='compact'] - The mode for margin calculation (optional).
      * @returns {Promise<any>} - A Promise that resolves with the calculated margins.
      */
-    orderMargins(orders: Order[], mode = null): Promise<any> {
+    orderMargins(orders: MarginOrder[], mode: string = 'compact'): Promise<any> {
         return this._post('order.margins', orders, null, undefined, true,
             { 'mode': mode });
     };
@@ -484,10 +566,10 @@ export class KiteConnect implements KiteConnectInterface {
     /**
      * Retrieves the virtual contract note for the specified orders.
      * 
-     * @param {Order[]} orders - The array of orders for which to retrieve the virtual contract note.
+     * @param {VirtualContractParam[]} orders - The array of orders for which to retrieve the virtual contract note.
      * @returns {Promise<any>} A Promise that resolves with the virtual contract note.
      */
-    getvirtualContractNote(orders: Order[]): Promise<any> {
+    getvirtualContractNote(orders: VirtualContractParam[]): Promise<any> {
         return this._post('order.contract_note', orders, null, undefined, true, null);
     };
 
@@ -496,10 +578,10 @@ export class KiteConnect implements KiteConnectInterface {
      *
      * @param {Order[]} orders - The array of orders for which to retrieve margin information.
      * @param {boolean} [consider_positions=true] - Flag indicating whether to consider existing positions.
-     * @param {*} [mode=null] - The mode of operation. Default is null.
+     * @param {*} [mode='compact'] - The mode of operation. Default is compact.
      * @returns {Promise<any>} - A Promise that resolves to margin information for the basket of orders.
      */
-     orderBasketMargins(orders: Order[], consider_positions = true, mode = null): Promise<any> {
+     orderBasketMargins(orders: Order[], consider_positions: boolean = true, mode: string = 'compact'): Promise<any> {
         return this._post('order.margins.basket', orders, null, undefined, true,
             { 'consider_positions': consider_positions, 'mode': mode });
     };
@@ -537,21 +619,21 @@ export class KiteConnect implements KiteConnectInterface {
     /**
      * Converts a position based on the provided parameters.
      *
-     * @param params - The parameters for converting the position.
+     * @param {ConvertPositionParams} params - The parameters for converting the position.
      * @returns {Promise<any>} A Promise that resolves with the result of the conversion.
-     *          The resolved value type depends on the implementation.
+     * 
      */
-    convertPosition(params: Order): Promise<any> {
+    convertPosition(params: ConvertPositionParams): Promise<any> {
         return this._put('portfolio.positions.convert', params);
     };
 
     /**
      * Retrieves instruments based on the provided exchange.
      *
-     * @param {boolean} exchange - A boolean indicating whether to fetch instruments for the exchange.
+     * @param {Exchanges} exchange - Exchange name
      * @returns {Promise<any>} - A Promise resolving to the fetched instruments.
      */
-    getInstruments(exchange: boolean): Promise<any> {
+    getInstruments(exchange: Exchanges): Promise<any> {
         if (exchange) {
             return this._get('market.instruments', {
                 'exchange': exchange
@@ -562,23 +644,23 @@ export class KiteConnect implements KiteConnectInterface {
     };
 
     /**
-     * Retrieves OHLC (Open, High, Low, Close) data for the specified instruments.
+     * Retrieves Quote data for the specified instruments.
      *
-     * @param {(string[] | string)} instruments - An array of instrument tokens or a single instrument token as a string.
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol
      * @returns {Promise<any>} A promise that resolves with the quote data for the specified instruments.
      */
-    getQuote(instruments: string[] | string): Promise<any> {
-        return this._get('market.quote', { 'i': instruments }, null, formatQuoteResponse);
+    getQuote(instruments: string | string[]): Promise<any> {
+        return this._get('market.quote', {"i": instruments}, null, formatQuoteResponse);
     };
 
     /**
      * Retrieves OHLC (Open, High, Low, Close) data for the specified instruments.
      *
-     * @param {(string[] | string)} instruments - An array of instrument tokens or a single instrument token as a string.
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol.
      * @returns {Promise<any>} A promise that resolves with the OHLC data for the specified instruments.
      */
-    getOHLC(instruments: string[] | string): Promise<any> {
-        return this._get('market.quote.ohlc', { 'i': instruments });
+    getOHLC(instruments: string | string[]): Promise<any> {
+        return this._get('market.quote.ohlc', {"i": instruments});
     };
 
     /**
@@ -587,11 +669,11 @@ export class KiteConnect implements KiteConnectInterface {
      * @remarks
      * This method fetches the last traded price (LTP) for the provided instruments.
      *
-     * @param {(string[] | string)} instruments - An array of instrument tokens or a single instrument token.
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol
      * @returns {Promise<any>} The last traded price (LTP) of the specified instruments as a Promise<any>.
      */
-    getLTP(instruments: string[] | string): Promise<any>{
-        return this._get('market.quote.ltp', { 'i': instruments });
+    getLTP(instruments: string | string[]): Promise<any>{
+        return this._get('market.quote.ltp', {"i": instruments});
     };
 
     /**
@@ -607,7 +689,7 @@ export class KiteConnect implements KiteConnectInterface {
      * 	volume: 22589681
      * }, ....]
      * ~~~~
-     * @param {(string | number)} instrument_token
+     * @param {(number | string)} instrument_token
      * @param {string} interval
      * @param {(string | Date)} from_date
      * @param {(string | Date)} to_date
@@ -615,7 +697,7 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {(number | boolean)} [oi=false]
      * @returns {Promise<any>}
      */
-    getHistoricalData(instrument_token: string | number, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
+    getHistoricalData(instrument_token: number | string, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
         continuous = continuous ? 1 : 0;
         oi = oi ? 1 : 0;
         if (typeof to_date === 'object') to_date = _getDateTimeString(to_date)
@@ -750,7 +832,7 @@ export class KiteConnect implements KiteConnectInterface {
      * Get API params from user defined GTT params
      *
      * @param {PlaceGTTParams} params
-     * @returns {{ condition: { exchange: ExchangeTypes; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
+     * @returns {{ condition: { exchange: Exchanges; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
      */
     private _getGTTPayload(params: PlaceGTTParams) {
         if (params.trigger_type !== GTTStatusTypes.GTT_TYPE_OCO && params.trigger_type !== GTTStatusTypes.GTT_TYPE_SINGLE) {
@@ -850,7 +932,6 @@ export class KiteConnect implements KiteConnectInterface {
 
     /**
      *
-     *
      * @private
      * @param {string} route
      * @param {?(AnyObject | null)} [params]
@@ -947,7 +1028,7 @@ export class KiteConnect implements KiteConnectInterface {
                 payload = JSON.stringify(params);
             } else {
                 // post url encoded payload
-                payload = querystring.stringify(params);
+                payload = qs.stringify(params);
             }
         }
 
@@ -976,7 +1057,6 @@ export class KiteConnect implements KiteConnectInterface {
         if (responseTransformer) {
             options.transformResponse = (axios.defaults.transformResponse as any).concat(responseTransformer);
         }
-
         return this.requestInstance.request(options);
     }
 
@@ -1086,7 +1166,6 @@ export class KiteConnect implements KiteConnectInterface {
 }
 
 /**
- 
  *
  * @param {AnyObject} data
  * @returns {AnyObject}
@@ -1102,7 +1181,6 @@ function formatGenerateSession(data: AnyObject) {
 }
 
 /**
- 
  *
  * @param {AnyObject} data
  * @returns {AnyObject}
@@ -1125,7 +1203,6 @@ function formatQuoteResponse(data: AnyObject) {
 // Format response ex. datetime string to date
 
 /**
- 
  *
  * @param {*} data
  * @param {AnyObject} headers

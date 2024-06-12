@@ -7,7 +7,7 @@ import * as fs from 'fs';
 //@ts-ignore
 import { KiteConnect } from '../lib/connect';
 import { AnyObject } from '../interfaces/any-object.js';
-import { ExchangeTypes, GTTStatusTypes, OrderTypes, PositionTypes, Products, TransactionTypes, Varieties } from '../interfaces';
+import { Exchanges, GTTStatusTypes, OrderTypes, PositionTypes, Products, TransactionTypes, Varieties } from '../interfaces';
 
 const mockDir = './kiteconnect-mocks';
 
@@ -177,7 +177,7 @@ function testSuite(){
 
       // orderMargins
       .post('/margins/orders')
-      .query({ mode: null })
+      .query({mode: 'compact'})
       .reply(200, parseJson('order_margins.json'))
 
       // getvirtualContractNote
@@ -221,7 +221,7 @@ function testSuite(){
     describe('placeOrder', function() {
         it('Place market order', (done) => {
             kc.placeOrder(Varieties.TEST, {
-                'exchange': ExchangeTypes.NSE,
+                'exchange': Exchanges.NSE,
                 'tradingsymbol': 'SBIN',
                 'transaction_type': TransactionTypes.BUY,
                 'quantity': 1,
@@ -352,7 +352,7 @@ function testSuite(){
         it('convert existing position', (done) => {
             kc.convertPosition ({
                 'tradingsymbol': 'SBIN',
-                'exchange': ExchangeTypes.NSE,
+                'exchange': Exchanges.NSE,
                 'transaction_type': TransactionTypes.BUY,
                 'position_type': PositionTypes.POSITION_TYPE_DAY,
                 'quantity':1,
@@ -558,7 +558,7 @@ function testSuite(){
             kc.placeGTT({
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.NSE,
+                exchange: Exchanges.NSE,
                 trigger_values: [350, 450],
                 last_price: 400,
                 orders: [{
@@ -621,7 +621,7 @@ function testSuite(){
             kc.modifyGTT(100, {
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.NSE,
+                exchange: Exchanges.NSE,
                 trigger_values: [358, 458],
                 last_price: 400,
                 orders: [{
@@ -665,15 +665,17 @@ function testSuite(){
         it('Fetch order margin detail', (done) => {
             kc.orderMargins([
                 {
-                    'exchange': ExchangeTypes.NSE,
+                    'exchange': Exchanges.NSE,
                     'tradingsymbol': 'SBIN',
                     'transaction_type': TransactionTypes.BUY,
                     'variety': Varieties.VARIETY_REGULAR,
                     'product': Products.MIS,
                     'order_type': OrderTypes.MARKET,
-                    'quantity': 1
+                    'quantity': 1,
+                    'price': 0,
+                    'trigger_price':0
                 }
-                ])
+                ], 'compact')
             .then(function(response: AnyObject) {
                 expect(response).to.have.nested.property('[0].type');
                 expect(response).to.have.nested.property('[0].var');
@@ -694,7 +696,7 @@ function testSuite(){
             kc.getvirtualContractNote([
                 {
                     'order_id': '111111111',
-                    'exchange': ExchangeTypes.NSE,
+                    'exchange': Exchanges.NSE,
                     'tradingsymbol': 'SBIN',
                     'transaction_type': TransactionTypes.BUY,
                     'variety': Varieties.VARIETY_REGULAR,

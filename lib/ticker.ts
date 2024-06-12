@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { AnyObject, KiteTickerInterface, KiteTickerParams } from '../interfaces';
+import { AnyObject, KiteTickerInterface, KiteTickerParams, Tick, LTPTick, QuoteTick, FullTick } from '../interfaces';
 import utils from './utils';
 
 
@@ -142,95 +142,82 @@ const NseCM = 1,
  * ---------------------------
  * 
  * ~~~~
- * const KiteTicker = require('kiteconnect').KiteTicker;
+ * import { KiteTicker } from "kiteconnect";
+ *
+ * const apiKey = 'your_api_key';
+ * const accessToken = 'generated_access_token';
+ *
  * const ticker = new KiteTicker({
- * 		api_key: 'api_key',
- * 		access_token: 'access_token'
- * }); 	
+ *     api_key: apiKey,
+ *     access_token: accessToken
+ * });
+ *
  * ticker.connect();
  * ticker.on('ticks', onTicks);
  * ticker.on('connect', subscribe);
- * function onTicks(ticks) {
- * 	console.log('Ticks', ticks);
+ * ticker.on('disconnect', onDisconnect);
+ * ticker.on('error', onError);
+ * ticker.on('close', onClose);
+ * ticker.on('order_update', onTrade);
+ *
+ * function onTicks(ticks: any[]): void {
+ *     console.log("Ticks", ticks);
  * }
- * function subscribe() {
- * 	const items = [738561];
- * 	ticker.subscribe(items);
- * 	ticker.setMode(ticker.modeFull, items);
+ *
+ * function subscribe(): void {
+ *     const tokens = [738561, 256265];
+ *     ticker.subscribe(tokens);
+ *     ticker.setMode(ticker.modeFull, tokens);
+ * }
+ *
+ * function onDisconnect(error: Error): void {
+ *     console.log("Closed connection on disconnect", error);
+ * }
+ *
+ * function onError(error: Error): void {
+ *     console.log("Closed connection on error", error);
+ * }
+ *
+ * function onClose(reason: string): void {
+ *     console.log("Closed connection on close", reason);
+ * }
+ *
+ * function onTrade(order: any): void {
+ *     console.log("Order update", order);
  * }
  * ~~~~
  * 
  * -------------
  * ~~~~
- * [{ tradable: true,
- *    mode: 'full',
- *    instrument_token: 208947,
- *    last_price: 3939,
- *    last_quantity: 1,
- *    average_price: 3944.77,
- *    volume: 28940,
- *    buy_quantity: 4492,
- *    sell_quantity: 4704,
- *    ohlc: { open: 3927, high: 3955, low: 3927, close: 3906 },
- *    change: 0.8448540706605223,
- *    last_trade_time: 1515491369,
- *    timestamp: 1515491373,
- *    oi: 24355,
- *    oi_day_high: 0,
- *    oi_day_low: 0,
- *    depth:
- *			buy: [{
- *				 quantity: 59,
- *				 price: 3223,
- *				 orders: 5
- *			  },
- *			  {
- *				 quantity: 164,
- *				 price: 3222,
- *				 orders: 15
- *			  },
- *			  {
- *				 quantity: 123,
- *				 price: 3221,
- *				 orders: 7
- *			  },
- *			  {
- *				 quantity: 48,
- *				 price: 3220,
- *				 orders: 7
- *			  },
- *			  {
- *				 quantity: 33,
- *				 price: 3219,
- *				 orders: 5
- *			  }],
- *		   sell: [{
- *				 quantity: 115,
- *				 price: 3224,
- *				 orders: 15
- *			  },
- *			  {
- *				 quantity: 50,
- *				 price: 3225,
- *				 orders: 5
- *			  },
- *			  {
- *				 quantity: 175,
- *				 price: 3226,
- *				 orders: 14
- *			  },
- *			  {
- *				 quantity: 49,
- *				 price: 3227,
- *				 orders: 10
- *			  },
- *			  {
- *				 quantity: 106,
- *				 price: 3228,
- *				 orders: 13
- *			  }]
- *		}
- *	}, ...]
+ * [{
+ *     tradable: true,
+ *     mode: 'full',
+ *     instrument_token: 738561,
+ *     last_price: 2940.7,
+ *     last_traded_quantity: 1,
+ *     average_traded_price: 2933.55,
+ *     volume_traded: 2827705,
+ *     total_buy_quantity: 213779,
+ *     total_sell_quantity: 425119,
+ *     ohlc: { open: 2915, high: 2949, low: 2910.35, close: 2913.35 },
+ *     change: 0.9387818147493404,
+ *     last_trade_time: 2024-06-12T07:16:09.000Z,
+ *     exchange_timestamp: 2024-06-12T07:16:09.000Z,
+ *     oi: 0,
+ *     oi_day_high: 0,
+ *     oi_day_low: 0,
+ *     depth: { buy: [Array], sell: [Array] }
+ *   },
+ *   {
+ *     tradable: false,
+ *     mode: 'full',
+ *     instrument_token: 256265,
+ *     last_price: 23406.85,
+ *     ohlc: { high: 23441.95, low: 23295.95, open: 23344.45, close: 23264.85 },
+ *     change: 0.6103628435171514,
+ *     exchange_timestamp: 2024-06-12T07:16:09.000Z
+ *   }
+ * ]
  * ~~~~
  * 
  * Auto reconnection is enabled by default and it can be disabled by passing `reconnect` param while initialising `KiteTicker`. Auto reonnection mechanism is based on [Exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) algorithm in which
@@ -246,34 +233,33 @@ const NseCM = 1,
  * Here is an example demonstrating auto reconnection.
  * -------------
  * ~~~~
- * const KiteTicker = require('kiteconnect').KiteTicker;
+ * import { KiteTicker } from "kiteconnect";
+ *
+ * const apiKey = 'your_api_key';
+ * const accessToken = 'generated_access_token';
  * const ticker = new KiteTicker({
- * 	api_key: 'api_key',
- * 	access_token: 'access_token'
- * }); 	
- * 
- * // set autoreconnect with 10 maximum reconnections and 5 second interval
- * ticker.autoReconnect(true, 10, 5)
+ *     api_key: 'api_key',
+ *     access_token: 'access_token'
+ * })
+ * ticker.autoReconnect(true, 10, 5);
  * ticker.connect();
  * ticker.on('ticks', onTicks);
- * ticker.on('connect', subscribe); 	
- * ticker.on('noreconnect', function() {
- * 	console.log('noreconnect');
- * }); 	
- * ticker.on('reconnect', function(reconnect_count, reconnect_interval) {
- * 	console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval);
- * });
- * ticker.on('message', function(binary_msg){
- *	console.log('Binary message', binary_msg);
- * });
- * 
- * function onTicks(ticks) {
- * 	console.log('Ticks', ticks);
+ * ticker.on('connect', subscribe);
+ * ticker.on('noreconnect', () => {
+ *     console.log('noreconnect')
+ * })
+ * ticker.on('reconnect', (reconnect_count:any, reconnect_interval:any) => {
+ *     console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval)
+ * })
+ *
+ * function onTicks(ticks: any[]) {
+ *     console.log('Ticks', ticks)
  * }
+ *
  * function subscribe() {
- * 	const items = [738561];
- * 	ticker.subscribe(items);
- * 	ticker.setMode(ticker.modeFull, items);
+ *     const items = [738561]
+ *     ticker.subscribe(items)
+ *     ticker.setMode(ticker.modeFull, items)
  * }
  * ~~~~
  * 
@@ -324,6 +310,7 @@ export class KiteTicker implements KiteTickerInterface {
 	 * @type {string}
 	 */
 	root: string;
+
 	/**
 	 * Creates an instance of KiteTicker.
 	 *
@@ -435,20 +422,17 @@ export class KiteTicker implements KiteTickerInterface {
 			if (this && this.readyState == this.OPEN) this.close();
 		};
 
-		ws.onclose = function (e) {
+		ws.onclose = (e) => {
 			trigger('close', [e]);
 
 			// the ws id doesn't match the current global id,
 			// meaning it's a ghost close event. just ignore.
-			if (current_ws_url && (this.url != current_ws_url)) return;
+			if (current_ws_url && (url != current_ws_url)) return;
 
 			this.triggerDisconnect(e);
 		};
 	}
 
-	/**
-	 * 
-	 */
 	attemptReconnection() {
 		// Try reconnecting only so many times.
 		if (current_reconnection_count > reconnect_max_tries) {
@@ -499,7 +483,6 @@ export class KiteTicker implements KiteTickerInterface {
 
 	/**
 	 * 
-	 *
 	 * @param {string} e
 	 * @param {Function} callback
 	 */
@@ -507,14 +490,10 @@ export class KiteTicker implements KiteTickerInterface {
 		if (triggers.hasOwnProperty(e)) {
 			(triggers as AnyObject)[e].push(callback);
 		}
-	}/**
-	 * 
-	 */
-	;
+	};
 
 	/**
 	 * 
-	 *
 	 * @param {(string[] | number[])} tokens
 	 * @returns {{}}
 	 */
@@ -523,14 +502,10 @@ export class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mSubscribe, 'v': tokens });
 		}
 		return tokens;
-	}/**
-	 * 
-	 */
-	;
+	};
 
 	/**
 	 * 
-	 *
 	 * @param {(string[] | number[])} tokens
 	 * @returns {{}}
 	 */
@@ -539,13 +514,9 @@ export class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mUnSubscribe, 'v': tokens });
 		}
 		return tokens;
-	}/**
-	 * 
-	 */
-	;
+	};
 
 	/**
-	 * 
 	 *
 	 * @param {string} mode
 	 * @param {(string[] | number[])} tokens
@@ -556,10 +527,7 @@ export class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mSetMode, 'v': [mode, tokens] });
 		}
 		return tokens;
-	}/**
-	 * 
-	 */
-	;
+	};
 
 	/**
 	 * 
@@ -628,7 +596,7 @@ function parseTextMessage(data: string | AnyObject) {
  */
 function parseBinary(binpacks: ArrayBuffer) {
 	const packets = splitPackets(binpacks),
-		ticks: any[] = [];
+		ticks: Tick[] = [];
 
 	for (let n = 0; n < packets.length; n++) {
 		const bin: any = packets[n],
@@ -654,13 +622,13 @@ function parseBinary(binpacks: ArrayBuffer) {
 				mode: modeLTP,
 				instrument_token,
 				last_price: buf2long(bin.slice(4, 8)) / divisor
-			});
+			} as LTPTick);
 			// Parse indices quote and full mode
 		} else if (bin.byteLength === 28 || bin.byteLength === 32) {
 			let mode = modeQuote;
 			if (bin.byteLength === 32) mode = modeFull;
 
-			const tick: AnyObject = {
+			const tick: QuoteTick = {
 				tradable,
 				mode,
 				instrument_token,
@@ -691,7 +659,7 @@ function parseBinary(binpacks: ArrayBuffer) {
 			let mode = modeQuote;
 			if (bin.byteLength === 184) mode = modeFull;
 
-			const tick = {
+			const tick: FullTick = {
 				tradable,
 				mode,
 				instrument_token,
@@ -706,8 +674,10 @@ function parseBinary(binpacks: ArrayBuffer) {
 					high: buf2long(bin.slice(32, 36)) / divisor,
 					low: buf2long(bin.slice(36, 40)) / divisor,
 					close: buf2long(bin.slice(40, 44)) / divisor
-				}
-			} as AnyObject;
+				},
+				// To be computed later
+				change: 0
+			};
 
 			// Compute the change price using close price and last price
 			if (tick.ohlc.close != 0) {

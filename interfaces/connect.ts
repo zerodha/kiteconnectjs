@@ -107,7 +107,7 @@ export interface KiteConnectParams {
     /**
      * Kite connect login url
      *
-     * Defaults to 'https?://kite.trade/connect/login'
+     * Defaults to 'https://kite.zerodha.com/connect/login'
      */
     login_uri?: string;
     /**
@@ -122,13 +122,6 @@ export interface KiteConnectParams {
      * Defaults to `7000`
      */
     timeout?: number;
-    /*
-     * Default url for which user will be redirected to login page
-     */
-    /**
-     * @type {?string}
-     */
-    default_login_uri?: string;
 };
 
 /**
@@ -143,7 +136,7 @@ export interface KiteConnectInterface extends KiteConnectParams {
  * @public
  * @enum {string}
  */
-export enum ExchangeTypes {
+export enum Exchanges {
     NSE = 'NSE',
     BSE = 'BSE',
     NFO = 'NFO',
@@ -245,9 +238,9 @@ export interface ExitOrderParams {
  */
 export interface ConvertPositionParams {
     /**
-     * @type {string}
+     * @type {Exchanges}
      */
-    exchange: string;
+    exchange: Exchanges;
     /**
      * @type {string}
      */
@@ -299,9 +292,9 @@ export interface Order {
      */
     order_type?: OrderTypes;
     /**
-     * @type {?ExchangeTypes}
+     * @type {?Exchanges}
      */
-    exchange?: ExchangeTypes;
+    exchange?: Exchanges;
     /**
      * @type {?string}
      */
@@ -444,9 +437,9 @@ export interface ModifyGTTParams {
      */
     tradingsymbol: string;
     /**
-     * @type {ExchangeTypes}
+     * @type {Exchanges}
      */
-    exchange: ExchangeTypes;
+    exchange: Exchanges;
     /**
      * @type {Array<number>}
      */
@@ -651,9 +644,9 @@ export interface PlaceGTTParams {
      */
     tradingsymbol: string;
     /**
-     * @type {ExchangeTypes}
+     * @type {Exchanges}
      */
-    exchange: ExchangeTypes;
+    exchange: Exchanges;
     /**
      * @type {Array<Number>}
      */
@@ -703,9 +696,9 @@ export interface PlaceOrderParams {
      */
     tradingsymbol: string;
     /**
-     * @type {ExchangeTypes}
+     * @type {Exchanges}
      */
-    exchange: ExchangeTypes;
+    exchange: Exchanges;
     /**
      * @type {TransactionTypes}
      */
@@ -735,3 +728,102 @@ export interface PlaceOrderParams {
      */
     tag?: string;
 };
+
+
+/**
+ * Represents parameters for order margin.
+ *
+ * @remarks
+ * This interface defines the order parameters required to fetch order margins.
+ *
+ * @public
+ * @name MarginOrder
+ */
+
+export type MarginOrder = {
+    /**
+     * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+     */
+    exchange: Exchanges;
+    /**
+     * Trading symbol of the instrument
+     */
+    tradingsymbol: string;
+    /**
+     * eg. BUY, SELL
+     */
+    transaction_type: TransactionTypes;
+    /**
+     * Order variety (regular, amo, bo, co etc.)
+     */
+    variety: Varieties;
+    /**
+     * Margin product to use for the order
+     */
+    product: Products;
+    /**
+     * Order type (MARKET, LIMIT etc.)
+     */
+    order_type: OrderTypes;
+    /**
+     * Quantity of the order
+     */
+    quantity: number;
+    /**
+     * Price at which the order is going to be placed (LIMIT orders)
+     */
+    price: number;
+    /**
+     * Trigger price (for SL, SL-M, CO orders)
+     */
+    trigger_price: number;
+  };
+
+/**
+ * Represents parameters for virtual contract margin.
+ *
+ * @remarks
+ * This interface defines the order parameters required to fetch virtual contract margin.
+ *
+ * @public
+ * @name VirtualContractParam
+ */
+
+ export type VirtualContractParam = {
+    /**
+     * Unique order ID (It can be any random string to calculate charges for an imaginary order)
+     */
+    order_id: number | string;
+    /**
+     * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+     */
+    exchange: Exchanges;
+    /**
+     * Trading symbol of the instrument
+     */
+    tradingsymbol: string;
+    /**
+     * eg. BUY, SELL
+     */
+    transaction_type: TransactionTypes;
+    /**
+     * Order variety (regular, amo, bo, co etc.)
+     */
+    variety: Varieties;
+    /**
+     * Margin product to use for the order
+     */
+    product: Products;
+    /**
+     * Order type (MARKET, LIMIT etc.)
+     */
+    order_type: OrderTypes;
+    /**
+     * Quantity of the order
+     */
+    quantity: number;
+    /**
+     * Average price at which the order was executed (Note: Should be non-zero).
+     */
+    average_price: number;
+  };
