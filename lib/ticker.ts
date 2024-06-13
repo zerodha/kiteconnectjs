@@ -1,178 +1,226 @@
 import WebSocket from 'ws';
-import { AnyObject, KiteTickerInterface, KiteTickerParams } from '../interfaces';
+import { AnyObject, KiteTickerInterface, KiteTickerParams, Tick, LTPTick, QuoteTick, FullTick } from '../interfaces';
 import utils from './utils';
 
+
 /**
- * 
- * @date 07/06/2023 - 21:38:00
- *
+ * Read timeout duration in seconds. Default: 5 seconds.
  * @type {number}
  */
-let read_timeout = 5, // seconds
-	reconnect_max_delay = 0,
-	reconnect_max_tries = 0,
+ let read_timeout = 5;
 
-	// message flags (outgoing)
-	mSubscribe = 'subscribe',
-	mUnSubscribe = 'unsubscribe',
-	mSetMode = 'mode',
-
-	// incoming
-
-	// public constants
-	modeFull = 'full', // Full quote including market depth. 164 bytes.
-	modeQuote = 'quote', // Quote excluding market depth. 52 bytes.
-	modeLTP = 'ltp';
+ /**
+  * Maximum delay for reconnection attempts. Default: 0 (no delay).
+  * @type {number}
+  */
+ let reconnect_max_delay = 0;
+ 
+ /**
+  * Maximum number of reconnection attempts. Default: 0 (no retries).
+  * @type {number}
+  */
+ let reconnect_max_tries = 0;
+ 
+ /**
+  * Outgoing message flags.
+  * @type {string}
+  */
+ let mSubscribe = 'subscribe',
+	 mUnSubscribe = 'unsubscribe',
+	 mSetMode = 'mode';
+ 
+ /**
+  * Public constants.
+  * @type {string}
+  */
+ const modeFull = 'full',
+	   modeQuote = 'quote',
+	   modeLTP = 'ltp';
 
 /**
- * 
- * @date 07/06/2023 - 21:38:00
- *
+ * WebSocket connection instance.
  * @type {(WebSocket | null)}
  */
-let ws: WebSocket | null = null,
-	triggers: AnyObject = {
-		'connect': [],
-		'ticks': [],
-		'disconnect': [],
-		'error': [],
-		'close': [],
-		'reconnect': [],
-		'noreconnect': [],
-		'message': [],
-		'order_update': []
-	},
-	read_timer: any = null,
-	last_read: any = 0,
-	auto_reconnect: any = false,
-	current_reconnection_count = 0,
-	last_reconnect_interval: any = 0,
-	current_ws_url: any = null,
-	defaultReconnectMaxDelay: number = 60,
-	defaultReconnectMaxRetries: number = 50,
-	maximumReconnectMaxRetries: number = 300,
-	minimumReconnectMaxDelay: number = 5;
+ let ws: WebSocket | null = null;
+
+ /**
+  * Event triggers and their associated callbacks.
+  * @type {Object}
+  */
+ let triggers: AnyObject = {
+	 'connect': [],
+	 'ticks': [],
+	 'disconnect': [],
+	 'error': [],
+	 'close': [],
+	 'reconnect': [],
+	 'noreconnect': [],
+	 'message': [],
+	 'order_update': []
+ };
+ 
+ /**
+  * Timer for reading data.
+  * @type {any}
+  */
+ let read_timer: any = null;
+ 
+ /**
+  * Timestamp of the last read operation.
+  * @type {any}
+  */
+ let last_read: any = 0;
+ 
+ /**
+  * Flag indicating whether auto-reconnect is enabled.
+  * @type {boolean}
+  */
+ let auto_reconnect: boolean = false;
+ 
+ /**
+  * Current count of reconnection attempts.
+  * @type {number}
+  */
+ let current_reconnection_count = 0;
+ 
+ /**
+  * Last interval used for reconnecting.
+  * @type {any}
+  */
+ let last_reconnect_interval: any = 0;
+ 
+ /**
+  * Current WebSocket URL in use.
+  * @type {string}
+  */
+ let current_ws_url: string = '';
+ 
+ /**
+  * Default maximum delay for reconnection attempts in seconds.
+  * @type {number}
+  */
+ const defaultReconnectMaxDelay: number = 60;
+ 
+ /**
+  * Default maximum number of reconnection attempts.
+  * @type {number}
+  */
+ const defaultReconnectMaxRetries: number = 50;
+ 
+ /**
+  * Maximum allowed value for the number of reconnection attempts.
+  * @type {number}
+  */
+ const maximumReconnectMaxRetries: number = 300;
+ 
+ /**
+  * Minimum allowed value for the maximum delay for reconnection attempts in seconds.
+  * @type {number}
+  */
+ const minimumReconnectMaxDelay: number = 5;
 
 // segment constants
 /**
- * 
- * @date 07/06/2023 - 21:38:00
- *
- * @type {1}
+ * Constants representing different market segments.
+ * @type {number}
  */
 const NseCM = 1,
-	NseFO = 2,
-	NseCD = 3,
-	BseCM = 4,
-	BseFO = 5,
-	BseCD = 6,
-	McxFO = 7,
-	McxSX = 8,
-	Indices = 9;
+      NseFO = 2,
+      NseCD = 3,
+      BseCM = 4,
+      BseFO = 5,
+      BseCD = 6,
+      McxFO = 7,
+      McxSX = 8,
+      Indices = 9;
 
 /**
- * The WebSocket client for connecting to Kite connect streaming quotes service.
- *
+ * @classdesc
+ * Ticker client class. The WebSocket client for connecting to Kite connect streaming quotes service. 
+ * 
  * Getting started:
- * ---------------
- *
- * 	const KiteTicker = require('kiteconnect').KiteTicker;
- * 	const ticker = new KiteTicker({
- * 		api_key: 'api_key',
- * 		access_token: 'access_token'
- *	});
- *
- * 	ticker.connect();
- * 	ticker.on('ticks', onTicks);
- * 	ticker.on('connect', subscribe);
- *
- * 	function onTicks(ticks) {
- * 		console.log('Ticks', ticks);
- * 	}
- *
- * 	function subscribe() {
- * 		const items = [738561];
- * 		ticker.subscribe(items);
- * 		ticker.setMode(ticker.modeFull, items);
- * 	}
- *
- * Tick structure (passed to the tick callback you assign):
  * ---------------------------
- * [{ tradable: true,
- *    mode: 'full',
- *    instrument_token: 208947,
- *    last_price: 3939,
- *    last_quantity: 1,
- *    average_price: 3944.77,
- *    volume: 28940,
- *    buy_quantity: 4492,
- *    sell_quantity: 4704,
- *    ohlc: { open: 3927, high: 3955, low: 3927, close: 3906 },
- *    change: 0.8448540706605223,
- *    last_trade_time: 1515491369,
- *    timestamp: 1515491373,
- *    oi: 24355,
- *    oi_day_high: 0,
- *    oi_day_low: 0,
- *    depth:
- *			buy: [{
- *				 quantity: 59,
- *				 price: 3223,
- *				 orders: 5
- *			  },
- *			  {
- *				 quantity: 164,
- *				 price: 3222,
- *				 orders: 15
- *			  },
- *			  {
- *				 quantity: 123,
- *				 price: 3221,
- *				 orders: 7
- *			  },
- *			  {
- *				 quantity: 48,
- *				 price: 3220,
- *				 orders: 7
- *			  },
- *			  {
- *				 quantity: 33,
- *				 price: 3219,
- *				 orders: 5
- *			  }],
- *		   sell: [{
- *				 quantity: 115,
- *				 price: 3224,
- *				 orders: 15
- *			  },
- *			  {
- *				 quantity: 50,
- *				 price: 3225,
- *				 orders: 5
- *			  },
- *			  {
- *				 quantity: 175,
- *				 price: 3226,
- *				 orders: 14
- *			  },
- *			  {
- *				 quantity: 49,
- *				 price: 3227,
- *				 orders: 10
- *			  },
- *			  {
- *				 quantity: 106,
- *				 price: 3228,
- *				 orders: 13
- *			  }]
- *		}
- *	}, ...]
+ * 
+ * ~~~~
+ * import { KiteTicker } from "kiteconnect";
  *
- * Auto reconnection
- * -----------------
- * Auto reonnection is enabled by default and it can be disabled by passing `reconnect` param while initialising `KiteTicker`.
+ * const apiKey = 'your_api_key';
+ * const accessToken = 'generated_access_token';
  *
- * Auto reonnection mechanism is based on [Exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) algorithm in which
+ * const ticker = new KiteTicker({
+ *     api_key: apiKey,
+ *     access_token: accessToken
+ * });
+ *
+ * ticker.connect();
+ * ticker.on('ticks', onTicks);
+ * ticker.on('connect', subscribe);
+ * ticker.on('disconnect', onDisconnect);
+ * ticker.on('error', onError);
+ * ticker.on('close', onClose);
+ * ticker.on('order_update', onTrade);
+ *
+ * function onTicks(ticks: any[]): void {
+ *     console.log("Ticks", ticks);
+ * }
+ *
+ * function subscribe(): void {
+ *     const tokens = [738561, 256265];
+ *     ticker.subscribe(tokens);
+ *     ticker.setMode(ticker.modeFull, tokens);
+ * }
+ *
+ * function onDisconnect(error: Error): void {
+ *     console.log("Closed connection on disconnect", error);
+ * }
+ *
+ * function onError(error: Error): void {
+ *     console.log("Closed connection on error", error);
+ * }
+ *
+ * function onClose(reason: string): void {
+ *     console.log("Closed connection on close", reason);
+ * }
+ *
+ * function onTrade(order: any): void {
+ *     console.log("Order update", order);
+ * }
+ * ~~~~
+ * 
+ * -------------
+ * ~~~~
+ * [{
+ *     tradable: true,
+ *     mode: 'full',
+ *     instrument_token: 738561,
+ *     last_price: 2940.7,
+ *     last_traded_quantity: 1,
+ *     average_traded_price: 2933.55,
+ *     volume_traded: 2827705,
+ *     total_buy_quantity: 213779,
+ *     total_sell_quantity: 425119,
+ *     ohlc: { open: 2915, high: 2949, low: 2910.35, close: 2913.35 },
+ *     change: 0.9387818147493404,
+ *     last_trade_time: 2024-06-12T07:16:09.000Z,
+ *     exchange_timestamp: 2024-06-12T07:16:09.000Z,
+ *     oi: 0,
+ *     oi_day_high: 0,
+ *     oi_day_low: 0,
+ *     depth: { buy: [Array], sell: [Array] }
+ *   },
+ *   {
+ *     tradable: false,
+ *     mode: 'full',
+ *     instrument_token: 256265,
+ *     last_price: 23406.85,
+ *     ohlc: { high: 23441.95, low: 23295.95, open: 23344.45, close: 23264.85 },
+ *     change: 0.6103628435171514,
+ *     exchange_timestamp: 2024-06-12T07:16:09.000Z
+ *   }
+ * ]
+ * ~~~~
+ * 
+ * Auto reconnection is enabled by default and it can be disabled by passing `reconnect` param while initialising `KiteTicker`. Auto reonnection mechanism is based on [Exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) algorithm in which
  * next retry interval will be increased exponentially. `max_delay` and `max_tries` params can be used to tweak
  * the alogrithm where `max_delay` is the maximum delay after which subsequent reconnection interval will become constant and
  * `max_tries` is maximum number of retries before it quits reconnection.
@@ -180,45 +228,41 @@ const NseCM = 1,
  * minimum interval which is 2 seconds and keep increasing up to 60 seconds after which it becomes constant and when reconnection attempt
  * is reached upto 50 then it stops reconnecting.
  * Callback `reconnect` will be called with current reconnect attempt and next reconnect interval and
- * `on_noreconnect` is called when reconnection attempts reaches max retries.
- *
- * Here is an example demonstrating auto reconnection.
- *
- * 	const KiteTicker = require('kiteconnect').KiteTicker;
- * 	const ticker = new KiteTicker({
- * 		api_key: 'api_key',
- * 		access_token: 'access_token'
- *	});
- *
- * 	// set autoreconnect with 10 maximum reconnections and 5 second interval
- * 	ticker.autoReconnect(true, 10, 5)
- * 	ticker.connect();
- * 	ticker.on('ticks', onTicks);
- * 	ticker.on('connect', subscribe);
- *
- * 	ticker.on('noreconnect', function() {
- * 		console.log('noreconnect');
- * 	});
- *
- * 	ticker.on('reconnect', function(reconnect_count, reconnect_interval) {
- * 		console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval);
- * 	});
+ * `on_noreconnect` is called when reconnection attempts reaches max retries. 
  * 
- *  ticker.on('message', function(binary_msg){
- *		console.log('Binary message', binary_msg);
- *  });
+ * Here is an example demonstrating auto reconnection.
+ * -------------
+ * ~~~~
+ * import { KiteTicker } from "kiteconnect";
  *
- * 	function onTicks(ticks) {
- * 		console.log('Ticks', ticks);
- * 	}
+ * const apiKey = 'your_api_key';
+ * const accessToken = 'generated_access_token';
+ * const ticker = new KiteTicker({
+ *     api_key: 'api_key',
+ *     access_token: 'access_token'
+ * })
+ * ticker.autoReconnect(true, 10, 5);
+ * ticker.connect();
+ * ticker.on('ticks', onTicks);
+ * ticker.on('connect', subscribe);
+ * ticker.on('noreconnect', () => {
+ *     console.log('noreconnect')
+ * })
+ * ticker.on('reconnect', (reconnect_count:any, reconnect_interval:any) => {
+ *     console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval)
+ * })
  *
- * 	function subscribe() {
- * 		const items = [738561];
- * 		ticker.subscribe(items);
- * 		ticker.setMode(ticker.modeFull, items);
- * 	}
+ * function onTicks(ticks: any[]) {
+ *     console.log('Ticks', ticks)
+ * }
  *
- *
+ * function subscribe() {
+ *     const items = [738561]
+ *     ticker.subscribe(items)
+ *     ticker.setMode(ticker.modeFull, items)
+ * }
+ * ~~~~
+ * 
  * @constructor
  * @name KiteTicker
  * @param {Object} params
@@ -227,98 +271,58 @@ const NseCM = 1,
  * @param {bool}   [params.reconnect] Enable/Disable auto reconnect. Enabled by default.
  * @param {number} [params.max_retry=50] is maximum number re-connection attempts. Defaults to 50 attempts and maximum up to 300 attempts.
  * @param {number} [params.max_delay=60] in seconds is the maximum delay after which subsequent re-connection interval will become constant. Defaults to 60s and minimum acceptable value is 5s.
- * #param {string} [params.root='wss://websocket.kite.trade/'] Kite websocket root.
+ * @param {string} [params.root='wss://websocket.kite.trade/'] Kite websocket root.
  */
-class KiteTicker implements KiteTickerInterface {
+export class KiteTicker implements KiteTickerInterface {
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {string}
 	 */
 	modeFull: string;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {string}
 	 */
 	modeQuote: string;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {string}
 	 */
 	modeLTP: string;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
-	 * @type {?string}
+	 * @type {string}
 	 */
-	api_key?: string;
+	api_key: string;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
-	 * @type {?string}
+	 * @type {string}
 	 */
-	access_token?: string;
+	access_token: string;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {?boolean}
 	 */
 	reconnect?: boolean;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {?number}
 	 */
 	max_retry?: number;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {?number}
 	 */
 	max_delay?: number;
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @type {string}
 	 */
 	root: string;
+
 	/**
 	 * Creates an instance of KiteTicker.
-	 * @date 07/06/2023 - 21:38:00
 	 *
 	 * @constructor
 	 * @param {KiteTickerParams} params
 	 */
 	constructor(params: KiteTickerParams) {
 		this.root = params.root || 'wss://ws.kite.trade/';
-		// public constants
-		/**
-		 * @memberOf KiteTicker
-		 * @desc Set mode full
-		 */
+		this.api_key = params.api_key
+		this.access_token = params.access_token
 		this.modeFull = modeFull;
-
-		/**
-		 * @memberOf KiteTicker
-		 * @desc Set mode quote
-		 */
 		this.modeQuote = modeQuote;
-
-		/**
-		 * @memberOf KiteTicker
-		 * @desc Set mode LTP
-		 */
 		this.modeLTP = modeLTP;
 
 		if (!params.reconnect) params.reconnect = true;
@@ -326,12 +330,9 @@ class KiteTicker implements KiteTickerInterface {
 	}
 
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
-	 * @param {boolean} t
-	 * @param {number} max_retry
-	 * @param {number} max_delay
+	 * @param  {bool} t
+	 * @param  {number} [max_retry=50]
+	 * @param  {number} [max_delay=60]
 	 */
 	autoReconnect(t: boolean, max_retry: number, max_delay: number) {
 		auto_reconnect = (t == true);
@@ -343,20 +344,19 @@ class KiteTicker implements KiteTickerInterface {
 		// Set reconnect constraints
 		reconnect_max_tries = max_retry >= maximumReconnectMaxRetries ? maximumReconnectMaxRetries : max_retry;
 		reconnect_max_delay = max_delay <= minimumReconnectMaxDelay ? minimumReconnectMaxDelay : max_delay;
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 */
-	;
+	}
 
 	/**
+	 * Establishes a WebSocket connection to the server.
 	 * 
-	 * @date 07/06/2023 - 21:38:00
+	 * This method creates a WebSocket connection using the provided credentials and options.
+	 * If a connection is already established or in the process of being established, this method does nothing.
+	 * 
+	 * @returns {void}
 	 */
-	connect() {
+	 connect(): void {
 		// Skip if its already connected
-		if (!ws) return;
-		if (ws.readyState == ws.CONNECTING || ws.readyState == ws.OPEN) return;
+		if (ws && (ws.readyState === ws.CONNECTING || ws.readyState === ws.OPEN)) return;
 
 		const url = this.root + '?api_key=' + this.api_key +
 			'&access_token=' + this.access_token + '&uid=' + (new Date().getTime().toString());
@@ -368,6 +368,7 @@ class KiteTicker implements KiteTickerInterface {
 			}
 		});
 
+		// Set binaryType to arraybuffer
 		ws.binaryType = 'arraybuffer';
 
 		ws.onopen = function () {
@@ -389,7 +390,7 @@ class KiteTicker implements KiteTickerInterface {
 					// reset current_ws_url incase current connection times out
 					// This is determined when last heart beat received time interval
 					// exceeds read_timeout value
-					current_ws_url = null;
+					current_ws_url = '';
 					if (ws) ws.close();
 					clearInterval(read_timer);
 					this.triggerDisconnect();
@@ -421,25 +422,17 @@ class KiteTicker implements KiteTickerInterface {
 			if (this && this.readyState == this.OPEN) this.close();
 		};
 
-		ws.onclose = function (e) {
+		ws.onclose = (e) => {
 			trigger('close', [e]);
 
 			// the ws id doesn't match the current global id,
 			// meaning it's a ghost close event. just ignore.
-			if (current_ws_url && (this.url != current_ws_url)) return;
+			if (current_ws_url && (url != current_ws_url)) return;
 
 			this.triggerDisconnect(e);
 		};
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 */
-	;
+	}
 
-	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 */
 	attemptReconnection() {
 		// Try reconnecting only so many times.
 		if (current_reconnection_count > reconnect_max_tries) {
@@ -467,31 +460,29 @@ class KiteTicker implements KiteTickerInterface {
 	}
 
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:38:00
-	 *
 	 * @param {?WebSocket.CloseEvent} [e]
+	 * @returns {void}
 	 */
-	triggerDisconnect(e?: WebSocket.CloseEvent) {
+	triggerDisconnect(e?: WebSocket.CloseEvent): void {
 		ws = null;
 		trigger('disconnect', [e]);
 		if (auto_reconnect) this.attemptReconnection();
 	}
 
 	/**
+	 * Checks if the WebSocket connection is currently open.
 	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 *
-	 * @returns {boolean}
+	 * This method returns a boolean value indicating whether a WebSocket connection is currently open.
+	 * 
+	 * @returns {boolean} A boolean value indicating whether the WebSocket connection is open.
 	 */
-	connected() {
-		return (ws && ws.readyState == ws.OPEN);
+	connected(): boolean {
+		return (ws !== null && ws.readyState === ws.OPEN);
 	}
+
 
 	/**
 	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 *
 	 * @param {string} e
 	 * @param {Function} callback
 	 */
@@ -499,16 +490,10 @@ class KiteTicker implements KiteTickerInterface {
 		if (triggers.hasOwnProperty(e)) {
 			(triggers as AnyObject)[e].push(callback);
 		}
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 */
-	;
+	};
 
 	/**
 	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 *
 	 * @param {(string[] | number[])} tokens
 	 * @returns {{}}
 	 */
@@ -517,16 +502,10 @@ class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mSubscribe, 'v': tokens });
 		}
 		return tokens;
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 */
-	;
+	};
 
 	/**
 	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 *
 	 * @param {(string[] | number[])} tokens
 	 * @returns {{}}
 	 */
@@ -535,15 +514,9 @@ class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mUnSubscribe, 'v': tokens });
 		}
 		return tokens;
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 */
-	;
+	};
 
 	/**
-	 * 
-	 * @date 07/06/2023 - 21:37:59
 	 *
 	 * @param {string} mode
 	 * @param {(string[] | number[])} tokens
@@ -554,15 +527,10 @@ class KiteTicker implements KiteTickerInterface {
 			send({ 'a': mSetMode, 'v': [mode, tokens] });
 		}
 		return tokens;
-	}/**
-	 * 
-	 * @date 07/06/2023 - 21:37:59
-	 */
-	;
+	};
 
 	/**
 	 * 
-	 * @date 07/06/2023 - 21:37:59
 	 *
 	 * @param {ArrayBuffer} binpacks
 	 * @returns {{}}
@@ -578,9 +546,6 @@ class KiteTicker implements KiteTickerInterface {
 // send a message via the socket
 // automatically encodes json if possible
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {(AnyObject | string)} message
  */
 function send(message: AnyObject | string) {
@@ -595,24 +560,20 @@ function send(message: AnyObject | string) {
 }
 
 // trigger event callbacks
+
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {string} e
  * @param {?any[]} [args]
+ * @returns {void}
  */
-function trigger(e: string, args?: any[]) {
-	if (!triggers[e]) return
+function trigger(e: string, args?: any[]): void {
+	if (!triggers[e]) return;
 	for (let n = 0; n < triggers[e].length; n++) {
 		triggers[e][n].apply(triggers[e][n], args ? args : []);
 	}
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {(string | AnyObject)} data
  */
 function parseTextMessage(data: string | AnyObject) {
@@ -630,15 +591,12 @@ function parseTextMessage(data: string | AnyObject) {
 // parse received binary message. each message is a combination of multiple tick packets
 // [2-bytes num packets][size1][tick1][size2][tick2] ...
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {ArrayBuffer} binpacks
- * @returns {{}}
+ * @returns {Tick[]}
  */
 function parseBinary(binpacks: ArrayBuffer) {
 	const packets = splitPackets(binpacks),
-		ticks: any[] = [];
+		ticks: Tick[] = [];
 
 	for (let n = 0; n < packets.length; n++) {
 		const bin: any = packets[n],
@@ -664,13 +622,13 @@ function parseBinary(binpacks: ArrayBuffer) {
 				mode: modeLTP,
 				instrument_token,
 				last_price: buf2long(bin.slice(4, 8)) / divisor
-			});
+			} as LTPTick);
 			// Parse indices quote and full mode
 		} else if (bin.byteLength === 28 || bin.byteLength === 32) {
 			let mode = modeQuote;
 			if (bin.byteLength === 32) mode = modeFull;
 
-			const tick: AnyObject = {
+			const tick: QuoteTick = {
 				tradable,
 				mode,
 				instrument_token,
@@ -701,7 +659,7 @@ function parseBinary(binpacks: ArrayBuffer) {
 			let mode = modeQuote;
 			if (bin.byteLength === 184) mode = modeFull;
 
-			const tick = {
+			const tick: FullTick = {
 				tradable,
 				mode,
 				instrument_token,
@@ -716,8 +674,10 @@ function parseBinary(binpacks: ArrayBuffer) {
 					high: buf2long(bin.slice(32, 36)) / divisor,
 					low: buf2long(bin.slice(36, 40)) / divisor,
 					close: buf2long(bin.slice(40, 44)) / divisor
-				}
-			} as AnyObject;
+				},
+				// To be computed later
+				change: 0
+			};
 
 			// Compute the change price using close price and last price
 			if (tick.ohlc.close != 0) {
@@ -765,9 +725,6 @@ function parseBinary(binpacks: ArrayBuffer) {
 
 // split one long binary message into individual tick packets
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {ArrayBuffer} bin
  * @returns {{}}
  */
@@ -792,9 +749,6 @@ function splitPackets(bin: ArrayBuffer) {
 
 // Big endian byte array to long.
 /**
- * 
- * @date 07/06/2023 - 21:37:59
- *
  * @param {ArrayBuffer} buf
  * @returns {number}
  */
@@ -809,5 +763,3 @@ function buf2long(buf: ArrayBuffer) {
 
 	return val;
 }
-
-export default KiteTicker;

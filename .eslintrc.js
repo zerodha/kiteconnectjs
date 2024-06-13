@@ -1,15 +1,19 @@
-module.exports = {
-    env: {
-        browser: true,
-        es2021: true
-    },
-    overrides: [
+module.exports =  {
+    plugins: [
+      "@typescript-eslint/eslint-plugin",
+      "eslint-plugin-tsdoc"
     ],
+    extends:  [
+      'plugin:@typescript-eslint/recommended'
+    ],
+    parser:  '@typescript-eslint/parser',
     parserOptions: {
-        ecmaVersion: "latest",
-        sourceType: "module"
+      project: "./tsconfig.json",
+      tsconfigRootDir: __dirname,
+      ecmaVersion: 2018,
+      sourceType: "module"
     },
     rules: {
-        'quote-props': ['error', 'as-needed'],
+      "tsdoc/syntax": "warn"
     }
-}
+  };

@@ -1,42 +1,30 @@
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum ProductTypes {
     PRODUCT_MIS = 'MIS',
     PRODUCT_CNC = 'CNC',
-    PRODUCT_CO = 'CO',
-    PRODUCT_NRML = 'NRML',
-    PRODUCT_BO = 'BO',
+    PRODUCT_NRML = 'NRML'
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum Varieties {
     VARIETY_AMO = 'amo',
     VARIETY_AUCTION = 'auction',
-    VARIETY_BO = 'bo',
-    VARIETY_ICEBERG = 'ice',
+    VARIETY_ICEBERG = 'iceberg',
     VARIETY_REGULAR = 'regular',
     VARIETY_CO = 'co',
     TEST = 'test'
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum ValidityTypes {
     VALIDITY_DAY = 'DAY',
@@ -45,11 +33,8 @@ export enum ValidityTypes {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum MarginTypes {
     MARGIN_EQUITY = 'equity',
@@ -57,24 +42,19 @@ export enum MarginTypes {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum StatusTypes {
     STATUS_CANCELLED = 'CANCELLED',
     STATUS_REJECTED = 'REJECTED',
     STATUS_COMPLETE = 'COMPLETE',
+    STATUS_UPDATE = 'UPDATE'
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum GTTStatusTypes {
     GTT_TYPE_OCO = 'two-leg',
@@ -89,11 +69,8 @@ export enum GTTStatusTypes {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum PositionTypes {
     POSITION_TYPE_DAY = 'day',
@@ -101,12 +78,10 @@ export enum PositionTypes {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @interface KiteConnectParams
- * @typedef {KiteConnectParams}
+ * @remarks
+ * This interface defines the parameters needed to authenticate and interact with the Kite Connect API.
+ * @public
+ * @name KiteConnectParams
  */
 export interface KiteConnectParams {
     /**
@@ -126,13 +101,13 @@ export interface KiteConnectParams {
      * API end point root. Unless you explicitly want to send API requests to a
      * non-default endpoint, this can be ignored.
      *
-     * Defaults to 'https?://api.kite.trade'
+     * Defaults to 'https://api.kite.trade'
      */
     root?: string;
     /**
      * Kite connect login url
      *
-     * Defaults to 'https?://kite.trade/connect/login'
+     * Defaults to 'https://kite.zerodha.com/connect/login'
      */
     login_uri?: string;
     /**
@@ -147,54 +122,34 @@ export interface KiteConnectParams {
      * Defaults to `7000`
      */
     timeout?: number;
-    /*
-     * Default url for which user will be redirected to login page
-     * defa
-     */
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?string}
-     */
-    default_login_uri?: string;
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @interface KiteConectInterface
- * @typedef {KiteConectInterface}
- * @extends {KiteConnectParams}
+ * @public
+ * @name KiteConnectInterface
  */
-export interface KiteConectInterface extends KiteConnectParams {
+export interface KiteConnectInterface extends KiteConnectParams {
 
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
-export enum ExchangeTypes {
+export enum Exchanges {
     NSE = 'NSE',
-    BSE = 'BPSE',
+    BSE = 'BSE',
     NFO = 'NFO',
     BFO = 'BFO',
     CDS = 'CDS',
-    MCX = 'MCX'
+    MCX = 'MCX',
+    BCD = 'BCD',
+    NSEIX = 'NSEIX'
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum TransactionTypes {
     BUY = 'BUY',
@@ -202,11 +157,8 @@ export enum TransactionTypes {
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum Products {
     NRML = 'NRML',
@@ -215,11 +167,8 @@ export enum Products {
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum OrderTypes {
     LIMIT = 'LIMIT',
@@ -229,575 +178,292 @@ export enum OrderTypes {
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
- *
- * @export
- * @enum {number}
+ * @public
+ * @enum {string}
  */
 export enum Validities {
     DAY = 'DAY',
     IOC = 'IOC',
+    TTL = 'TTL'
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
+ * Represents parameters for cancelling an order.
  *
- * @export
- * @interface OrderParams
- * @typedef {OrderParams}
- */
-export interface OrderParams {
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?string}
-     */
-    exchange?: string;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?string}
-     */
-    tradingsymbol?: string;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?TransactionTypes}
-     */
-    transaction_type?: TransactionTypes;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    quantity?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?Products}
-     */
-    product?: Products;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {OrderTypes}
-     */
-    order_type: OrderTypes;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?Validities}
-     */
-    validity?: Validities;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    price?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    disclosed_quantity?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    trigger_price?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    squareoff?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    stoploss?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    traling_stoploss?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    validity_ttl?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    iceberg_legs?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    iceberg_quantity?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?number}
-     */
-    auction_number?: number;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?string}
-     */
-    tag?: string;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?string}
-     */
-    variety?: string;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {?(string | number)}
-     */
-    order_id?: string | number;
-};
-
-/**
- * 
- * @date 07/06/2023 - 21:38:13
+ * @remarks
+ * This interface defines the parameters required to cancel an order.
  *
- * @export
- * @interface CancelOrderParams
- * @typedef {CancelOrderParams}
+ * @public
+ * @name CancelOrderParams
  */
 export interface CancelOrderParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {?(string | number)}
      */
     parent_order_id?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {?string}
      */
     variety?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {?(string | number)}
      */
     order_id?: string | number;
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
+ * Represents parameters for exiting an order.
  *
- * @export
- * @interface ExitOrderParams
- * @typedef {ExitOrderParams}
+ * @remarks
+ * This interface defines the parameters required to exit an existing order.
+ *
+ * @public
+ * @name ExitOrderParams
  */
 export interface ExitOrderParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {?(string | number)}
      */
     parent_order_id?: string | number;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
+ * Represents parameters for converting a position.
  *
- * @export
- * @interface ConvertPositionParams
- * @typedef {ConvertPositionParams}
+ * @remarks
+ * This interface defines the parameters required to convert a position from one product type to another.
+ *
+ * @public
+ * @name ConvertPositionParams
  */
 export interface ConvertPositionParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
-     * @type {string}
+     * @type {Exchanges}
      */
-    exchange: string;
+    exchange: Exchanges;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {string}
      */
     tradingsymbol: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {TransactionTypes}
      */
     transaction_type: TransactionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {PositionTypes}
      */
     position_type: PositionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {(string | number)}
      */
     quantity: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {Products}
      */
     old_product: Products;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {Products}
      */
     new_product: Products;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:13
+ * @remarks
+ * Represents an order.
  *
- * @export
- * @interface Order
- * @typedef {Order}
+ * @public
+ * @name Order
  */
 export interface Order {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:13
-     *
      * @type {?TransactionTypes}
      */
     transaction_type?: TransactionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     quantity?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Products}
      */
     product?: Products;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?OrderTypes}
      */
     order_type?: OrderTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?ExchangeTypes}
+     * @type {?Exchanges}
      */
-    exchange?: ExchangeTypes;
+    exchange?: Exchanges;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     tradingsymbol?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Varieties}
      */
     variety?: Varieties;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(number | string)}
      */
     price?: number | string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?number}
      */
     trigger_price?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?PositionTypes}
      */
     position_type?: PositionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Products}
      */
     old_product?: Products;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Products}
      */
     new_product?: Products;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     amount?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     tag?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     instalments?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     frequency?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     initial_amount?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     instalment_day?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     status?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     sip_id?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(GTTStatusTypes.GTT_TYPE_OCO | GTTStatusTypes.GTT_TYPE_SINGLE)}
      */
     trigger_type?: GTTStatusTypes.GTT_TYPE_OCO | GTTStatusTypes.GTT_TYPE_SINGLE;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?any[]}
      */
     trigger_values?: any[];
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     last_price?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Order[]}
      */
     orders?: Order[];
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     order_id?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     parent_order_id?: string | number;
+    /**
+     * @type {number}
+     */
+     average_price?: number;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for fetching historical data.
  *
- * @export
- * @interface getHistoricalDataParms
- * @typedef {getHistoricalDataParms}
+ * @remarks
+ * This interface defines the parameters required to retrieve historical data.
+ *
+ * @public
+ * @name getHistoricalDataParams
  */
 export interface getHistoricalDataParms {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     instrument_token: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     interval: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {(string | Date)}
      */
     from_date: string | Date;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {(string | Date)}
      */
     to_date: string | Date;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?boolean}
      */
     continuous?: boolean;
+    /**
+     * @type {?boolean}
+     */
+    oi?: boolean;
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for modifying a GTT (Good 'Til Triggered) order.
  *
- * @export
- * @interface ModifyGTTParams
- * @typedef {ModifyGTTParams}
+ * @public
+ * @name ModifyGTTParams
  */
 export interface ModifyGTTParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {(GTTStatusTypes.GTT_TYPE_SINGLE | GTTStatusTypes.GTT_TYPE_OCO)}
      */
     trigger_type: GTTStatusTypes.GTT_TYPE_SINGLE | GTTStatusTypes.GTT_TYPE_OCO;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     tradingsymbol: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {ExchangeTypes}
+     * @type {Exchanges}
      */
-    exchange: ExchangeTypes;
+    exchange: Exchanges;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {Array<number>}
      */
     trigger_values: Array<number>;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {number}
      */
     last_price: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {{
-            transaction_type: string
-            quantity: number;
-            product: Products;
-            order_type: OrderTypes;
-            price: number;
-        }[]}
+     * Represents an array of orders.
+     * @type {Array<{
+     *    exchange: string;
+     *    tradingsymbol: string;
+     *    transaction_type: string;
+     *    quantity: number;
+     *    product: Products;
+     *    order_type: OrderTypes;
+     *    price: number;
+     * }>}
      */
     orders: {
-        transaction_type: string
+        exchange: string;
+        tradingsymbol: string;
+        transaction_type: string;
         quantity: number;
         product: Products;
         order_type: OrderTypes;
@@ -806,295 +472,203 @@ export interface ModifyGTTParams {
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for modifying an MFSIP (Mutual Fund SIP).
  *
- * @export
- * @interface ModifyMFSIPParams
- * @typedef {ModifyMFSIPParams}
+ * @remarks
+ * This interface defines the parameters required to modify an existing Mutual Fund SIP.
+ *
+ * @public
+ * @name ModifyMFSIPParams
  */
 export interface ModifyMFSIPParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     instalments?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     frequency?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     instalment_day?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     status?: string;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for modifying an order.
  *
- * @export
- * @interface ModifyOrderParams
- * @typedef {ModifyOrderParams}
+ * @remarks
+ * This interface defines the parameters required to modify an existing order.
+ *
+ * @public
+ * @name ModifyOrderParams
  */
 export interface ModifyOrderParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?number}
      */
     quantity?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?number}
      */
     price?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?OrderTypes}
      */
     order_type?: OrderTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?Validities}
      */
     validity?: Validities;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?number}
      */
     disclosed_quantity?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?number}
      */
     trigger_price?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     parent_order_id?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     variety?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     order_id?: string | number;
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
- *
- * @export
- * @interface OrderMarginOrder
- * @typedef {OrderMarginOrder}
+ * Represents parameters for placing an order based on margin.
+ * @remarks
+ * Represents interface for placing an order based on margin.
+ * @public
+ * @name OrderMarginOrder
  */
 export interface OrderMarginOrder {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     exchange: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     tradingsymbol: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {TransactionTypes}
      */
     transaction_type: TransactionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {Varieties}
      */
     variety: Varieties;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {ProductTypes}
      */
     product: ProductTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {OrderTypes}
      */
     order_type: OrderTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {number}
      */
     quantity: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {number}
      */
     price: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {number}
      */
     trigger_price: number;
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for placing a mutual fund order.
  *
- * @export
- * @interface PlaceMFOrderParams
- * @typedef {PlaceMFOrderParams}
+ * @remarks
+ * This interface defines the parameters required to place a mutual fund order.
+ *
+ * @public
+ * @name PlaceMFOrderParams
  */
 export interface PlaceMFOrderParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     tradingsymbol: string
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {TransactionTypes}
      */
     transaction_type: TransactionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     quantity?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?(string | number)}
      */
     amount?: string | number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {?string}
      */
     tag?: string;
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for placing a Good Till Trigger (GTT) order.
  *
- * @export
- * @interface PlaceGTTParams
- * @typedef {PlaceGTTParams}
+ * @remarks
+ * This interface defines the parameters required to place a Good Till Trigger (GTT) order.
+ *
+ * @public
+ * @name PlaceGTTParams
  */
 export interface PlaceGTTParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {(GTTStatusTypes.GTT_TYPE_OCO | GTTStatusTypes.GTT_TYPE_SINGLE)}
      */
     trigger_type: GTTStatusTypes.GTT_TYPE_OCO | GTTStatusTypes.GTT_TYPE_SINGLE;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {string}
      */
     tradingsymbol: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {ExchangeTypes}
+     * @type {Exchanges}
      */
-    exchange: ExchangeTypes;
+    exchange: Exchanges;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {Array<Number>}
      */
     trigger_values: Array<Number>;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {number}
      */
     last_price: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {{
-            transaction_type: TransactionTypes;
-            quantity: number;
-            product: Products;
-            order_type: OrderTypes;
-            price: number
-        }[]}
+     *      exchange: string;
+     *      tradingsymbol: string;
+     *      transaction_type: TransactionTypes;
+     *      quantity: number;
+     *      product: Products;
+     *      order_type: OrderTypes;
+     *      price: number;
+     *  }[]}
      */
     orders: {
+        exchange: string;
+        tradingsymbol: string;
         transaction_type: TransactionTypes;
         quantity: number;
         product: Products;
@@ -1104,75 +678,152 @@ export interface PlaceGTTParams {
 };
 
 /**
- * 
- * @date 07/06/2023 - 21:38:12
+ * Represents parameters for placing an order.
  *
- * @export
- * @interface PlaceOrderParams
- * @typedef {PlaceOrderParams}
+ * @remarks
+ * This interface defines the parameters required to place an order.
+ *
+ * @public
+ * @name PlaceOrderParams
  */
 export interface PlaceOrderParams {
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
+     * @type {?string}
+     */
+    variety?: Varieties;
+    /**
      * @type {string}
      */
     tradingsymbol: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?Varieties}
+     * @type {Exchanges}
      */
-    variety?: Varieties;
+    exchange: Exchanges;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?ExchangeTypes}
-     */
-    exchange?: ExchangeTypes;
-    /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
      * @type {TransactionTypes}
      */
     transaction_type: TransactionTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?OrderTypes}
+     * @type {OrderTypes}
      */
-    order_type?: OrderTypes;
+    order_type: OrderTypes;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?Products}
+     * @type {Products}
      */
-    product?: Products;
+    product: Products;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?(string | number)}
+     * @type {number}
      */
-    quantity?: string | number;
+    quantity: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
-     * @type {?(string | number)}
+     * @type {Validities}
      */
-    amount?: string | number;
+    validity?: Validities;
     /**
-     * 
-     * @date 07/06/2023 - 21:38:12
-     *
+     * @type {?number}
+     */
+    price?: number;
+    /**
      * @type {?string}
      */
     tag?: string;
 };
+
+
+/**
+ * Represents parameters for order margin.
+ *
+ * @remarks
+ * This interface defines the order parameters required to fetch order margins.
+ *
+ * @public
+ * @name MarginOrder
+ */
+
+export type MarginOrder = {
+    /**
+     * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+     */
+    exchange: Exchanges;
+    /**
+     * Trading symbol of the instrument
+     */
+    tradingsymbol: string;
+    /**
+     * eg. BUY, SELL
+     */
+    transaction_type: TransactionTypes;
+    /**
+     * Order variety (regular, amo, bo, co etc.)
+     */
+    variety: Varieties;
+    /**
+     * Margin product to use for the order
+     */
+    product: Products;
+    /**
+     * Order type (MARKET, LIMIT etc.)
+     */
+    order_type: OrderTypes;
+    /**
+     * Quantity of the order
+     */
+    quantity: number;
+    /**
+     * Price at which the order is going to be placed (LIMIT orders)
+     */
+    price: number;
+    /**
+     * Trigger price (for SL, SL-M, CO orders)
+     */
+    trigger_price: number;
+  };
+
+/**
+ * Represents parameters for virtual contract margin.
+ *
+ * @remarks
+ * This interface defines the order parameters required to fetch virtual contract margin.
+ *
+ * @public
+ * @name VirtualContractParam
+ */
+
+ export type VirtualContractParam = {
+    /**
+     * Unique order ID (It can be any random string to calculate charges for an imaginary order)
+     */
+    order_id: number | string;
+    /**
+     * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+     */
+    exchange: Exchanges;
+    /**
+     * Trading symbol of the instrument
+     */
+    tradingsymbol: string;
+    /**
+     * eg. BUY, SELL
+     */
+    transaction_type: TransactionTypes;
+    /**
+     * Order variety (regular, amo, bo, co etc.)
+     */
+    variety: Varieties;
+    /**
+     * Margin product to use for the order
+     */
+    product: Products;
+    /**
+     * Order type (MARKET, LIMIT etc.)
+     */
+    order_type: OrderTypes;
+    /**
+     * Quantity of the order
+     */
+    quantity: number;
+    /**
+     * Average price at which the order was executed (Note: Should be non-zero).
+     */
+    average_price: number;
+  };

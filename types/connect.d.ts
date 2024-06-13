@@ -1,4 +1,4 @@
-type Exchange =
+type Exchanges =
   | Connect['EXCHANGE_NSE']
   | Connect['EXCHANGE_BSE']
   | Connect['EXCHANGE_NFO']
@@ -10,6 +10,10 @@ type Exchange =
 type TransactionType =
   | Connect['TRANSACTION_TYPE_BUY']
   | Connect['TRANSACTION_TYPE_SELL'];
+
+type PositionTypes =
+  | Connect['POSITION_TYPE_DAY']
+  | Connect['POSITION_TYPE_OVERNIGHT'];
 
 type Product =
   | Connect['PRODUCT_NRML']
@@ -25,7 +29,6 @@ type OrderType =
 type Variety =
   | Connect['VARIETY_AMO']
   | Connect['VARIETY_AUCTION']
-  | Connect['VARIETY_BO']
   | Connect['VARIETY_CO']
   | Connect['VARIETY_ICEBERG']
   | Connect['VARIETY_REGULAR'];
@@ -302,7 +305,7 @@ type Instrument = {
   /**
    * Exchange
    */
-  exchange: Exchange;
+  exchange: Exchanges;
 };
 
 type UserMargin = {
@@ -1067,7 +1070,7 @@ type MarginOrder = {
   /**
    * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
    */
-  exchange: Exchange;
+  exchange: Exchanges;
   /**
    * Trading symbol of the instrument
    */
@@ -1102,6 +1105,134 @@ type MarginOrder = {
   trigger_price: number;
 };
 
+type VirtualContractParam = {
+  /**
+   * Unique order ID (It can be any random string to calculate charges for an imaginary order)
+   */
+  order_id: number | string;
+  /**
+   * Name of the exchange(eg. NSE, BSE, NFO, CDS, MCX)
+   */
+  exchange: Exchanges;
+  /**
+   * Trading symbol of the instrument
+   */
+  tradingsymbol: string;
+  /**
+   * eg. BUY, SELL
+   */
+  transaction_type: TransactionType;
+  /**
+   * Order variety (regular, amo, bo, co etc.)
+   */
+  variety: Variety;
+  /**
+   * Margin product to use for the order
+   */
+  product: Product;
+  /**
+   * Order type (MARKET, LIMIT etc.)
+   */
+  order_type: OrderType;
+  /**
+   * Quantity of the order
+   */
+  quantity: number;
+  /**
+   * Average price at which the order was executed (Note: Should be non-zero).
+   */
+  average_price: number;
+};
+
+type VirtualContractResponse = {
+  /**
+   * Transaction type of the order (e.g., BUY, SELL)
+   */
+  transaction_type: string;
+  /**
+  * Symbol of the instrument
+  */
+  tradingsymbol: string;
+  /**
+  * Exchange on which the order was placed
+  */
+  exchange: string;
+  /**
+  * Type of order variety (e.g., regular)
+  */
+  variety: string;
+  /**
+  * Type of product (e.g., CNC)
+  */
+  product: string;
+  /**
+  * Type of order placed (e.g., MARKET)
+  */
+  order_type: string;
+  /**
+  * Quantity of the order
+  */
+  quantity: number;
+  /**
+  * Price at which the order was placed
+  */
+  price: number;
+  /**
+  * Details of charges incurred for the order
+  */
+  charges: {
+      /**
+      * Transaction tax amount
+      */
+      transaction_tax: number;
+      /**
+      * Type of transaction tax (e.g., STT)
+      */
+      transaction_tax_type: string;
+      /**
+      * Exchange turnover charge
+      */
+      exchange_turnover_charge: number;
+      /**
+      * SEBI turnover charge
+      */
+      sebi_turnover_charge: number;
+      /**
+      * Brokerage charge
+      */
+      brokerage: number;
+      /**
+      * Stamp duty charge
+      */
+      stamp_duty: number;
+      /**
+      * GST charges
+      */
+      gst: {
+          /**
+          * Integrated GST amount
+          */
+          igst: number;
+          /**
+          * Central GST amount
+          */
+          cgst: number;
+          /**
+          * State GST amount
+          */
+          sgst: number;
+          /**
+          * Total GST amount
+          */
+          total: number;
+      };
+      /**
+      * Total charges incurred for the order
+      */
+      total: number;
+   };
+}
+
 type GTTParams = {
   /**
    * GTT type, its either self.GTT_TYPE_OCO or self.GTT_TYPE_SINGLE.
@@ -1114,7 +1245,7 @@ type GTTParams = {
   /**
    * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
    */
-  exchange: Exchange;
+  exchange: Exchanges;
   /**
    * List of trigger values, number of items depends on trigger type.
    */
@@ -1147,7 +1278,7 @@ type GTTParams = {
   }[];
 };
 
-type KiteConnectParams = {
+export type KiteConnectParams = {
   /**
    * API key issued to you.
    */
@@ -1195,8 +1326,6 @@ type Connect = {
   PRODUCT_MIS: 'MIS';
   PRODUCT_CNC: 'CNC';
   PRODUCT_NRML: 'NRML';
-  PRODUCT_CO: 'CO';
-  PRODUCT_BO: 'BO';
 
   // Order types
   ORDER_TYPE_MARKET: 'MARKET';
@@ -1206,7 +1335,6 @@ type Connect = {
 
   // Varieties
   VARIETY_REGULAR: 'regular';
-  VARIETY_BO: 'bo';
   VARIETY_CO: 'co';
   VARIETY_AMO: 'amo';
   VARIETY_ICEBERG: 'iceberg';
@@ -1278,7 +1406,7 @@ type Connect = {
    */
   cancelOrder: (
     variety: 'regular' | 'bo' | 'co' | 'amo' | 'iceberg' | 'auction',
-    order_id: string,
+    order_id: number | string,
     params?: {
       /**
        * Parent order id incase of multilegged orders.
@@ -1295,7 +1423,7 @@ type Connect = {
     /**
      * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
      */
-    exchange: Exchange;
+    exchange: Exchanges;
     /**
      * Tradingsymbol of the instrument (ex. RELIANCE, INFY).
      */
@@ -1307,11 +1435,11 @@ type Connect = {
     /**
      * Position type (overnight, day).
      */
-    position_type: 'overnight' | 'day';
+    position_type: PositionTypes;
     /**
      * Position quantity
      */
-    quantity: string;
+    quantity: string | number;
     /**
      * Current product code (NRML, MIS, CNC).
      */
@@ -1326,7 +1454,7 @@ type Connect = {
    * Get list of order history.
    * @param trigger_id GTT ID
    */
-  deleteGTT: (trigger_id: string) => Promise<{ trigger_id: number }>;
+  deleteGTT: (trigger_id: number | string) => Promise<{ trigger_id: number }>;
 
   /**
    * Exit an order
@@ -1361,7 +1489,7 @@ type Connect = {
    * Get list of order history.
    * @param trigger_id GTT trigger ID
    */
-  getGTT: (trigger_id: string) => Promise<Trigger>;
+  getGTT: (trigger_id: number | string) => Promise<Trigger>;
 
   /**
    * Get GTTs list
@@ -1393,7 +1521,7 @@ type Connect = {
    * @param oi is a bool flag to include OI data for futures and options instruments. Defaults to false.
    */
   getHistoricalData: (
-    instrument_token: string,
+    instrument_token: number | string,
     interval:
       | 'minute'
       | 'day'
@@ -1445,7 +1573,7 @@ type Connect = {
    *
    * @param exchange Filter instruments based on exchange (NSE, BSE, NFO, BFO, CDS, MCX). If no `segment` is specified, all instruments are returned.
    */
-  getInstruments: (exchange?: Exchange[]) => Promise<Instrument[]>;
+  getInstruments: (exchange?: Exchanges) => Promise<Instrument[]>;
 
   /**
    * Get the remote login url to which a user should be redirected to initiate the login flow.
@@ -1457,7 +1585,7 @@ type Connect = {
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
-  getLTP: (instruments: string[]) => Promise<
+  getLTP: (instruments: string | string[]) => Promise<
     Record<
       string,
       {
@@ -1511,7 +1639,7 @@ type Connect = {
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
-  getOHLC: (instruments: string[]) => Promise<
+  getOHLC: (instruments: string | string[]) => Promise<
     Record<
       string,
       {
@@ -1549,7 +1677,7 @@ type Connect = {
    * Get list of order history.
    * @param order_id ID of the order whose order details to be retrieved.
    */
-  getOrderHistory: (order_id: string) => Promise<Order[]>;
+  getOrderHistory: (order_id: number | string) => Promise<Order[]>;
 
   /**
    * Get list of orders.
@@ -1562,7 +1690,7 @@ type Connect = {
    * These trades are individually recorded under an order.
    * @param order_id ID of the order whose trades are to be retrieved.
    */
-  getOrderTrades: (order_id: string) => Promise<Trade[]>;
+  getOrderTrades: (order_id: number | string) => Promise<Trade[]>;
 
   /**
    * Retrieve positions.
@@ -1629,7 +1757,7 @@ type Connect = {
    * @param instruments is a list of instruments, Instrument are in the format of `exchange:tradingsymbol`.
    * For example NSE:INFY and for list of instruments ['NSE:RELIANCE', 'NSE:SBIN', ..]
    */
-  getQuote: (instruments: string[]) => Promise<
+  getQuote: (instruments: string | string[]) => Promise<
     Record<
       string,
       {
@@ -1762,7 +1890,7 @@ type Connect = {
    * @param transaction_type Transaction type (BUY or SELL).
    */
   getTriggerRange: (
-    exchange: Exchange,
+    exchange: Exchanges,
     tradingsymbol: string,
     transaction_type: TransactionType
   ) => Promise<any>;
@@ -1786,7 +1914,7 @@ type Connect = {
    * @param params Modify params
    */
   modifyGTT: (
-    trigger_id: string,
+    trigger_id: number | string,
     params: GTTParams
   ) => Promise<{ trigger_id: number }>;
 
@@ -1826,7 +1954,7 @@ type Connect = {
    */
   modifyOrder: (
     variety: Variety,
-    order_id: string,
+    order_id: number | string,
     params: {
       /**
        * Order quantity
@@ -1868,7 +1996,7 @@ type Connect = {
   orderBasketMargins: (
     orders: MarginOrder[],
     consider_positions?: boolean,
-    mode?: 'compact'
+    mode?: string
   ) => Promise<{
     initial: Margin;
     final: Margin;
@@ -1877,10 +2005,18 @@ type Connect = {
 
   /**
    * Fetch required margin for order/list of orders
-   * @param orders Margin fetch orders.
+   * @param MarginOrder Margin fetch orders.
    * @param mode (optional) Compact mode will only give the total margins
    */
-  orderMargins: (orders: MarginOrder[], mode?: 'compact') => Promise<Margin[]>;
+  orderMargins: (orders: MarginOrder[], mode?:string) => Promise<Margin[]>;
+
+  /**
+   * Retrieves the virtual contract note for the specified orders.
+   * 
+   * @param {Order[]} VirtualContractParam - The array of orders for which to retrieve the virtual contract note.
+   * @returns {Promise<any>} A Promise that resolves with the virtual contract note.
+   */
+   getvirtualContractNote: (orders: VirtualContractParam[]) => Promise<VirtualContractResponse[]>;
 
   /**
    * Place GTT.
@@ -1962,7 +2098,7 @@ type Connect = {
       /**
        * Exchange in which instrument is listed (NSE, BSE, NFO, BFO, CDS, MCX).
        */
-      exchange: Exchange;
+      exchange: Exchanges;
       /**
        * Tradingsymbol of the instrument (ex. RELIANCE, INFY).
        */
@@ -2093,47 +2229,47 @@ type KiteConnect = {
    * ------------------------
    * ~~~~
    *
-   * var KiteConnect = require('kiteconnect').KiteConnect;
-   *
-   * var kc = new KiteConnect({api_key: 'your_api_key'});
-   *
-   * kc.generateSession('request_token', 'api_secret')
-   * 	.then(function(response) {
-   * 		init();
-   * 	})
-   * 	.catch(function(err) {
-   * 		console.log(err);
-   * 	})
-   *
-   * function init() {
-   * 	// Fetch equity margins.
-   * 	// You can have other api calls here.
-   *
-   * 	kc.getMargins()
-   * 		.then(function(response) {
-   * 			// You got user's margin details.
-   * 		}).catch(function(err) {
-   * 			// Something went wrong.
-   * 		});
-   *  }
-   * ~~~~
-   *
-   * API promises
-   * -------------
-   * All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
-   *
-   * ~~~~
-   * kiteConnectApiCall
-   * 	.then(function(v) {
-   * 	    // On success
-   * 	})
-   * 	.catch(function(e) {
-   * 		// On rejected
-   * 	});
+   * import { KiteConnect } from 'kiteconnect';
+   * 
+   * const apiKey = 'your_api_key'
+   * const apiSecret = 'your_api_secret'
+   * const requestToken = 'your_request_token'
+   * 
+   * const kc = new KiteConnect({ api_key: apiKey })
+   * 
+   * async function init() {
+   *     try {
+   *         await generateSession()
+   *         await getProfile()
+   *     } catch (err) {
+   *         console.error(err)
+   *     }
+   * }  
+   * 
+   * async function generateSession() {
+   *     try {
+   *         const response = await kc.generateSession(requestToken, apiSecret)
+   *         kc.setAccessToken(response.access_token)
+   *         console.log('Session generated:', response)
+   *     } catch (err) {
+   *         console.error('Error generating session:', err)
+   *     }
+   * }
+   * 
+   * async function getProfile() {
+   *     try {
+   *         const profile = await kc.getProfile()
+   *         console.log('Profile:', profile)
+   *     } catch (err) {
+   *         console.error('Error getting profile:', err)
+   *     }
+   * }
+   * // Initialize the API calls
+   * init();
    * ~~~~
    *
    * @example <caption>Initialize KiteConnect object</caption>
-   * var kc = KiteConnect('my_api_key', {timeout: 10, debug: false})
+   * const kc = new KiteConnect({ api_key: apiKey })})
    */
   new (params: KiteConnectParams): Connect;
 };

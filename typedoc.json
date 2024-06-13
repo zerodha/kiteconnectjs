@@ -1,0 +1,11 @@
+{
+  "out": "docs",
+  "name": "Kiteconnect typescript client",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "entryPoints": [
+    "lib/index.ts",
+    "interfaces/index.ts"
+  ]
+}

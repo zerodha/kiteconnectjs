@@ -3,9 +3,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosTransformer, Method } from 'axios';
 import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
-import querystring from 'querystring';
+import qs from 'qs';
 import utils from './utils';
-import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, TransactionTypes, KiteConectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams } from '../interfaces';
+import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, MarginOrder, VirtualContractParam, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams, ConvertPositionParams, Exchanges } from '../interfaces';
 import { DEFAULTS, ROUTES } from '../constants';
 
 
@@ -20,43 +20,56 @@ import { DEFAULTS, ROUTES } from '../constants';
  * ------------------------
  * ~~~~
  *
- * const KiteConnect = require('kiteconnect').KiteConnect;
- *
- * const kc = new KiteConnect({api_key: 'your_api_key'});
- *
- * kc.generateSession('request_token', 'api_secret')
- * 	.then(function(response) {
- * 		init();
- * 	})
- * 	.catch(function(err) {
- * 		console.log(err);
- * 	})
- *
- * function init() {
- * 	// Fetch equity margins.
- * 	// You can have other api calls here.
- *
- * 	kc.getMargins()
- * 		.then(function(response) {
- * 			// You got user's margin details.
- * 		}).catch(function(err) {
- * 			// Something went wrong.
- * 		});
- *  }
+ * import { KiteConnect } from 'kiteconnect';
+ * 
+ * const apiKey = 'your_api_key'
+ * const apiSecret = 'your_api_secret'
+ * const requestToken = 'your_request_token'
+ * 
+ * const kc = new KiteConnect({ api_key: apiKey })
+ * 
+ * async function init() {
+ *     try {
+ *         await generateSession()
+ *         await getProfile()
+ *     } catch (err) {
+ *         console.error(err)
+ *     }
+ * }  
+ * 
+ * async function generateSession() {
+ *     try {
+ *         const response = await kc.generateSession(requestToken, apiSecret)
+ *         kc.setAccessToken(response.access_token)
+ *         console.log('Session generated:', response)
+ *     } catch (err) {
+ *         console.error('Error generating session:', err)
+ *     }
+ * }
+ * 
+ * async function getProfile() {
+ *     try {
+ *         const profile = await kc.getProfile()
+ *         console.log('Profile:', profile)
+ *     } catch (err) {
+ *         console.error('Error getting profile:', err)
+ *     }
+ * }
+ * // Initialize the API calls
+ * init();
  * ~~~~
  *
  * API promises
  * -------------
- * All API calls returns a promise which you can use to call methods like `.then(...)` and `.catch(...)`.
- *
+ * All API calls return a promise which you can `await` to handle asynchronously.
+ * 
  * ~~~~
- * kiteConnectApiCall
- * 	.then(function(v) {
- * 	    // On success
- * 	})
- * 	.catch(function(e) {
- * 		// On rejected
- * 	});
+ * try {
+ *     const result = await kiteConnectApiCall;
+ *     // On success
+ * } catch (error) {
+ *     // On rejection
+ * }
  * ~~~~
  *
  * @constructor
@@ -76,92 +89,117 @@ import { DEFAULTS, ROUTES } from '../constants';
  *	for a request to complete before it fails.
  *
  * @example <caption>Initialize KiteConnect object</caption>
- * const kc = KiteConnect('my_api_key', {timeout: 10, debug: false})
+ * const kc = new KiteConnect({ api_key: apiKey })
  */
 
 
 
-
-
-class KiteConnect implements KiteConectInterface {
+export class KiteConnect implements KiteConnectInterface {
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {string}
      */
     api_key: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?(string | null)}
      */
     access_token?: string | null;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?string}
      */
     root?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?string}
      */
     login_uri?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?boolean}
      */
     debug?: boolean;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?number}
      */
     timeout?: number;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
-     * @type {?string}
+     * @type {?(function | null)}
      */
-    default_connect_uri?: string;
+    session_expiry_hook?: (() => void) | null;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
-     * @type {?(string | null)}
-     */
-    session_expiry_hook?: string | null;
-    /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @type {?string}
      */
     default_login_uri?: string;
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
-     *
      * @private
      * @type {AxiosInstance}
      */
     private requestInstance: AxiosInstance;
 
+    // Constants
+    readonly PRODUCT_MIS: string = 'MIS';
+    readonly PRODUCT_CNC: string = 'CNC';
+    readonly PRODUCT_NRML: string = 'NRML';
+
+    // Order types
+    readonly ORDER_TYPE_MARKET: string = 'MARKET';
+    readonly ORDER_TYPE_LIMIT: string = 'LIMIT';
+    readonly ORDER_TYPE_SLM: string = 'SL-M';
+    readonly ORDER_TYPE_SL: string ='SL';
+
+    // Varieties
+    readonly VARIETY_REGULAR: string = 'regular';
+    readonly VARIETY_CO: string = 'co';
+    readonly VARIETY_AMO: string = 'amo';
+    readonly VARIETY_ICEBERG: string = 'iceberg';
+    readonly VARIETY_AUCTION: string = 'auction';
+
+    // Transaction types
+    readonly TRANSACTION_TYPE_BUY: string = 'BUY';
+    readonly TRANSACTION_TYPE_SELL: string = 'SELL';
+
+    // Validities
+    readonly VALIDITY_DAY: string = 'DAY';
+    readonly VALIDITY_IOC: string = 'IOC';
+    readonly VALIDITY_TTL:  string = 'TTL';
+
+    // Exchanges
+    readonly EXCHANGE_NSE: string = 'NSE';
+    readonly EXCHANGE_BSE: string = 'BSE';
+    readonly EXCHANGE_NFO: string = 'NFO';
+    readonly EXCHANGE_CDS: string = 'CDS';
+    readonly EXCHANGE_BCD: string = 'BCD';
+    readonly EXCHANGE_BFO: string = 'BFO';
+    readonly EXCHANGE_MCX: string = 'MCX';
+
+    // Margins segments
+    readonly MARGIN_EQUITY: string = 'equity';
+    readonly MARGIN_COMMODITY: string = 'commodity';
+
+    // Statuses
+    readonly STATUS_CANCELLED: string = 'CANCELLED';
+    readonly STATUS_REJECTED: string = 'REJECTED';
+    readonly STATUS_COMPLETE: string = 'COMPLETE';
+
+    // GTT types
+    readonly GTT_TYPE_OCO: string = 'two-leg';
+    readonly GTT_TYPE_SINGLE: string = 'single';
+
+    // GTT statuses
+    readonly GTT_STATUS_ACTIVE: string = 'active';
+    readonly GTT_STATUS_TRIGGERED: string = 'triggered';
+    readonly GTT_STATUS_DISABLED: string = 'disabled';
+    readonly GTT_STATUS_EXPIRED: string = 'expired';
+    readonly GTT_STATUS_CANCELLED: string = 'cancelled';
+    readonly GTT_STATUS_REJECTED: string = 'rejected';
+    readonly GTT_STATUS_DELETED: string = 'deleted';
+
+    // Position types
+    readonly POSITION_TYPE_DAY: string = 'day';
+    readonly POSITION_TYPE_OVERNIGHT: string = 'overnight';
+
     /**
      * Creates an instance of KiteConnect.
-     * @date 07/06/2023 - 21:37:49
      *
      * @constructor
-     * @param {KiteConnectParams} params
+     * @param {KiteConnectParams} params - The configuration parameters for initializing the instance.
      */
     constructor(params: KiteConnectParams) {
         this.api_key = params.api_key;
@@ -169,17 +207,16 @@ class KiteConnect implements KiteConectInterface {
         this.timeout = params.timeout || DEFAULTS.timeout;
         this.debug = params.debug || DEFAULTS.debug;
         this.access_token = params.access_token || null;
-        this.default_connect_uri = DEFAULTS.login;
+        this.default_login_uri = DEFAULTS.login;
         this.session_expiry_hook = null;
         this.requestInstance = this.createAxiosInstance();
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
+     * Creates a custom Axios instance with the provided configuration.
      *
      * @private
-     * @returns {*}
+     * @returns {AxiosInstance} Custom Axios instance
      */
     private createAxiosInstance() {
         const kiteVersion = 3; // Kite version to send in header
@@ -192,7 +229,18 @@ class KiteConnect implements KiteConectInterface {
                 'User-Agent': userAgent
             },
             paramsSerializer(params) {
-                return querystring.stringify(params);
+                const searchParams = new URLSearchParams();
+                for (const key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        const value = params[key];
+                        if (Array.isArray(value)) {
+                            value.forEach(val => searchParams.append(key, val));
+                        } else {
+                            searchParams.append(key, value);
+                        }
+                    }
+                }
+                return searchParams.toString();
             }
         });
 
@@ -222,7 +270,7 @@ class KiteConnect implements KiteConectInterface {
                     'message': 'Unknown content type (' + contentType + ') with response: (' + response.data + ')'
                 };
             }
-        }, function (error) {
+        }, (error) => {
             let resp = {
                 'message': 'Unknown error',
                 'error_type': 'GeneralException',
@@ -234,7 +282,7 @@ class KiteConnect implements KiteConectInterface {
                 // that falls out of the range of 2xx
                 if (error.response.data && error.response.data.error_type) {
                     if (error.response.data.error_type === 'TokenException' && this.session_expiry_hook) {
-                        this.session_expiry_hook()
+                        this.session_expiry_hook();
                     }
 
                     resp = error.response.data;
@@ -258,49 +306,51 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
+     * Sets the access token for the API client.
      *
-     * @param {string} accessToken
+     * @param accessToken The access token to set.
+     * @returns {void}
      */
-    setAccessToken(accessToken: string) {
+    setAccessToken(accessToken: string): void {
         this.access_token = accessToken;
     }
 
     /**
+     * Sets a callback function to be invoked when the session expires.
      * 
-     * @date 07/06/2023 - 21:37:49
-     *
-     * @param {Function} cb
+     * @param cb - The callback function to set as the session expiry hook.
+     * @returns void
      */
     setSessionExpiryHook = function (cb: Function) {
         this.session_expiry_hook = cb;
     };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:49
+     * Returns the login URL with the embedded API key.
      *
-     * @returns {string}
+     * @remarks
+     * This method constructs and returns the login URL with the embedded API key.
+     *
+     * @returns The login URL with the embedded API key.
      */
     getLoginURL() {
         return `${this.default_login_uri}?api_key=${this.api_key}&v=3`;
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Generates a session using the provided request token and API secret.
      *
-     * @param {string} request_token
-     * @param {string} api_secret
-     * @returns {*}
+     * @remarks
+     * This method generates a session by sending a request to the API with the provided request token and API secret.
+     * Upon successful completion, the method resolves with the session details, including the access token. If an error occurs,
+     * the method rejects with an error.
+     *
+     * @param {string} request_token - The request token obtained during the login flow.
+     * @param {string} api_secret - The API secret associated with the user's account.
+     * @returns {Promise<any>} A promise that resolves when the session generation is successful and rejects if an error occurs.
      */
-    generateSession(request_token: string, api_secret: string) {
-        return new Promise(function (resolve, reject) {
+    generateSession(request_token: string, api_secret: string): Promise<any> {
+        return new Promise((resolve, reject) => {
             const checksum = sha256(this.api_key + request_token + api_secret).toString();
             const p = this._post('api.token', {
                 api_key: this.api_key,
@@ -308,7 +358,7 @@ class KiteConnect implements KiteConectInterface {
                 checksum: checksum
             }, null, formatGenerateSession);
 
-            p.then(function (resp: any) {
+            p.then((resp: any) => {
                 // Set access token.
                 if (resp && resp.access_token) {
                     this.setAccessToken(resp.access_token);
@@ -318,39 +368,39 @@ class KiteConnect implements KiteConectInterface {
                 return reject(err);
             });
         });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Invalidates the access token.
      *
-     * @param {?string} [access_token]
-     * @returns {*}
+     * @remarks
+     * This method sends a DELETE request to invalidate the specified access token.
+     * If no access token is provided, the method uses the default access token associated with the instance.
+     *
+     * @param {string} [access_token] - The access token to invalidate. If not provided, the default access token is used.
+     * @returns {Promise<boolean>} A promise that resolves when the DELETE request is complete.
      */
-    invalidateAccessToken(access_token?: string) {
+    invalidateAccessToken(access_token?: string): Promise<any> {
         return this._delete('api.token.invalidate', {
             api_key: this.api_key,
             access_token: access_token || this.access_token,
         });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Renews the access token using the provided refresh token and API secret.
      *
-     * @param {string} refresh_token
-     * @param {string} api_secret
-     * @returns {*}
+     * @remarks
+     * This method sends a request to renew the access token using the given refresh token
+     * and API secret. If the renewal is successful, the promise resolves to the renewed
+     * access token. If the renewal fails, the promise is rejected with an error message.
+     *
+     * @param {string} refresh_token - The refresh token used for renewing the access token.
+     * @param {string} api_secret - The API secret required for the renewal process.
+     * @returns {Promise<any>} A promise that resolves to the renewed access token if successful.
+     *          If the renewal fails, the promise is rejected with an error message.
      */
-    renewAccessToken(refresh_token: string, api_secret: string) {
+    renewAccessToken(refresh_token: string, api_secret: string): Promise<any> {
         return new Promise((resolve, reject) => {
             const checksum = sha256(this.api_key + refresh_token + api_secret).toString();
 
@@ -360,7 +410,7 @@ class KiteConnect implements KiteConectInterface {
                 checksum: checksum
             });
 
-            p.then(function (resp: any) {
+            p.then((resp: any) => {
                 if (resp && resp.access_token) {
                     this.setAccessToken(resp.access_token);
                 }
@@ -369,20 +419,15 @@ class KiteConnect implements KiteConectInterface {
                 return reject(err);
             });
         });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Invalidates the specified refresh token.
      *
-     * @param {string} refresh_token
-     * @returns {*}
+     * @param  {string} refresh_token - The refresh token to invalidate.
+     * @returns A promise that resolves when the DELETE request is complete.
      */
-    invalidateRefreshToken = function (refresh_token: string) {
+    invalidateRefreshToken = function (refresh_token: string): Promise<void> {
         return this._delete('api.token.invalidate', {
             api_key: this.api_key,
             refresh_token: refresh_token
@@ -390,261 +435,205 @@ class KiteConnect implements KiteConectInterface {
     };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves the user's profile.
      *
-     * @returns {*}
+     * @returns {Promise<any>} A promise that resolves with the user's profile data.
      */
-    getProfile() {
+    getProfile(): Promise<any> {
         return this._get('user.profile');
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves margin details for the specified segment or all segments.
      *
-     * @param {?string} [segment]
-     * @returns {*}
+     * @remarks
+     * If a segment is specified, margin details for that segment are retrieved. Otherwise, margin details for all segments are retrieved.
+     *
+     * @param {?string} segment - Optional. The segment for which to retrieve margin details.
+     * @returns {Promise<any>} A promise that resolves with the margin details.
+     *          If a segment is specified, the promise resolves with margin details for that segment.
+     *          If no segment is specified, the promise resolves with margin details for all segments.
      */
-    getMargins(segment?: string) {
+    getMargins(segment?: string): Promise<any> {
         if (segment) {
             return this._get('user.margins.segment', { 'segment': segment });
         } else {
             return this._get('user.margins');
         }
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Places an order with the specified variety and parameters.
      *
-     * @param {Varieties} variety
-     * @param {PlaceOrderParams} params
-     * @returns {*}
+     * @param {Varieties} variety - The variety of the order.
+     * @param {PlaceOrderParams} params - The parameters for the order.
+     * @returns {Promise<any>} A promise that resolves with the result of the order placement.
      */
-    placeOrder(variety: Varieties, params: PlaceOrderParams) {
+    placeOrder(variety: Varieties, params: PlaceOrderParams): Promise<any> {
         params.variety = variety;
         return this._post('order.place', params);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {Varieties} variety
-     * @param {(string | number)} order_id
-     * @param {ModifyOrderParams} params
-     * @returns {*}
+     * @param {Varieties} variety  - The variety of the order.
+     * @param {(string | number)} order_id - The ID of the order to modify.
+     * @param {ModifyOrderParams} params - The parameters for modifying the order.
+     * @returns {Promise<any>} A Promise that resolves with the modified order details.
      */
-    modifyOrder(variety: Varieties, order_id: string | number, params: ModifyOrderParams) {
+    modifyOrder(variety: Varieties, order_id: string | number, params: ModifyOrderParams): Promise<any> {
         params.variety = variety;
         params.order_id = order_id;
         return this._put('order.modify', params);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {Varieties} variety
-     * @param {(string | number)} order_id
-     * @param {?CancelOrderParams} [params]
-     * @returns {*}
+     * @param {Varieties} variety - The variety of the order.
+     * @param {(string | number)} order_id - The ID of the order to modify.
+     * @param {?CancelOrderParams} [params] - The parameters for cancelling the order.
+     * @returns {Promise<any>}
      */
-    cancelOrder(variety: Varieties, order_id: string | number, params?: CancelOrderParams) {
+    cancelOrder(variety: Varieties, order_id: string | number, params?: CancelOrderParams): Promise<any> {
         params = params || {};
         params.variety = variety;
         params.order_id = order_id;
         return this._delete('order.cancel', params);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {Varieties} variety
-     * @param {string} order_id
-     * @param {ExitOrderParams} params
-     * @returns {*}
+     * @param {Varieties} variety - The variety of the order.
+     * @param {string} order_id - The ID of the order to modify.
+     * @param {ExitOrderParams} params - The parameters required for exiting the order.
+     * @returns {Promise<any>}
      */
-    exitOrder(variety: Varieties, order_id: string, params: ExitOrderParams) {
+    exitOrder(variety: Varieties, order_id: string, params: ExitOrderParams): Promise<any> {
         return this.cancelOrder(variety, order_id, params);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves orders.
      *
-     * @returns {*}
+     * @returns {Promise<any>} A Promise that resolves to the retrieved orders.
      */
-    getOrders() {
+    getOrders(): Promise<any> {
         return this._get('orders', null, null, this.formatResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves the order history for a given order ID.
      *
-     * @param {(string | number)} order_id
-     * @returns {*}
+     * @param {(string | number)} order_id - The ID of the order to retrieve history for.
+     * @returns {Promise<any>} - A Promise that resolves to the order history information.
+     *          The resolved value can be of any type.
      */
-    getOrderHistory(order_id: string | number) {
+    getOrderHistory(order_id: string | number): Promise<any> {
         return this._get('order.info', { 'order_id': order_id }, null, this.formatResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves trades data.
      *
-     * @returns {*}
+     * @remarks
+     * This method retrieves trades data from the server.
+     *
+     * @returns {Promise<any>} A Promise that resolves with the trades data.
      */
-    getTrades() {
+    getTrades(): Promise<any> {
         return this._get('trades', null, null, this.formatResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves the trades associated with a specific order.
      *
-     * @param {(string | number)} order_id
-     * @returns {*}
+     * @param {string | number} order_id - The ID of the order.
+     * @returns {Promise<any>} A Promise resolving to the trades associated with the order.
      */
-    getOrderTrades(order_id: string | number) {
+    getOrderTrades(order_id: string | number): Promise<any> {
         return this._get('order.trades', { 'order_id': order_id }, null, this.formatResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
+     * Calculates margins for the specified orders.
      * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {Order[]} orders
-     * @param {*} [mode=null]
-     * @returns {*}
+     * @param {MarginOrder[]} orders - The array of orders for which margins are to be calculated.
+     * @param {string} [mode='compact'] - The mode for margin calculation (optional).
+     * @returns {Promise<any>} - A Promise that resolves with the calculated margins.
      */
-    orderMargins(orders: Order[], mode = null) {
+    orderMargins(orders: MarginOrder[], mode: string = 'compact'): Promise<any> {
         return this._post('order.margins', orders, null, undefined, true,
             { 'mode': mode });
-    }
+    };
 
     /**
+     * Retrieves the virtual contract note for the specified orders.
      * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {Order[]} orders
-     * @param {boolean} [consider_positions=true]
-     * @param {*} [mode=null]
-     * @returns {*}
+     * @param {VirtualContractParam[]} orders - The array of orders for which to retrieve the virtual contract note.
+     * @returns {Promise<any>} A Promise that resolves with the virtual contract note.
      */
-    orderBasketMargins(orders: Order[], consider_positions = true, mode = null) {
+    getvirtualContractNote(orders: VirtualContractParam[]): Promise<any> {
+        return this._post('order.contract_note', orders, null, undefined, true, null);
+    };
+
+    /**
+     * Retrieves margin information for a basket of orders.
+     *
+     * @param {Order[]} orders - The array of orders for which to retrieve margin information.
+     * @param {boolean} [consider_positions=true] - Flag indicating whether to consider existing positions.
+     * @param {*} [mode='compact'] - The mode of operation. Default is compact.
+     * @returns {Promise<any>} - A Promise that resolves to margin information for the basket of orders.
+     */
+     orderBasketMargins(orders: Order[], consider_positions: boolean = true, mode: string = 'compact'): Promise<any> {
         return this._post('order.margins.basket', orders, null, undefined, true,
             { 'consider_positions': consider_positions, 'mode': mode });
-    }
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves the holdings from the portfolio.
      *
-     * @returns {*}
+     * @returns {Promise<any>} A Promise that resolves with the holdings data.
      */
-    getHoldings() {
+    getHoldings(): Promise<any> {
         return this._get('portfolio.holdings');
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves auction instruments.
      *
-     * @returns {*}
+     * @remarks
+     * This method retrieves auction instruments from the portfolio holdings.
+     *
+     * @returns {Promise<any>} A Promise that resolves with the auction instruments.
      */
-    getAuctionInstruments() {
+    getAuctionInstruments(): Promise<any> {
         return this._get('portfolio.holdings.auction');
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
+     * Retrieves positions from the portfolio.
      * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @returns {*}
+     * @returns {Promise<any>} A promise that resolves with the positions data.
      */
-    getPositions() {
+    getPositions(): Promise<any> {
         return this._get('portfolio.positions');
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Converts a position based on the provided parameters.
      *
-     * @param {Order} params
-     * @returns {*}
+     * @param {ConvertPositionParams} params - The parameters for converting the position.
+     * @returns {Promise<any>} A Promise that resolves with the result of the conversion.
+     * 
      */
-    convertPosition(params: Order) {
+    convertPosition(params: ConvertPositionParams): Promise<any> {
         return this._put('portfolio.positions.convert', params);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves instruments based on the provided exchange.
      *
-     * @param {boolean} exchange
-     * @returns {*}
+     * @param {Exchanges} exchange - Exchange name
+     * @returns {Promise<any>} - A Promise resolving to the fetched instruments.
      */
-    getInstruments(exchange: boolean) {
+    getInstruments(exchange: Exchanges): Promise<any> {
         if (exchange) {
             return this._get('market.instruments', {
                 'exchange': exchange
@@ -652,70 +641,63 @@ class KiteConnect implements KiteConectInterface {
         } else {
             return this._get('market.instruments.all', null, null, this.transformInstrumentsResponse);
         }
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves Quote data for the specified instruments.
      *
-     * @param {(string[] | string)} instruments
-     * @returns {*}
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol
+     * @returns {Promise<any>} A promise that resolves with the quote data for the specified instruments.
      */
-    getQuote(instruments: string[] | string) {
-        return this._get('market.quote', { 'i': instruments }, null, formatQuoteResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    getQuote(instruments: string | string[]): Promise<any> {
+        return this._get('market.quote', {"i": instruments}, null, formatQuoteResponse);
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves OHLC (Open, High, Low, Close) data for the specified instruments.
      *
-     * @param {(string[] | string)} instruments
-     * @returns {*}
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol.
+     * @returns {Promise<any>} A promise that resolves with the OHLC data for the specified instruments.
      */
-    getOHLC(instruments: string[] | string) {
-        return this._get('market.quote.ohlc', { 'i': instruments });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    getOHLC(instruments: string | string[]): Promise<any> {
+        return this._get('market.quote.ohlc', {"i": instruments});
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Retrieves the last traded price (LTP) of the specified instruments.
      *
-     * @param {(string[] | string)} instruments
-     * @returns {*}
+     * @remarks
+     * This method fetches the last traded price (LTP) for the provided instruments.
+     *
+     * @param {(string | string[])} instruments - An array of exchange:tradingsymbol
+     * @returns {Promise<any>} The last traded price (LTP) of the specified instruments as a Promise<any>.
      */
-    getLTP(instruments: string[] | string) {
-        return this._get('market.quote.ltp', { 'i': instruments });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    getLTP(instruments: string | string[]): Promise<any>{
+        return this._get('market.quote.ltp', {"i": instruments});
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @param {(string | number)} instrument_token
+     * Retrieve historical data (candles) for an instrument.
+     * For example:
+     * ~~~~
+     * [{
+     * 	date: '2015-02-10T00:00:00+0530',
+     * 	open: 277.5,
+     * 	high: 290.8,
+     * 	low: 275.7,
+     * 	close: 287.3,
+     * 	volume: 22589681
+     * }, ....]
+     * ~~~~
+     * @param {(number | string)} instrument_token
      * @param {string} interval
      * @param {(string | Date)} from_date
      * @param {(string | Date)} to_date
      * @param {(number | boolean)} [continuous=false]
      * @param {(number | boolean)} [oi=false]
-     * @returns {*}
+     * @returns {Promise<any>}
      */
-    getHistoricalData(instrument_token: string | number, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
+    getHistoricalData(instrument_token: number | string, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
         continuous = continuous ? 1 : 0;
         oi = oi ? 1 : 0;
         if (typeof to_date === 'object') to_date = _getDateTimeString(to_date)
@@ -729,16 +711,9 @@ class KiteConnect implements KiteConectInterface {
             continuous: continuous,
             oi: oi
         }, null, this.parseHistorical);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
      * @param {?(string | number)} [order_id]
      * @returns {*}
      */
@@ -748,15 +723,10 @@ class KiteConnect implements KiteConectInterface {
         } else {
             return this._get('mf.orders', null, null, this.formatResponse);
         }
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {PlaceMFOrderParams} params
      * @returns {*}
@@ -766,8 +736,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {(string | number)} order_id
      * @returns {*}
@@ -777,8 +746,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {?(string | number)} [sip_id]
      * @returns {*}
@@ -792,8 +760,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {Order} params
      * @returns {*}
@@ -803,8 +770,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {(string | number)} sip_id
      * @param {Order} params
@@ -816,8 +782,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @param {(string | number)} sip_id
      * @returns {*}
@@ -827,8 +792,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @returns {*}
      */
@@ -837,8 +801,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @returns {*}
      */
@@ -847,38 +810,31 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
+     * Get GTTs list
      * 
-     * @date 07/06/2023 - 21:37:48
-     *
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     getGTTs() {
         return this._get('gtt.triggers', null, null, this.formatResponse);
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Get specific GTT history
      *
      * @param {(string | number)} trigger_id
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     getGTT(trigger_id: string | number) {
         return this._get('gtt.trigger_info', { 'trigger_id': trigger_id }, null, this.formatResponse);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Get API params from user defined GTT params
      *
-     * @param {Order} params
-     * @returns {{ condition: { exchange: ExchangeTypes; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
+     * @param {PlaceGTTParams} params
+     * @returns {{ condition: { exchange: Exchanges; tradingsymbol: string; trigger_values: {}; last_price: any; }; orders: {}; }}
      */
-    _getGTTPayload(params: Order) {
+    private _getGTTPayload(params: PlaceGTTParams) {
         if (params.trigger_type !== GTTStatusTypes.GTT_TYPE_OCO && params.trigger_type !== GTTStatusTypes.GTT_TYPE_SINGLE) {
             throw new Error('Invalid `params.trigger_type`')
         }
@@ -892,7 +848,7 @@ class KiteConnect implements KiteConectInterface {
             exchange: params.exchange,
             tradingsymbol: params.tradingsymbol,
             trigger_values: params.trigger_values,
-            last_price: parseFloat(params.last_price as string)
+            last_price: params.last_price
         }
         let orders = [] as any[];
         for (let o of params.orders as Order[]) {
@@ -907,18 +863,12 @@ class KiteConnect implements KiteConectInterface {
             })
         }
         return { condition, orders };
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     *
+     * Place GTT.
      * @param {PlaceGTTParams} params
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     placeGTT(params: PlaceGTTParams) {
         const payload = this._getGTTPayload(params);
@@ -927,52 +877,37 @@ class KiteConnect implements KiteConectInterface {
             orders: JSON.stringify(payload.orders),
             type: params.trigger_type
         });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Modify GTT Order
      *
      * @param {(string | number)} trigger_id
-     * @param {ModifyGTTParams} params
-     * @returns {*}
+     * @param {PlaceGTTParams} params
+     * @returns {Promise<any>}
      */
-    modifyGTT(trigger_id: string | number, params: ModifyGTTParams) {
-        const payload = this._getGTTPayload(params as Order);
+    modifyGTT(trigger_id: string | number, params: PlaceGTTParams) {
+        const payload = this._getGTTPayload(params);
         return this._put('gtt.modify', {
             trigger_id: trigger_id,
             type: params.trigger_type,
             condition: JSON.stringify(payload.condition),
             orders: JSON.stringify(payload.orders)
         });
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Delete specific GTT order
      *
      * @param {(string | number)} trigger_id
-     * @returns {*}
+     * @returns {Promise<any>}
      */
     deleteGTT(trigger_id: string | number) {
         return this._delete('gtt.delete', { 'trigger_id': trigger_id }, null, undefined);
-    }/**
-     * 
-     * @date 07/06/2023 - 21:37:48
-     */
-    ;
+    };
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     * Validate postback data checksum
      *
      * @param {AnyObject} postback_data
      * @param {string} api_secret
@@ -996,8 +931,6 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
      *
      * @private
      * @param {string} route
@@ -1012,8 +945,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {string} route
@@ -1029,8 +961,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {string} route
@@ -1046,8 +977,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {string} route
@@ -1062,8 +992,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {string} route
@@ -1099,7 +1028,7 @@ class KiteConnect implements KiteConectInterface {
                 payload = JSON.stringify(params);
             } else {
                 // post url encoded payload
-                payload = querystring.stringify(params);
+                payload = qs.stringify(params);
             }
         }
 
@@ -1128,14 +1057,12 @@ class KiteConnect implements KiteConectInterface {
         if (responseTransformer) {
             options.transformResponse = (axios.defaults.transformResponse as any).concat(responseTransformer);
         }
-
         return this.requestInstance.request(options);
     }
 
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {AnyObject} jsonData
@@ -1169,8 +1096,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {*} data
@@ -1199,8 +1125,7 @@ class KiteConnect implements KiteConectInterface {
     }
 
     /**
-     * 
-     * @date 07/06/2023 - 21:37:48
+     *
      *
      * @private
      * @param {AnyObject} data
@@ -1241,8 +1166,6 @@ class KiteConnect implements KiteConectInterface {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:37:48
  *
  * @param {AnyObject} data
  * @returns {AnyObject}
@@ -1258,8 +1181,6 @@ function formatGenerateSession(data: AnyObject) {
 }
 
 /**
- * 
- * @date 07/06/2023 - 21:37:48
  *
  * @param {AnyObject} data
  * @returns {AnyObject}
@@ -1282,8 +1203,6 @@ function formatQuoteResponse(data: AnyObject) {
 // Format response ex. datetime string to date
 
 /**
- * 
- * @date 07/06/2023 - 21:37:48
  *
  * @param {*} data
  * @param {AnyObject} headers
@@ -1316,8 +1235,7 @@ function transformMFInstrumentsResponse(data: any, headers: AnyObject) {
 
 
 /**
- * 
- * @date 07/06/2023 - 21:37:48
+ 
  *
  * @param {Date} date
  * @returns {*}
@@ -1326,5 +1244,3 @@ function _getDateTimeString(date: Date) {
     const isoString = date.toISOString();
     return isoString.replace('T', ' ').split('.')[0];
 }
-
-export default KiteConnect;

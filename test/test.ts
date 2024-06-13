@@ -5,9 +5,9 @@ import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs';
 //@ts-ignore
-import { default as KiteConnect } from '../lib/connect';
+import { KiteConnect } from '../lib/connect';
 import { AnyObject } from '../interfaces/any-object.js';
-import { ExchangeTypes, GTTStatusTypes, OrderTypes, PositionTypes, Products, TransactionTypes, Varieties } from '../interfaces';
+import { Exchanges, GTTStatusTypes, OrderTypes, PositionTypes, Products, TransactionTypes, Varieties } from '../interfaces';
 
 const mockDir = './kiteconnect-mocks';
 
@@ -177,8 +177,12 @@ function testSuite(){
 
       // orderMargins
       .post('/margins/orders')
-      .query({ mode: null })
+      .query({mode: 'compact'})
       .reply(200, parseJson('order_margins.json'))
+
+      // getvirtualContractNote
+      .post('/charges/orders')
+      .reply(200, parseJson('virtual_contract_note.json'))
 
 
     // fetch user profile detail
@@ -217,7 +221,7 @@ function testSuite(){
     describe('placeOrder', function() {
         it('Place market order', (done) => {
             kc.placeOrder(Varieties.TEST, {
-                'exchange': ExchangeTypes.NSE,
+                'exchange': Exchanges.NSE,
                 'tradingsymbol': 'SBIN',
                 'transaction_type': TransactionTypes.BUY,
                 'quantity': 1,
@@ -348,7 +352,7 @@ function testSuite(){
         it('convert existing position', (done) => {
             kc.convertPosition ({
                 'tradingsymbol': 'SBIN',
-                'exchange': ExchangeTypes.NSE,
+                'exchange': Exchanges.NSE,
                 'transaction_type': TransactionTypes.BUY,
                 'position_type': PositionTypes.POSITION_TYPE_DAY,
                 'quantity':1,
@@ -554,16 +558,20 @@ function testSuite(){
             kc.placeGTT({
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.NSE,
+                exchange: Exchanges.NSE,
                 trigger_values: [350, 450],
                 last_price: 400,
                 orders: [{
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
                     order_type: OrderTypes.LIMIT,
                     price: 350
                 }, {
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
@@ -613,16 +621,20 @@ function testSuite(){
             kc.modifyGTT(100, {
                 trigger_type: GTTStatusTypes.GTT_TYPE_OCO,
                 tradingsymbol: 'SBIN',
-                exchange: ExchangeTypes.NSE,
+                exchange: Exchanges.NSE,
                 trigger_values: [358, 458],
                 last_price: 400,
                 orders: [{
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
                     order_type: OrderTypes.LIMIT,
                     price: 358
                 }, {
+                    exchange: "NSE",
+                    tradingsymbol: "SBIN",
                     transaction_type: TransactionTypes.SELL,
                     quantity: 1,
                     product: Products.CNC,
@@ -653,15 +665,17 @@ function testSuite(){
         it('Fetch order margin detail', (done) => {
             kc.orderMargins([
                 {
-                    'exchange': ExchangeTypes.NSE,
+                    'exchange': Exchanges.NSE,
                     'tradingsymbol': 'SBIN',
                     'transaction_type': TransactionTypes.BUY,
                     'variety': Varieties.VARIETY_REGULAR,
                     'product': Products.MIS,
                     'order_type': OrderTypes.MARKET,
-                    'quantity': 1
+                    'quantity': 1,
+                    'price': 0,
+                    'trigger_price':0
                 }
-                ])
+                ], 'compact')
             .then(function(response: AnyObject) {
                 expect(response).to.have.nested.property('[0].type');
                 expect(response).to.have.nested.property('[0].var');
@@ -670,6 +684,36 @@ function testSuite(){
                 // Order charges
                 expect(response).to.have.nested.property('[0].charges.total');
                 expect(response).to.have.nested.property('[0].charges.transaction_tax');
+                expect(response).to.have.nested.property('[0].charges.gst.total');
+                return done();
+            }).catch(done); 
+        })
+    });
+
+    // Virtual contract note API
+    describe('getvirtualContractNote', function() {
+        it('Fetch Virtual contract note charges', (done) => {
+            kc.getvirtualContractNote([
+                {
+                    'order_id': '111111111',
+                    'exchange': Exchanges.NSE,
+                    'tradingsymbol': 'SBIN',
+                    'transaction_type': TransactionTypes.BUY,
+                    'variety': Varieties.VARIETY_REGULAR,
+                    'product': Products.MIS,
+                    'order_type': OrderTypes.MARKET,
+                    'quantity': 1,
+                    'average_price': 560
+                }
+                ])
+            .then(function(response: AnyObject) {
+                expect(response).to.have.nested.property('[0].transaction_type');
+                expect(response).to.have.nested.property('[0].tradingsymbol');
+                expect(response).to.have.nested.property('[0].price');
+                // Order charges
+                expect(response).to.have.nested.property('[0].charges.total');
+                expect(response).to.have.nested.property('[0].charges.transaction_tax');
+                expect(response).to.have.nested.property('[0].charges.transaction_tax_type');
                 expect(response).to.have.nested.property('[0].charges.gst.total');
                 return done();
             }).catch(done); 
