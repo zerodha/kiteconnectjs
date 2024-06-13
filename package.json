@@ -1,6 +1,6 @@
 {
-  "name": "kiteconnect-ts",
-  "version": "0.1.0",
+  "name": "kiteconnect",
+  "version": "5.0.0",
   "description": "The official typescript client for the Kite Connect trading APIs",
   "main": "./dist/lib/index.js",
   "types": "./types/index.d.ts",
@@ -20,7 +20,7 @@
 	],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ranjanrak/kiteconnectjs/tree/feat-ts-refactor.git"
+    "url": "git+https://github.com/zerodha/kiteconnectjs.git"
   },
   "keywords": [
     "kiteconnect",
@@ -37,9 +37,9 @@
   "author": "Rakesh Ranjan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ranjanrak/kiteconnectjs/issues"
+    "url": "https://github.com/zerodha/kiteconnectjs/issues"
   },
-  "homepage": "https://github.com/ranjanrak/kiteconnectjs/tree/feat-ts-refactor#readme",
+  "homepage": "https://github.com/zerodha/kiteconnectjs#readme",
   "dependencies": {
     "@microsoft/tsdoc": "^0.15.0",
     "axios": "^0.21.2",
