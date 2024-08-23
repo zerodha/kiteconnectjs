@@ -1,6 +1,6 @@
 {
   "name": "kiteconnect",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "The official typescript client for the Kite Connect trading APIs",
   "main": "./dist/lib/index.js",
   "types": "./types/index.d.ts",
