@@ -58,7 +58,7 @@ export type Ticker = {
   /**
    * Check if the ticker is connected
    */
-  disconnect: () => boolean;
+  disconnect: () => void;
   /**
    * Register websocket event callbacks
    * Available events

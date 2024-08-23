@@ -76,6 +76,12 @@ import utils from './utils';
   * @type {boolean}
   */
  let auto_reconnect: boolean = false;
+
+ /**
+  * Flag to control reconnection behavior.
+  * @type {boolean}
+  */
+ let should_reconnect: boolean = true;
  
  /**
   * Current count of reconnection attempts.
@@ -324,8 +330,10 @@ export class KiteTicker implements KiteTickerInterface {
 		this.modeFull = modeFull;
 		this.modeQuote = modeQuote;
 		this.modeLTP = modeLTP;
-
-		if (!params.reconnect) params.reconnect = true;
+		// Set reconnect to true for undefined
+		if (params.reconnect === undefined) {
+			params.reconnect = true;
+		}
 		this.autoReconnect(params.reconnect, params.max_retry as number, params.max_delay as number);
 	}
 
@@ -335,7 +343,7 @@ export class KiteTicker implements KiteTickerInterface {
 	 * @param  {number} [max_delay=60]
 	 */
 	autoReconnect(t: boolean, max_retry: number, max_delay: number) {
-		auto_reconnect = (t == true);
+		auto_reconnect = t;
 
 		// Set default values
 		max_retry = max_retry || defaultReconnectMaxRetries;
@@ -371,13 +379,13 @@ export class KiteTicker implements KiteTickerInterface {
 		// Set binaryType to arraybuffer
 		ws.binaryType = 'arraybuffer';
 
-		ws.onopen = function () {
+		ws.onopen = () => {
 			// Reset last reconnect interval
 			last_reconnect_interval = null;
 			// Reset current_reconnection_count attempt
 			current_reconnection_count = 0
 			// Store current open connection url to check for auto re-connection.
-			if (!current_ws_url) current_ws_url = this.url;
+			if (!current_ws_url) current_ws_url = url;
 			// Trigger on connect event
 			trigger('connect');
 			// If there isn't an incoming message in n seconds, assume disconnection.
@@ -398,7 +406,7 @@ export class KiteTicker implements KiteTickerInterface {
 			}, read_timeout * 1000);
 		};
 
-		ws.onmessage = function (e) {
+		ws.onmessage = function (e:any) {
 			// Binary tick data.
 			if (e.data instanceof ArrayBuffer) {
 				// Trigger on message event when binary message is received
@@ -415,14 +423,14 @@ export class KiteTicker implements KiteTickerInterface {
 			last_read = new Date();
 		};
 
-		ws.onerror = function (e) {
+		ws.onerror = function (e:any) {
 			trigger('error', [e]);
 
 			// Force close to avoid ghost connections
 			if (this && this.readyState == this.OPEN) this.close();
 		};
 
-		ws.onclose = (e) => {
+		ws.onclose = (e:any) => {
 			trigger('close', [e]);
 
 			// the ws id doesn't match the current global id,
@@ -435,7 +443,8 @@ export class KiteTicker implements KiteTickerInterface {
 
 	attemptReconnection() {
 		// Try reconnecting only so many times.
-		if (current_reconnection_count > reconnect_max_tries) {
+		// Or if reconnection is not allowed
+		if ((current_reconnection_count > reconnect_max_tries) || !should_reconnect) {
 			trigger('noreconnect');
 			process.exit(1);
 		}
@@ -467,6 +476,21 @@ export class KiteTicker implements KiteTickerInterface {
 		ws = null;
 		trigger('disconnect', [e]);
 		if (auto_reconnect) this.attemptReconnection();
+	}
+
+	/**
+	 * This method closes the WebSocket connection if it is currently open.
+	 * It checks the readyState to ensure that the connection is not 
+	 * already in the process of closing or closed.
+	 */
+	disconnect(): void {
+		if (ws && ws.readyState !== WebSocket.CLOSING && ws.readyState !== WebSocket.CLOSED) {
+			// Stop reconnection mechanism
+			should_reconnect = false;
+			// Close and clear the ws object
+			ws.close();
+			ws = null;
+		}
 	}
 
 	/**
