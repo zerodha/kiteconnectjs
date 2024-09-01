@@ -1,0 +1,73 @@
+{
+    "name": "kiteconnect",
+    "version": "5.0.1",
+    "description": "The official typescript client for the Kite Connect trading APIs",
+    "main": "./dist/lib/index.js",
+    "types": "./types/index.d.ts",
+    "scripts": {
+        "generate-docs": "npx typedoc --out ./docs",
+        "build": "tsc --project tsconfig.json",
+        "build-test": "tsc --project test/tsconfig.json",
+        "eslint:fix": "eslint",
+        "test": "npm run build && npm run build-test && mocha --allowJs test/**/*.js && rimraf **/*.js"
+    },
+    "files": [
+        "dist",
+        "types",
+        "package.json",
+        "README.md",
+        "LICENSE"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zerodha/kiteconnectjs.git"
+    },
+    "keywords": [
+        "kiteconnect",
+        "kite",
+        "zerodha",
+        "rainmatter",
+        "trading",
+        "api",
+        "stock",
+        "market",
+        "javascript",
+        "typescript"
+    ],
+    "author": "Rakesh Ranjan",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/zerodha/kiteconnectjs/issues"
+    },
+    "homepage": "https://github.com/zerodha/kiteconnectjs#readme",
+    "dependencies": {
+        "@microsoft/tsdoc": "^0.15.0",
+        "axios": "^0.21.2",
+        "chai": "^4.3.6",
+        "crypto-js": "^4.0.0",
+        "mocha": "^10.0.0",
+        "nock": "^13.2.4",
+        "papaparse": "^5.3.1",
+        "qs": "^6.12.1",
+        "rimraf": "^3.0.2",
+        "ws": "^6.2.2"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.3.4",
+        "@types/crypto-js": "^4.1.1",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^18.11.18",
+        "@types/papaparse": "^5.3.14",
+        "@types/qs": "^6.9.15",
+        "@types/ws": "^8.5.4",
+        "eslint": "^8.57.0",
+        "eslint-plugin-tsdoc": "^0.2.17",
+        "typedoc": "^0.25.13",
+        "typescript": "^4.9.5",
+        "typescript-eslint": "^7.5.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "engineStrict": true
+}
