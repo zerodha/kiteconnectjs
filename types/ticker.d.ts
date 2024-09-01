@@ -1,4 +1,4 @@
-type KiteTickerParams = {
+export type KiteTickerParams = {
   /**
    * API key issued you.
    */
