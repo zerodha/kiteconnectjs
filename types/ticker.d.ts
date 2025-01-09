@@ -88,6 +88,7 @@ export type Ticker = {
       | 'close'
       | 'reconnect'
       | 'noreconnect'
+      | 'message'
       | 'order_update',
     callback: Function
   ) => void;
