@@ -1535,7 +1535,7 @@ type Connect = {
     to_date: string | Date,
     continuous?: boolean,
     oi?: boolean
-  ) => Promise<{
+  ) => Promise<[{
     date: Date;
     open: number;
     high: number;
@@ -1543,7 +1543,7 @@ type Connect = {
     close: number;
     volume: number;
     oi?: number;
-  }>;
+  }]>;
 
   /**
    * Retrieve the list of equity holdings.
