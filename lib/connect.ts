@@ -255,7 +255,7 @@ export class KiteConnect implements KiteConnectInterface {
             if (this.debug) console.log(response);
 
             const contentType = response.headers['content-type'];
-            if (contentType === 'application/json' && typeof response.data === 'object') {
+            if (contentType?.includes('application/json') && typeof response.data === 'object') {
                 // Throw incase of error
                 if (response.data.error_type) throw response.data;
 
