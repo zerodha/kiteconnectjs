@@ -1,5 +1,5 @@
 {
-  "name": "kiteconnect",
+  "name": "kiteconnect-upgrade",
   "version": "5.0.1",
   "description": "The official typescript client for the Kite Connect trading APIs",
   "main": "./dist/lib/index.js",
@@ -23,6 +23,7 @@
     "url": "git+https://github.com/zerodha/kiteconnectjs.git"
   },
   "keywords": [
+    "kiteconnect-upgrade",
     "kiteconnect",
     "kite",
     "zerodha",
