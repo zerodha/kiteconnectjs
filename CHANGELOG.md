@@ -1,5 +1,35 @@
 # Kite v5 - TypeScript
 
+## [5.1.0] - 2025-07-21
+
+### New Features
+
+- **Enhanced Type Safety**: Improved TypeScript type definitions for ticker event callbacks
+- **Comprehensive Type Exports**: All type definitions are now properly exported from main entry point with direct imports: `{ KiteConnect, Order, KiteTickerParams, Exchanges } from 'kiteconnect'`
+- **Ticker Event Types**: Added proper exports for `Tick`, `LTPTick`, `QuoteTick`, and `FullTick` interfaces
+- **Historical Data Types**: Added `HistoricalData` type with `Promise<HistoricalData[]>` for `getHistoricalData()` method
+- **Order Interface Completeness**: Enhanced Order interface with all missing fields from orderbook API response
+- **Enhanced Ticker Events**: Added `KiteTickerEvents` and `KiteTickerEventCallbacks` for type safety and discovery
+
+### Bug Fixes
+
+- **Security Vulnerabilities**: Fixed all npm audit vulnerabilities
+  - Upgraded axios from vulnerable version to 1.10.0 with proper TypeScript typing
+  - Applied security patches across all dependencies
+- **Timezone Handling**: Fixed historical data timezone handling for Date objects [Issue #107](https://github.com/zerodha/kiteconnectjs/issues/107)
+  - Date objects now correctly preserve local timezone instead of converting to UTC
+- **Missing Order Fields**: Added missing fields to Order interface including `instrument_token`, `placed_by`, `exchange_order_id`, and 15+ other fields [Issue #113](https://github.com/zerodha/kiteconnectjs/issues/113)
+- **Content-Type Detection**: Enhanced CSV and JSON content-type handling to support charset specifications using pattern matching instead of strict equality
+
+### Breaking Changes
+
+- **Date Object Timezone Handling**: If you were manually compensating for the timezone bug by adjusting Date objects, you'll need to update your code to use the actual intended time values
+
+### Backward Compatibility
+
+- String date inputs: No changes required
+- Ticker event callbacks: Existing `any[]` callbacks continue to work
+
 ## [5.0.0] - 2024-06-13
 
 ### Breaking Changes
@@ -35,4 +65,5 @@ If you are upgrading from a previous version, please review the following change
 
 - This release marks a significant update with the transition to TypeScript. Please report any issues or bugs to the repository's issue tracker.
 
-[5.0.0]: https://github.com/your-repo/kiteconnect-ts/releases/tag/v5.0.0
+[5.1.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.1.0
+[5.0.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.0.0

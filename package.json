@@ -1,6 +1,6 @@
 {
   "name": "kiteconnect",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "The official typescript client for the Kite Connect trading APIs",
   "main": "./dist/lib/index.js",
   "types": "./types/index.d.ts",
@@ -17,7 +17,7 @@
     "package.json",
     "README.md",
     "LICENSE"
-	],
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zerodha/kiteconnectjs.git"
@@ -42,7 +42,7 @@
   "homepage": "https://github.com/zerodha/kiteconnectjs#readme",
   "dependencies": {
     "@microsoft/tsdoc": "^0.15.0",
-    "axios": "^0.21.2",
+    "axios": "^1.10.0",
     "chai": "^4.3.6",
     "crypto-js": "^4.0.0",
     "mocha": "^10.0.0",
@@ -59,7 +59,7 @@
     "@types/node": "^18.11.18",
     "@types/papaparse": "^5.3.14",
     "@types/qs": "^6.9.15",
-    "@types/ws": "^8.5.4",
+    "@types/ws": "^8.18.1",
     "eslint": "^8.57.0",
     "eslint-plugin-tsdoc": "^0.2.17",
     "typedoc": "^0.25.13",

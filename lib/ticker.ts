@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { AnyObject, KiteTickerInterface, KiteTickerParams, Tick, LTPTick, QuoteTick, FullTick } from '../interfaces';
+import { AnyObject, KiteTickerInterface, KiteTickerParams, Tick, LTPTick, QuoteTick, FullTick, KiteTickerEvents, KiteTickerEventCallbacks } from '../interfaces';
 import utils from './utils';
 
 
@@ -165,8 +165,9 @@ const NseCM = 1,
  * ticker.on('error', onError);
  * ticker.on('close', onClose);
  * ticker.on('order_update', onTrade);
+ * ticker.on('message', onMessage);
  *
- * function onTicks(ticks: any[]): void {
+ * function onTicks(ticks: Tick[]): void {
  *     console.log("Ticks", ticks);
  * }
  *
@@ -190,6 +191,10 @@ const NseCM = 1,
  *
  * function onTrade(order: any): void {
  *     console.log("Order update", order);
+ * }
+ *
+ * function onMessage(binaryData: ArrayBuffer): void {
+ *     console.log("Binary message received", binaryData);
  * }
  * ~~~~
  * 
@@ -257,8 +262,9 @@ const NseCM = 1,
  * ticker.on('reconnect', (reconnect_count:any, reconnect_interval:any) => {
  *     console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval)
  * })
+ * ticker.on('message', onMessage);
  *
- * function onTicks(ticks: any[]) {
+ * function onTicks(ticks: Tick[]) {
  *     console.log('Ticks', ticks)
  * }
  *
@@ -266,6 +272,11 @@ const NseCM = 1,
  *     const items = [738561]
  *     ticker.subscribe(items)
  *     ticker.setMode(ticker.modeFull, items)
+ * }
+ * 
+ * function onMessage(binaryData: ArrayBuffer) {
+ *     console.log('Raw binary message received:', binaryData);
+ *     // Process raw binary data if needed
  * }
  * ~~~~
  * 
@@ -506,11 +517,12 @@ export class KiteTicker implements KiteTickerInterface {
 
 
 	/**
+	 * Bind a callback function to an event.
 	 * 
-	 * @param {string} e
-	 * @param {Function} callback
+	 * @param {KiteTickerEvents} e - The event name
+	 * @param {Function} callback - The callback function
 	 */
-	on(e: string, callback: Function) {
+	on<T extends KiteTickerEvents>(e: T, callback: KiteTickerEventCallbacks[T]) {
 		if (triggers.hasOwnProperty(e)) {
 			(triggers as AnyObject)[e].push(callback);
 		}

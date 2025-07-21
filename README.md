@@ -87,6 +87,7 @@ ticker.on("disconnect", onDisconnect);
 ticker.on("error", onError);
 ticker.on("close", onClose);
 ticker.on("order_update", onTrade);
+ticker.on("message", onMessage);
 
 function onTicks(ticks: any[]): void {
   console.log("Ticks", ticks);
@@ -112,6 +113,11 @@ function onClose(reason: string): void {
 
 function onTrade(order: any): void {
   console.log("Order update", order);
+}
+
+function onMessage(binaryData: ArrayBuffer): void {
+  console.log("Binary message received", binaryData);
+  // Process raw WebSocket binary data if needed
 }
 ```
 

@@ -276,21 +276,53 @@ export interface ConvertPositionParams {
  */
 export interface Order {
     /**
-     * @type {?TransactionTypes}
+     * @type {?string}
      */
-    transaction_type?: TransactionTypes;
+    placed_by?: string;
     /**
      * @type {?(string | number)}
      */
-    quantity?: string | number;
+    order_id?: string | number;
     /**
-     * @type {?Products}
+     * @type {?string}
      */
-    product?: Products;
+    exchange_order_id?: string;
     /**
-     * @type {?OrderTypes}
+     * @type {?(string | number)}
      */
-    order_type?: OrderTypes;
+    parent_order_id?: string | number;
+    /**
+     * @type {?string}
+     */
+    status?: string;
+    /**
+     * @type {?string}
+     */
+    status_message?: string;
+    /**
+     * @type {?string}
+     */
+    status_message_raw?: string;
+    /**
+     * @type {?(string | Date)}
+     */
+    order_timestamp?: string | Date;
+    /**
+     * @type {?(string | Date)}
+     */
+    exchange_update_timestamp?: string | Date;
+    /**
+     * @type {?(string | Date)}
+     */
+    exchange_timestamp?: string | Date;
+    /**
+     * @type {?Varieties}
+     */
+    variety?: Varieties;
+    /**
+     * @type {?boolean}
+     */
+    modified?: boolean;
     /**
      * @type {?Exchanges}
      */
@@ -300,9 +332,33 @@ export interface Order {
      */
     tradingsymbol?: string;
     /**
-     * @type {?Varieties}
+     * @type {?number}
      */
-    variety?: Varieties;
+    instrument_token?: number;
+    /**
+     * @type {?OrderTypes}
+     */
+    order_type?: OrderTypes;
+    /**
+     * @type {?TransactionTypes}
+     */
+    transaction_type?: TransactionTypes;
+    /**
+     * @type {?Validities}
+     */
+    validity?: Validities;
+    /**
+     * @type {?Products}
+     */
+    product?: Products;
+    /**
+     * @type {?(string | number)}
+     */
+    quantity?: string | number;
+    /**
+     * @type {?(string | number)}
+     */
+    disclosed_quantity?: string | number;
     /**
      * @type {?(number | string)}
      */
@@ -312,25 +368,43 @@ export interface Order {
      */
     trigger_price?: number;
     /**
-     * @type {?PositionTypes}
+     * @type {?number}
      */
-    position_type?: PositionTypes;
-    /**
-     * @type {?Products}
-     */
-    old_product?: Products;
-    /**
-     * @type {?Products}
-     */
-    new_product?: Products;
+    average_price?: number;
     /**
      * @type {?(string | number)}
      */
-    amount?: string | number;
+    filled_quantity?: string | number;
+    /**
+     * @type {?(string | number)}
+     */
+    pending_quantity?: string | number;
+    /**
+     * @type {?(string | number)}
+     */
+    cancelled_quantity?: string | number;
+    /**
+     * @type {?(string | number)}
+     */
+    market_protection?: string | number;
+    /**
+     * @type {?any}
+     */
+    meta?: any;
     /**
      * @type {?string}
      */
     tag?: string;
+    /**
+     * @type {?string}
+     */
+    guid?: string;
+    
+    // Additional fields for compatibility with other interfaces (MF SIP, GTT, etc.)
+    /**
+     * @type {?(string | number)}
+     */
+    amount?: string | number;
     /**
      * @type {?(string | number)}
      */
@@ -347,10 +421,6 @@ export interface Order {
      * @type {?(string | number)}
      */
     instalment_day?: string | number;
-    /**
-     * @type {?(string | number)}
-     */
-    status?: string | number;
     /**
      * @type {?(string | number)}
      */
@@ -372,17 +442,17 @@ export interface Order {
      */
     orders?: Order[];
     /**
-     * @type {?(string | number)}
+     * @type {?PositionTypes}
      */
-    order_id?: string | number;
+    position_type?: PositionTypes;
     /**
-     * @type {?(string | number)}
+     * @type {?Products}
      */
-    parent_order_id?: string | number;
+    old_product?: Products;
     /**
-     * @type {number}
+     * @type {?Products}
      */
-     average_price?: number;
+    new_product?: Products;
 }
 
 /**

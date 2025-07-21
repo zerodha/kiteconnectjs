@@ -136,3 +136,32 @@ export interface Depth {
 
 // Combined type for all tick modes
 export type Tick = LTPTick | QuoteTick | FullTick;
+
+/**
+ * Event types for KiteTicker
+ */
+export type KiteTickerEvents = 
+    | 'connect'
+    | 'ticks' 
+    | 'disconnect'
+    | 'error'
+    | 'close'
+    | 'reconnect'
+    | 'noreconnect'
+    | 'message'
+    | 'order_update';
+
+/**
+ * Event callback types for KiteTicker
+ */
+export interface KiteTickerEventCallbacks {
+    connect: () => void;
+    ticks: (ticks: Tick[]) => void;
+    disconnect: (error: Error) => void;
+    error: (error: Error) => void;
+    close: (reason: string) => void;
+    reconnect: (reconnect_count: number, reconnect_interval: number) => void;
+    noreconnect: () => void;
+    message: (binaryData: ArrayBuffer) => void;
+    order_update: (order: any) => void;
+}
