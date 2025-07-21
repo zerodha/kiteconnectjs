@@ -24,6 +24,7 @@ async function init() {
         await getOHLC(['NSE:RELIANCE', 'NSE:SBIN', 'BSE:ONGC']);
         await getLTP(['NSE:RELIANCE', 'NSE:SBIN', 'BSE:ONGC']);
         await getHistoricalData(16320514, "day", "2024-05-11 00:00:00", "2024-06-12 00:00:00", true, true);
+        await getHistoricalData(16320514, "day", new Date('2024-05-11T09:15:00'), new Date('2024-06-12T15:30:00'), true, true);
         await placeRegularOrder();
         await placeIcebergOrder();
         await modifyRegularOrder(240611801793632);
@@ -176,7 +177,7 @@ async function getLTP(instruments: string[]) {
     }
 }
 
-async function getHistoricalData(instrumentToken: number, interval: string, from: string, to: string, continuous: boolean, oi: boolean) {
+async function getHistoricalData(instrumentToken: number, interval: string, from: string | Date, to: string | Date, continuous: boolean, oi: boolean) {
     try {
         const historicalData = await kc.getHistoricalData(instrumentToken, interval, from, to, continuous, oi);
         console.log('Historical Data:', historicalData);

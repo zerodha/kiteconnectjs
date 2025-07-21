@@ -266,6 +266,13 @@ function testSuite(){
                 expect(response).to.have.nested.property('[0].order_id');
                 expect(response).to.have.nested.property('[0].status');
                 expect(response).to.have.nested.property('[0].tradingsymbol');
+                expect(response).to.have.nested.property('[0].instrument_token');
+                expect(response).to.have.nested.property('[0].placed_by');
+                expect(response).to.have.nested.property('[0].exchange_order_id');
+                expect(response).to.have.nested.property('[0].order_timestamp');
+                expect(response).to.have.nested.property('[0].exchange_timestamp');
+                expect(response).to.have.nested.property('[0].disclosed_quantity');
+                expect(response).to.have.nested.property('[0].market_protection');
                 return done();
             }).catch(done); 
         })
@@ -278,6 +285,9 @@ function testSuite(){
             .then(function(response: AnyObject) {
                 expect(response).to.have.nested.property('[0].order_id');
                 expect(response).to.have.nested.property('[0].status');
+                expect(response).to.have.nested.property('[0].instrument_token');
+                expect(response).to.have.nested.property('[0].placed_by');
+                expect(response).to.have.nested.property('[0].exchange_order_id');
                 return done();
             }).catch(done); 
         })
@@ -501,10 +511,17 @@ function testSuite(){
             kc.getHistoricalData(100, 'minute', 
                 '2022-06-01 09:15:00', '2022-06-01 15:30:00')
             .then(function(response: AnyObject) {
+                expect(response).to.be.an('array');
                 expect(response).to.have.nested.property('[0].date');
                 expect(response).to.have.nested.property('[0].open');
+                expect(response).to.have.nested.property('[0].high');
+                expect(response).to.have.nested.property('[0].low');
                 expect(response).to.have.nested.property('[0].close');
                 expect(response).to.have.nested.property('[0].volume');
+                // Test optional oi field if present
+                if (response[0].oi !== undefined) {
+                    expect(response).to.have.nested.property('[0].oi');
+                }
                 return done();
             }).catch(done); 
         })

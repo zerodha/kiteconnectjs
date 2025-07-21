@@ -1,4 +1,6 @@
-type KiteTickerParams = {
+import { Tick } from '../interfaces/ticker';
+
+export type KiteTickerParams = {
   /**
    * API key issued you.
    */
@@ -60,7 +62,7 @@ export type Ticker = {
    */
   disconnect: () => void;
   /**
-   * Register websocket event callbacks
+   * Register websocket event callbacks with type-safe callbacks
    * Available events
    * ~~~~
    * connect -  when connection is successfully established.
@@ -75,22 +77,22 @@ export type Ticker = {
    * ~~~~
    *
    * @example
-   * ticker.on('ticks', callback);
-   * ticker.on('connect', callback);
-   * ticker.on('disconnect', callback);
+   * ticker.on('ticks', (ticks: Tick[]) => { ... });  // Type-safe (new)
+   * ticker.on('ticks', (ticks: any[]) => { ... });   // Backward compatible
+   * ticker.on('connect', () => { ... });
+   * ticker.on('disconnect', (error: Error) => { ... });
+   * ticker.on('message', (binaryData: ArrayBuffer) => { ... });
    */
-  on: (
-    event:
-      | 'connect'
-      | 'ticks'
-      | 'disconnect'
-      | 'error'
-      | 'close'
-      | 'reconnect'
-      | 'noreconnect'
-      | 'order_update',
-    callback: Function
-  ) => void;
+  on(event: 'connect', callback: () => void): void;
+  on(event: 'ticks', callback: (ticks: Tick[]) => void): void;
+  on(event: 'ticks', callback: (ticks: any[]) => void): void;  // Backward compatibility
+  on(event: 'disconnect', callback: (error: Error) => void): void;
+  on(event: 'error', callback: (error: Error) => void): void;
+  on(event: 'close', callback: (reason: string) => void): void;
+  on(event: 'reconnect', callback: (reconnect_count: number, reconnect_interval: number) => void): void;
+  on(event: 'noreconnect', callback: () => void): void;
+  on(event: 'message', callback: (binaryData: ArrayBuffer) => void): void;
+  on(event: 'order_update', callback: (order: any) => void): void;
   /**
    * Set modes to array of tokens
    * @param mode mode to set
@@ -143,7 +145,7 @@ export type KiteTicker = {
     * ticker.on('close', onClose);`
     * ticker.on('order_update', onTrade);
     *
-    * function onTicks(ticks: any[]): void {
+    * function onTicks(ticks: Tick[]): void {
     *     console.log("Ticks", ticks);
     * }
     *
@@ -232,11 +234,11 @@ export type KiteTicker = {
     * ticker.on('noreconnect', () => {
     *     console.log('noreconnect')
     * })
-    * ticker.on('reconnect', (reconnect_count:any, reconnect_interval:any) => {
+    * ticker.on('reconnect', (reconnect_count: number, reconnect_interval: number) => {
     *     console.log('Reconnecting: attempt - ', reconnect_count, ' interval - ', reconnect_interval)
     * })
     *
-    * function onTicks(ticks: any[]) {
+    * function onTicks(ticks: Tick[]) {
     *     console.log('Ticks', ticks)
     * }
     *

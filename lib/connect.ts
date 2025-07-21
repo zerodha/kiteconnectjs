@@ -1,6 +1,6 @@
 'use strict';
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosTransformer, Method } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, Method, AxiosResponseTransformer, RawAxiosRequestHeaders } from 'axios';
 import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
 import qs from 'qs';
@@ -255,13 +255,13 @@ export class KiteConnect implements KiteConnectInterface {
             if (this.debug) console.log(response);
 
             const contentType = response.headers['content-type'];
-            if (contentType === 'application/json' && typeof response.data === 'object') {
+            if (contentType?.includes('application/json') && typeof response.data === 'object') {
                 // Throw incase of error
                 if (response.data.error_type) throw response.data;
 
                 // Return success data
                 return response.data.data;
-            } else if (contentType === 'text/csv') {
+            } else if (contentType?.includes('text/csv')) {
                 // Return the response directly
                 return response.data
             } else {
@@ -691,8 +691,8 @@ export class KiteConnect implements KiteConnectInterface {
      * ~~~~
      * @param {(number | string)} instrument_token
      * @param {string} interval
-     * @param {(string | Date)} from_date
-     * @param {(string | Date)} to_date
+     * @param {(string | Date)} from_date - Date string in 'YYYY-MM-DD HH:MM:SS' format or Date object. When using Date objects, the local timezone representation is preserved (no UTC conversion).
+     * @param {(string | Date)} to_date - Date string in 'YYYY-MM-DD HH:MM:SS' format or Date object. When using Date objects, the local timezone representation is preserved (no UTC conversion).
      * @param {(number | boolean)} [continuous=false]
      * @param {(number | boolean)} [oi=false]
      * @returns {Promise<any>}
@@ -936,11 +936,11 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {string} route
      * @param {?(AnyObject | null)} [params]
      * @param {?(string | null)} [responseType]
-     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?AxiosResponseTransformer} [responseTransformer]
      * @param {boolean} [isJSON=false]
      * @returns {*}
      */
-    private _get(route: string, params?: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
+    private _get(route: string, params?: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosResponseTransformer, isJSON = false) {
         return this.request(route, 'GET', params || {}, responseType, responseTransformer, isJSON);
     }
 
@@ -951,12 +951,12 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {string} route
      * @param {(AnyObject | null)} params
      * @param {?(string | null)} [responseType]
-     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?AxiosResponseTransformer} [responseTransformer]
      * @param {boolean} [isJSON=false]
      * @param {(AnyObject | null)} [queryParams=null]
      * @returns {*}
      */
-    private _post(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams: AnyObject | null = null) {
+    private _post(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosResponseTransformer, isJSON = false, queryParams: AnyObject | null = null) {
         return this.request(route, 'POST', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
@@ -967,12 +967,12 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {string} route
      * @param {(AnyObject | null)} params
      * @param {?(string | null)} [responseType]
-     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?AxiosResponseTransformer} [responseTransformer]
      * @param {boolean} [isJSON=false]
      * @param {*} [queryParams=null]
      * @returns {*}
      */
-    private _put(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false, queryParams = null) {
+    private _put(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosResponseTransformer, isJSON = false, queryParams = null) {
         return this.request(route, 'PUT', params || {}, responseType, responseTransformer, isJSON, queryParams);
     }
 
@@ -983,11 +983,11 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {string} route
      * @param {(AnyObject | null)} params
      * @param {?(string | null)} [responseType]
-     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?AxiosResponseTransformer} [responseTransformer]
      * @param {boolean} [isJSON=false]
      * @returns {*}
      */
-    private _delete(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON = false) {
+    private _delete(route: string, params: AnyObject | null, responseType?: string | null, responseTransformer?: AxiosResponseTransformer, isJSON = false) {
         return this.request(route, 'DELETE', params || {}, responseType, responseTransformer, isJSON);
     }
 
@@ -999,12 +999,12 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {Method} method
      * @param {AnyObject} params
      * @param {?(string | null)} [responseType]
-     * @param {?AxiosTransformer} [responseTransformer]
+     * @param {?AxiosResponseTransformer} [responseTransformer]
      * @param {?boolean} [isJSON]
      * @param {?(Record<string, any> | null)} [queryParams]
      * @returns {*}
      */
-    private request(route: string, method: Method, params: AnyObject, responseType?: string | null, responseTransformer?: AxiosTransformer, isJSON?: boolean, queryParams?: Record<string, any> | null) {
+    private request(route: string, method: Method, params: AnyObject, responseType?: string | null, responseTransformer?: AxiosResponseTransformer, isJSON?: boolean, queryParams?: Record<string, any> | null) {
         // Check access token
         if (!responseType) responseType = 'json';
         let uri = ROUTES[route];
@@ -1038,20 +1038,20 @@ export class KiteConnect implements KiteConnectInterface {
             params: queryParams,
             data: payload,
             // Set auth header
-            headers: {}
+            headers: {} as RawAxiosRequestHeaders
         };
 
         // Send auth token
         if (this.access_token) {
             const authHeader = `${this.api_key}:${this.access_token}`;
-            options['headers']['Authorization'] = `token ${authHeader}`;
+            options.headers!['Authorization'] = `token ${authHeader}`;
         }
 
         // Set request header content type
         if (isJSON) {
-            options['headers']['Content-Type'] = 'application/json';
+            options.headers!['Content-Type'] = 'application/json';
         } else {
-            options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
+            options.headers!['Content-Type'] = 'application/x-www-form-urlencoded';
         }
         // Set response transformer
         if (responseTransformer) {
@@ -1235,12 +1235,21 @@ function transformMFInstrumentsResponse(data: any, headers: AnyObject) {
 
 
 /**
- 
- *
- * @param {Date} date
- * @returns {*}
+ * Converts a Date object to YYYY-MM-DD HH:MM:SS format.
+ * Preserves the local timezone representation instead of converting to UTC.
+ * This ensures that when users pass Date objects, the time is interpreted as intended.
+ * 
+ * @param date - The Date object to convert
+ * @returns Formatted date string in YYYY-MM-DD HH:MM:SS format
  */
-function _getDateTimeString(date: Date) {
-    const isoString = date.toISOString();
-    return isoString.replace('T', ' ').split('.')[0];
+function _getDateTimeString(date: Date): string {
+    // Use local date/time components to avoid timezone conversion issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
