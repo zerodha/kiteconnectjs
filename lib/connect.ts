@@ -5,7 +5,7 @@ import csvParse from 'papaparse';
 import sha256 from 'crypto-js/sha256';
 import qs from 'qs';
 import utils from './utils';
-import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, MarginOrder, VirtualContractParam, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams, ConvertPositionParams, Exchanges } from '../interfaces';
+import { KiteConnectParams, Varieties, GTTStatusTypes, AnyObject, Order, MarginOrder, VirtualContractParam, TransactionTypes, KiteConnectInterface, CancelOrderParams, ExitOrderParams, ModifyGTTParams, ModifyOrderParams, PlaceGTTParams, PlaceMFOrderParams, PlaceOrderParams, ConvertPositionParams, Exchanges, GetHistoricalDataParams } from '../interfaces';
 import { DEFAULTS, ROUTES } from '../constants';
 
 
@@ -697,7 +697,12 @@ export class KiteConnect implements KiteConnectInterface {
      * @param {(number | boolean)} [oi=false]
      * @returns {Promise<any>}
      */
-    getHistoricalData(instrument_token: number | string, interval: string, from_date: string | Date, to_date: string | Date, continuous: number | boolean = false, oi: number | boolean = false) {
+    getHistoricalData(instrument_token: GetHistoricalDataParams['instrument_token'], 
+        interval: GetHistoricalDataParams['interval'], 
+        from_date: GetHistoricalDataParams['from_date'], 
+        to_date: GetHistoricalDataParams['to_date'], 
+        continuous: GetHistoricalDataParams['continuous'] = false, 
+        oi: GetHistoricalDataParams['oi'] = false)  {
         continuous = continuous ? 1 : 0;
         oi = oi ? 1 : 0;
         if (typeof to_date === 'object') to_date = _getDateTimeString(to_date)

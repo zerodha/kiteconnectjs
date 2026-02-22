@@ -462,13 +462,13 @@ export interface Order {
  * This interface defines the parameters required to retrieve historical data.
  *
  * @public
- * @name getHistoricalDataParams
+ * @name GetHistoricalDataParams
  */
-export interface getHistoricalDataParms {
+export interface GetHistoricalDataParams {
     /**
      * @type {string}
      */
-    instrument_token: string;
+    instrument_token: string | number;
     /**
      * @type {string}
      */
@@ -484,11 +484,11 @@ export interface getHistoricalDataParms {
     /**
      * @type {?boolean}
      */
-    continuous?: boolean;
+    continuous?: boolean | number;
     /**
      * @type {?boolean}
      */
-    oi?: boolean;
+    oi?: number | boolean;
 };
 
 /**
