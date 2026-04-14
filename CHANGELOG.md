@@ -1,5 +1,12 @@
 # Kite v5 - TypeScript
 
+## [5.2.1] - 2026-04-14
+
+### Bug Fixes
+
+- **Type Definitions**: Added missing `market_protection` parameter to `placeOrder` and `modifyOrder` method signatures in `types/connect.d.ts` to keep them in sync with `interfaces/connect.ts` (added in 5.2.0)
+- **Type Definitions**: Added missing `root` parameter to `KiteTickerParams` in `types/ticker.d.ts` to match the internal `interfaces/ticker.ts` definition and the runtime implementation
+
 ## [5.2.0] - 2026-03-27
 
 ### New Features
@@ -72,6 +79,7 @@ If you are upgrading from a previous version, please review the following change
 
 - This release marks a significant update with the transition to TypeScript. Please report any issues or bugs to the repository's issue tracker.
 
+[5.2.1]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.2.1
 [5.2.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.2.0
 [5.1.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.1.0
 [5.0.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.0.0
