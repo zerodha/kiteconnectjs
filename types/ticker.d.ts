@@ -21,6 +21,10 @@ export type KiteTickerParams = {
    * in seconds is the maximum delay after which subsequent re-connection interval will become constant. Defaults to 60s and minimum acceptable value is 5s.
    */
   max_delay?: number;
+  /**
+   * WebSocket root endpoint. Defaults to 'wss://ws.kite.trade/'.
+   */
+  root?: string;
 };
   
 export type Ticker = {
