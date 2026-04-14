@@ -2007,6 +2007,10 @@ export type Connect = {
        * Parent order id incase of multilegged orders.
        */
       parent_order_id?: string;
+      /**
+       * Market protection percentage. Set to -1 for system-default, or a percentage value > 0 up to 100.
+       */
+      market_protection?: number;
     }
   ) => Promise<{ order_id: string }>;
 
@@ -2190,6 +2194,10 @@ export type Connect = {
        * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
        */
       tag?: string;
+      /**
+       * Market protection percentage. Set to -1 for system-default, or a percentage value > 0 up to 100.
+       */
+      market_protection?: number;
     }
   ) => Promise<{ order_id: string }>;
 
