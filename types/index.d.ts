@@ -32,19 +32,17 @@ export type {
   VirtualContractResponse,
   GTTParams,
   Connect,
-  KiteConnectParams
+  KiteConnectParams,
+  AutosliceChild,
+  AutosliceOrderResponse
 } from './connect';
 
 // Re-export all types from ticker.d.ts
 export type {
   KiteTickerParams,
-  Ticker
-} from './ticker';
-
-// Re-export tick types from interfaces (REQUIRED for consumer access)
-export type {
+  Ticker,
   Tick,
   LTPTick,
   QuoteTick,
   FullTick
-} from '../interfaces/ticker';
+} from './ticker';

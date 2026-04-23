@@ -465,9 +465,15 @@ export class KiteConnect implements KiteConnectInterface {
     /**
      * Places an order with the specified variety and parameters.
      *
+     * When `params.autoslice` is `true`, the backend may split the order into
+     * multiple child slices. In that case, the resolved response includes a
+     * `children` array, where each entry either carries an `order_id` (slice
+     * placed successfully) or an `error` payload (slice failed). Callers should
+     * iterate `children` to parse the nested order IDs.
+     *
      * @param {Varieties} variety - The variety of the order.
-     * @param {PlaceOrderParams} params - The parameters for the order.
-     * @returns {Promise<any>} A promise that resolves with the result of the order placement.
+     * @param {PlaceOrderParams} params - The parameters for the order. Set `autoslice: true` to allow automatic slicing for quantities exceeding freeze limits.
+     * @returns {Promise<any>} A promise that resolves with the parent `order_id`, and a `children` array of per-slice results when autoslicing is enabled.
      */
     placeOrder(variety: Varieties, params: PlaceOrderParams): Promise<any> {
         params.variety = variety;

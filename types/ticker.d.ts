@@ -1,4 +1,58 @@
-import { Tick } from '../interfaces/ticker';
+export interface BaseTick {
+  tradable: boolean;
+  mode: string;
+  instrument_token: number;
+  last_price: number;
+}
+
+export interface LTPTick extends BaseTick {
+  mode: string;
+}
+
+export interface QuoteTick extends BaseTick {
+  mode: string;
+  ohlc: {
+    high: number;
+    low: number;
+    open: number;
+    close: number;
+  };
+  change: number;
+  exchange_timestamp?: Date | null;
+}
+
+export interface Depth {
+  quantity: number;
+  price: number;
+  orders: number;
+}
+
+export interface FullTick extends BaseTick {
+  mode: string;
+  last_traded_quantity: number;
+  average_traded_price: number;
+  volume_traded: number;
+  total_buy_quantity: number;
+  total_sell_quantity: number;
+  ohlc: {
+    high: number;
+    low: number;
+    open: number;
+    close: number;
+  };
+  change: number;
+  exchange_timestamp?: Date | null;
+  last_trade_time?: Date | null;
+  oi?: number;
+  oi_day_high?: number;
+  oi_day_low?: number;
+  depth?: {
+    buy: Depth[];
+    sell: Depth[];
+  };
+}
+
+export type Tick = LTPTick | QuoteTick | FullTick;
 
 export type KiteTickerParams = {
   /**

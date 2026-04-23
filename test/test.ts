@@ -48,6 +48,10 @@ function testSuite(){
       .post('/orders/test')
       .reply(200, parseJson('order_response.json'))
 
+      // placeOrder with autoslice
+      .post('/orders/regular', /autoslice=true/)
+      .reply(200, parseJson('autoslice_response.json'))
+
       // modifyOrder
       .put('/orders/test/100')
       .reply(200, parseJson('order_modify.json'))
@@ -255,6 +259,25 @@ function testSuite(){
                 'market_protection': MarketProtections.AUTO})
             .then(function(response: AnyObject) {
                 expect(response).to.have.property('order_id');
+                return done();
+            }).catch(done);
+        })
+    });
+
+    describe('placeOrder with autoslice', function() {
+        it('Place order with autoslice enabled', (done) => {
+            kc.placeOrder(Varieties.VARIETY_REGULAR, {
+                'exchange': Exchanges.NSE,
+                'tradingsymbol': 'SBIN',
+                'transaction_type': TransactionTypes.BUY,
+                'quantity': 100000,
+                'product': Products.MIS,
+                'order_type': OrderTypes.MARKET,
+                'autoslice': true})
+            .then(function(response: AnyObject) {
+                expect(response).to.have.property('order_id');
+                expect(response).to.have.property('children');
+                expect(response.children).to.have.nested.property('[2].error.error_type');
                 return done();
             }).catch(done);
         })

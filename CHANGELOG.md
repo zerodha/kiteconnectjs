@@ -1,5 +1,34 @@
 # Kite v5 - TypeScript
 
+## [5.3.0] - 2026-04-23
+
+### New Features
+
+- **Autoslice Orders**: `placeOrder()` now supports automatic order slicing for quantities exceeding exchange freeze limits. Pass `autoslice: true` in params to enable — the response carries the parent `order_id` plus a `children[]` array of per-slice results (each entry has either an `order_id` on success or an `error` payload on failure).
+- **New Exported Types**: `AutosliceChild` and `AutosliceOrderResponse` for typed access to the autoslice response shape.
+
+#### Usage
+
+```ts
+const resp = await kc.placeOrder(kc.VARIETY_REGULAR, {
+  exchange: kc.EXCHANGE_NSE,
+  tradingsymbol: "SBIN",
+  transaction_type: kc.TRANSACTION_TYPE_BUY,
+  quantity: 100000,
+  product: kc.PRODUCT_MIS,
+  order_type: kc.ORDER_TYPE_MARKET,
+  autoslice: true,
+});
+
+for (const child of resp.children ?? []) {
+  if (child.order_id) {
+    /* slice placed */
+  } else if (child.error) {
+    /* slice failed */
+  }
+}
+```
+
 ## [5.2.0] - 2026-03-27
 
 ### New Features
@@ -72,6 +101,7 @@ If you are upgrading from a previous version, please review the following change
 
 - This release marks a significant update with the transition to TypeScript. Please report any issues or bugs to the repository's issue tracker.
 
+[5.3.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.3.0
 [5.2.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.2.0
 [5.1.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.1.0
 [5.0.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.0.0

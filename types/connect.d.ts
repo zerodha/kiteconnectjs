@@ -1350,6 +1350,29 @@ export type KiteConnectParams = {
   timeout?: number;
 };
 
+/**
+ * A single child slice in an autoslice order response. Each entry either
+ * carries an `order_id` on success or an `error` payload on failure.
+ */
+export type AutosliceChild = {
+  order_id?: string;
+  error?: {
+    code?: number;
+    error_type?: string;
+    message?: string;
+    data?: unknown;
+  };
+};
+
+/**
+ * Response for an autoslice order placement. The top-level `order_id` is the
+ * parent, and `children` holds the per-slice results.
+ */
+export type AutosliceOrderResponse = {
+  order_id: string;
+  children?: AutosliceChild[];
+};
+
 export type Connect = {
   // Constants
 
@@ -2190,8 +2213,13 @@ export type Connect = {
        * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
        */
       tag?: string;
+      /**
+       * Set to true to allow automatic order slicing for quantities exceeding freeze limits.
+       * When true, the response's `children` array contains per-slice results.
+       */
+      autoslice?: boolean;
     }
-  ) => Promise<{ order_id: string }>;
+  ) => Promise<AutosliceOrderResponse>;
 
   /**
    * Renew access token by active refresh token. Renewed access token is implicitly set.

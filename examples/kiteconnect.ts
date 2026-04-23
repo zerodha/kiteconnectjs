@@ -224,6 +224,30 @@ async function placeIcebergOrder() {
     }
 }
 
+async function placeAutosliceOrder() {
+    try {
+        const resp = await kc.placeOrder(kc.VARIETY_REGULAR, {
+            exchange: kc.EXCHANGE_NSE,
+            tradingsymbol: "SBIN",
+            transaction_type: kc.TRANSACTION_TYPE_BUY,
+            quantity: 100000,
+            product: kc.PRODUCT_MIS,
+            order_type: kc.ORDER_TYPE_MARKET,
+            autoslice: true,
+        });
+        console.log('Parent order:', resp.order_id);
+        for (const child of resp.children ?? []) {
+            if (child.order_id) {
+                console.log('Slice placed:', child.order_id);
+            } else if (child.error) {
+                console.warn('Slice failed:', child.error.error_type, child.error.message);
+            }
+        }
+    } catch (err) {
+        console.error('Error placing autoslice order:', err);
+    }
+}
+
 async function modifyRegularOrder(orderId: number) {
     try {
         const order = await kc.modifyOrder(kc.VARIETY_REGULAR, orderId, {
