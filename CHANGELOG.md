@@ -1,5 +1,11 @@
 # Kite v5 - TypeScript
 
+## [5.3.1] - 2026-04-24
+
+### Bug Fixes
+
+- **Type Definitions Sync**: Added missing `market_protection` parameter to `placeOrder` and `modifyOrder` method signatures in type definitions
+
 ## [5.3.0] - 2026-04-23
 
 ### New Features

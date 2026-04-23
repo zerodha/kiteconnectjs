@@ -1263,7 +1263,6 @@ export type VirtualContractResponse = {
       total: number;
    };
 }
-
 export type GTTParams = {
   /**
    * GTT type, its either self.GTT_TYPE_OCO or self.GTT_TYPE_SINGLE.
@@ -2030,6 +2029,10 @@ export type Connect = {
        * Parent order id incase of multilegged orders.
        */
       parent_order_id?: string;
+      /**
+       * Market protection percentage. Set to -1 for system default, or 0-100.
+       */
+      market_protection?: number;
     }
   ) => Promise<{ order_id: string }>;
 
@@ -2218,6 +2221,10 @@ export type Connect = {
        * When true, the response's `children` array contains per-slice results.
        */
       autoslice?: boolean;
+      /**
+        * Market protection percentage. Set to -1 for system default, or 0-100.
+      */
+      market_protection?: number;
     }
   ) => Promise<AutosliceOrderResponse>;
 
