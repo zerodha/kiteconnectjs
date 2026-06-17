@@ -821,6 +821,10 @@ export interface PlaceOrderParams {
     /**
      * @type {?string}
      */
+    algo_id?: string;
+    /**
+     * @type {?string}
+     */
     tag?: string;
 };
 
