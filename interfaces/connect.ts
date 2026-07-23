@@ -819,6 +819,7 @@ export interface PlaceOrderParams {
      */
     autoslice?: boolean;
     /**
+     * An optional algo ID to associate with the order.
      * @type {?string}
      */
     algo_id?: string;
