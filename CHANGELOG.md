@@ -1,5 +1,11 @@
 # Kite v5 - TypeScript
 
+## [5.3.1] - 2026-07-23
+
+### New Features
+
+- **Algo ID**: Added optional `algo_id` parameter to `PlaceOrderParams` to associate an algo ID with an order
+
 ## [5.3.0] - 2026-04-23
 
 ### New Features
@@ -101,6 +107,7 @@ If you are upgrading from a previous version, please review the following change
 
 - This release marks a significant update with the transition to TypeScript. Please report any issues or bugs to the repository's issue tracker.
 
+[5.3.1]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.3.1
 [5.3.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.3.0
 [5.2.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.2.0
 [5.1.0]: https://github.com/zerodha/kiteconnectjs/releases/tag/v5.1.0
