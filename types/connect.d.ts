@@ -2210,6 +2210,10 @@ export type Connect = {
        */
       auction_number?: number;
       /**
+       * An optional algo ID to associate with the order
+       */
+      algo_id?: string;
+      /**
        * An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)
        */
       tag?: string;
