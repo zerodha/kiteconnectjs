@@ -1,31 +1,53 @@
-# The Kite Connect API TypeScript/JavaScript Client
+# kiteconnectjs
 
-The official TypeScript/JavaScript for communicating with the [Kite Connect API](https://kite.trade).
+[![npm version](https://img.shields.io/npm/v/kiteconnect.svg)](https://www.npmjs.com/package/kiteconnect)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/node/v/kiteconnect.svg)](https://nodejs.org)
 
-Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
+The official TypeScript/JavaScript client for communicating with the [Kite Connect API](https://kite.trade).
 
-[Zerodha Technology](http://zerodha.com) (c) 2024. Licensed under the MIT License.
+Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with a simple HTTP API collection.
+
+[Zerodha Technology](http://zerodha.com) (c) 2026. Licensed under the MIT License.
+
+## Table of Contents
+
+- [Documentation](#documentation)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Getting started — REST API](#getting-started--rest-api)
+- [Getting started — WebSocket](#getting-started--websocket)
+- [Auto re-connect](#auto-re-connect)
+- [Run tests](#run-tests)
+- [Generate documentation](#generate-documentation)
+- [A typical web application](#a-typical-web-application)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
 
 ## Documentation
 
-- [Typescript client documentation](https://kite.trade/docs/kiteconnectjs/v3)
+- [TypeScript client documentation](https://kite.trade/docs/kiteconnectjs/v3)
 - [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
 
 ## Requirements
 
-- NodeJS v18.0.0+
+- Node.js v18.0.0+
 
 ## Installation
 
-Install via [npm](https://www.npmjs.com/package/kiteconnect)
+Via [npm](https://www.npmjs.com/package/kiteconnect):
 
-    npm install kiteconnect@latest
+```sh
+npm install kiteconnect
+```
 
-Or via [yarn](https://yarnpkg.com/package/kiteconnect)
+Via [yarn](https://yarnpkg.com/package/kiteconnect):
 
-    yarn add kiteconnect
+```sh
+yarn add kiteconnect
+```
 
-## Getting started with API
+## Getting started — REST API
 
 ```typescript
 import { KiteConnect } from "kiteconnect";
@@ -46,28 +68,20 @@ async function init() {
 }
 
 async function generateSession() {
-  try {
-    const response = await kc.generateSession(requestToken, apiSecret);
-    kc.setAccessToken(response.access_token);
-    console.log("Session generated:", response);
-  } catch (err) {
-    console.error("Error generating session:", err);
-  }
+  const response = await kc.generateSession(requestToken, apiSecret);
+  kc.setAccessToken(response.access_token);
+  console.log("Session generated:", response);
 }
 
 async function getProfile() {
-  try {
-    const profile = await kc.getProfile();
-    console.log("Profile:", profile);
-  } catch (err) {
-    console.error("Error getting profile:", err);
-  }
+  const profile = await kc.getProfile();
+  console.log("Profile:", profile);
 }
-// Initialize the API calls
+
 init();
 ```
 
-## Getting started WebSocket client
+## Getting started — WebSocket
 
 ```typescript
 import { KiteTicker } from "kiteconnect";
@@ -117,104 +131,94 @@ function onTrade(order: any): void {
 
 function onMessage(binaryData: ArrayBuffer): void {
   console.log("Binary message received", binaryData);
-  // Process raw WebSocket binary data if needed
 }
 ```
 
-## Auto re-connect WebSocket client
+## Auto re-connect
 
-Optionally, you can enable client-side auto re-connection to automatically reconnect if the connection is dropped. It is very useful when the client-side network is unreliable and patchy.
-
-Enable auto re-connection with a preferred interval and time. For example:
+Enable client-side auto re-connection to automatically reconnect if the connection is dropped. Useful when the client-side network is unreliable.
 
 ```typescript
-// Enable auto reconnect with 5 second interval and retry for maximum of 20 times.
+// Reconnect with a 5-second interval, up to 20 attempts.
 ticker.autoReconnect(true, 20, 5);
 
-// You can also set re-connection times to -1 for infinite re-connections
+// Pass -1 for unlimited re-connection attempts.
 ticker.autoReconnect(true, -1, 5);
 ```
 
-- Event `reconnecting` is called when auto re-connection is triggered and event callback carries two additional params `reconnection interval set` and `current re-connection count`.
+**Events:**
 
-- Event `noreconnect` is called when number of auto re-connections exceeds the maximum re-connection count set. For example if maximum re-connection count is set as `20` then after 20th re-connection this event will be triggered. Also note that the current process is exited when this event is triggered.
-
-- Event `connect` will be triggered again when re-connection succeeds.
-
-Here is an example demonstrating auto reconnection.
+| Event         | When it fires                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `reconnect`   | Triggered on each re-connection attempt; callback receives `(reconnect_count, reconnect_interval)`. |
+| `noreconnect` | Triggered when the maximum re-connection count is exceeded. The process exits after this event.     |
+| `connect`     | Triggered again when re-connection succeeds.                                                        |
 
 ```typescript
 import { KiteTicker } from "kiteconnect";
 
-const apiKey = "your_api_key";
-const accessToken = "generated_access_token";
 const ticker = new KiteTicker({
-  api_key: "api_key",
-  access_token: "access_token",
+  api_key: "your_api_key",
+  access_token: "your_access_token",
 });
+
 ticker.autoReconnect(true, 10, 5);
 ticker.connect();
-ticker.on("ticks", onTicks);
-ticker.on("connect", subscribe);
-ticker.on("noreconnect", () => {
-  console.log("noreconnect");
-});
-ticker.on("reconnect", (reconnect_count: any, reconnect_interval: any) => {
-  console.log(
-    "Reconnecting: attempt - ",
-    reconnect_count,
-    " interval - ",
-    reconnect_interval
-  );
-});
 
-function onTicks(ticks: any[]) {
-  console.log("Ticks", ticks);
-}
-
-function subscribe() {
-  const items = [738561];
-  ticker.subscribe(items);
-  ticker.setMode(ticker.modeFull, items);
-}
+ticker.on("ticks", (ticks: any[]) => console.log("Ticks", ticks));
+ticker.on("connect", () => {
+  ticker.subscribe([738561]);
+  ticker.setMode(ticker.modeFull, [738561]);
+});
+ticker.on("noreconnect", () =>
+  console.log("Max reconnection attempts reached"),
+);
+ticker.on(
+  "reconnect",
+  (reconnect_count: number, reconnect_interval: number) => {
+    console.log(
+      `Reconnecting: attempt ${reconnect_count}, next in ${reconnect_interval}s`,
+    );
+  },
+);
 ```
 
-## Run unit tests
+## Run tests
 
-```
+```sh
 npm run test
 ```
 
 ## Generate documentation
 
+```sh
+npm install typedoc --save-dev
+npx typedoc --out ./docs
 ```
-$ npm install typedoc --save-dev
-$ npx typedoc --out ./docs
-```
-
-## Changelog
-
-[Check CHANGELOG.md](CHANGELOG.md)
 
 ## A typical web application
 
-In a typical web application where a new instance of
-views, controllers etc. are created per incoming HTTP
-request, you will need to initialise a new instance of
-Kite client per request as well. This is because each
-individual instance represents a single user that's
-authenticated, unlike an **admin** API where you may
-use one instance to manage many users.
+In a typical web application, a new instance of views, controllers, etc. is created per incoming HTTP request. Similarly, you will need to initialise a new instance of the Kite client per request, because each instance represents a single authenticated user, unlike an **admin** API where one instance manages many users.
 
-Hence, in your web application, typically:
+The typical auth flow:
 
-- You will initialise an instance of the Kite client
-- Redirect the user to the `login_url()`
-- At the redirect url endpoint, obtain the
-  `request_token` from the query parameters
-- Initialise a new instance of Kite client,
-  use `request_access_token()` to obtain the `access_token`
-  along with authenticated user data
-- Store this response in a session and use the
-  stored `access_token` and initialise instances
-  of Kite client for subsequent API calls.
+1. Initialise an instance of the Kite client.
+2. Redirect the user to `loginUrl()`.
+3. At the redirect URL endpoint, extract `request_token` from the query parameters.
+4. Call `generateSession(request_token, api_secret)` to obtain the `access_token` and authenticated user data.
+5. Store the `access_token` in a session and use it to initialise fresh Kite client instances for subsequent API calls.
+
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md)
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+- Fork the repository and create your branch from `master`.
+- Run `npm run test` to ensure existing tests pass.
+- Add or update tests as appropriate.
+- Submit a pull request.
+
+Bugs and feature requests should be filed on the [GitHub issue tracker](https://github.com/zerodha/kiteconnectjs/issues).
