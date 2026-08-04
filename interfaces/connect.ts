@@ -145,7 +145,8 @@ export enum Exchanges {
     MCX = 'MCX',
     BCD = 'BCD',
     NSEIX = 'NSEIX',
-    GLOBAL = 'GLOBAL'
+    GLOBAL = 'GLOBAL',
+    NCO = 'NCO'
 };
 
 /**
