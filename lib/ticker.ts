@@ -138,7 +138,8 @@ const NseCM = 1,
       BseCD = 6,
       McxFO = 7,
       McxSX = 8,
-      Indices = 9;
+      Indices = 9,
+	  Nco = 12;
 
 /**
  * @classdesc
@@ -647,7 +648,7 @@ function parseBinary(binpacks: ArrayBuffer) {
 		if (segment === NseCD) {
 			divisor = 10000000.0;
 
-		} else if (segment == BseCD) {
+		} else if (segment == BseCD || segment === Nco) {
 			divisor = 10000.0;
 		}
 
