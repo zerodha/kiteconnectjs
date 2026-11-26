@@ -55,6 +55,38 @@ function testTicker() {
             
         })
     });
+
+    // Parse binary packets without instantiating KiteTicker (#99)
+    describe('static parseBinary', function() {
+        it('parses ltp mode packet', () => {
+            //@ts-ignore
+            const tickData = KiteTicker.parseBinary(toArrayBuffer(ltpPacket));
+            expect(tickData).to.be.an('array');
+            expect(tickData[0].mode).to.equal('ltp');
+            expect(tickData).to.have.nested.property('[0].instrument_token');
+            expect(tickData).to.have.nested.property('[0].last_price');
+        });
+
+        it('parses quote mode packet', () => {
+            //@ts-ignore
+            const tickData = KiteTicker.parseBinary(toArrayBuffer(quotePacket));
+            expect(tickData).to.be.an('array');
+            expect(tickData[0].mode).to.equal('quote');
+            expect(tickData).to.have.nested.property('[0].instrument_token');
+            expect(tickData).to.have.nested.property('[0].ohlc');
+            expect(tickData).to.have.nested.property('[0].volume_traded');
+        });
+
+        it('parses full mode packet', () => {
+            //@ts-ignore
+            const tickData = KiteTicker.parseBinary(toArrayBuffer(fullPacket));
+            expect(tickData).to.be.an('array');
+            expect(tickData[0].mode).to.equal('full');
+            expect(tickData).to.have.nested.property('[0].exchange_timestamp');
+            expect(tickData).to.have.nested.property('[0].last_trade_time');
+            expect(tickData).to.have.nested.property('[0].depth');
+        });
+    });
 }
 
 // Read binary packets

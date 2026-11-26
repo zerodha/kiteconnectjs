@@ -302,6 +302,7 @@ export type KiteTicker = {
     *     ticker.setMode(ticker.modeFull, items)
     * }
     */
+  parseBinary: (binpacks: ArrayBuffer) => Tick[];
   new (params: KiteTickerParams): Ticker;
 };
   
