@@ -571,8 +571,17 @@ export class KiteTicker implements KiteTickerInterface {
 	 * @param {ArrayBuffer} binpacks
 	 * @returns {{}}
 	 */
-	parseBinary(binpacks: ArrayBuffer) {
+	/**
+	 * Parse binary packets received from Kite Ticker WebSocket into tick objects.
+	 * @param binpacks - Raw binary packet buffer from WebSocket message
+	 * @returns Array of parsed tick objects
+	 */
+	static parseBinary(binpacks: ArrayBuffer) {
 		return parseBinary(binpacks);
+	}
+
+	parseBinary(binpacks: ArrayBuffer) {
+		return KiteTicker.parseBinary(binpacks);
 	}
 
 
